@@ -1,0 +1,16 @@
+{ "id": "mfa_fatigue_attack",
+
+  "name": "MFA Fatigue Attack",
+  "description": "Multiple MFA prompts and unusual sign-in attempts suggest a fatigue attack.",
+  "user": "jason.ng",
+  "location": "Singapore",
+  "previous_location": "Singapore",
+  "device": "Personal mobile device",
+  "mfa": "Multiple MFA prompts — user approved one",
+  "privilege_level": "Helpdesk Administrator",
+  "sign_in_result": "Success"
+  "metadata": {
+    "title": "Default IAM Scenario",
+    "learning_objectives": ["Identity risk evaluation", "Conditional Access reasoning"],
+    "difficulty": "medium"
+}

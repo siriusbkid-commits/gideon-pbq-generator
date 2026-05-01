@@ -23,6 +23,7 @@ Groq API support for high‑speed generation
 Structured JSON validation and retry logic
 
 Gideon turns simple scenario files into fully‑formed PBQs that mirror real exam formats used in IAM, identity governance, and security certifications.
+
 Why Gideon?
 Traditional PBQ creation is slow, manual, and inconsistent.
 Gideon automates the entire process:

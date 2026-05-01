@@ -1,0 +1,17 @@
+{  "id": "contractor_onboarding
+  "name": "Contractor Onboarding Scenario",
+  "description": "A new contractor signs in for the first time from an expected location.",
+  "user": "sam.contractor",
+  "location": "Wellington, New Zealand",
+  "previous_location": "None (first login)",
+  "device": "Corporate laptop (freshly enrolled)",
+  "mfa": "MFA completed successfully",
+  "privilege_level": "Contractor (Limited Access)",
+  "sign_in_result": "Success"
+   "metadata": {
+    "title": "Default IAM Scenario",
+    "learning_objectives": ["Identity risk evaluation", "Conditional Access reasoning"],
+    "difficulty": "medium"
+  }
+}
+

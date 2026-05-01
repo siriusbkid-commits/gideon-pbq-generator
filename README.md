@@ -1,5 +1,6 @@
 # gideon-pbq-generator
 “Agentic AI that transforms IAM scenarios into exam‑ready PBQs.”
+
 Agentic AI system that generates exam‑quality Performance‑Based Questions (PBQs) from IAM and cybersecurity scenarios.
 Gideon — Agentic PBQ Generator for IAM & Cybersecurity
 Gideon is an agentic AI system that autonomously generates exam‑quality Performance‑Based Questions (PBQs) from structured IAM and cybersecurity scenarios.

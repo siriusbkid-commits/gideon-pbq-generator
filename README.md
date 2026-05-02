@@ -47,6 +47,144 @@ Cybersecurity students
 
 Instructors building labs
 
+⭐ 🙌 Acknowledgements
+
+This project was created as a collaborative learning journey using the free version of Microsoft Copilot and a basic, low‑spec home computer. The goal is to show that anyone — regardless of budget or hardware — can build meaningful cybersecurity tools with curiosity, persistence, and creativity.
+
+Special thanks to Microsoft Copilot for assisting with architecture, code generation, debugging, and educational design throughout the development of Gideon.
+
+⭐ 🌱 Project Philosophy
+Gideon was built on a simple belief:
+
+Cybersecurity education should be accessible, practical, and empowering — not locked behind expensive tools or enterprise environments.
+
+This project exists to help students, career‑changers, and curious learners understand identity attacks, privileged access, and PBQ‑style thinking through hands‑on, scenario‑driven learning.
+
+Gideon is not just a tool — it’s a statement:
+
+You can learn cybersecurity without enterprise access
+
+You can build real tools without a powerful machine
+
+You can create value with free AI
+
+You can grow through experimentation, not perfection
+
+⭐ 🌍 Why Open Source?
+Gideon is open source because:
+
+Learning grows faster when shared
+
+Transparency builds trust
+
+Community improves quality
+
+Students deserve tools they can modify and extend
+
+Cybersecurity benefits from collaboration, not gatekeeping
+
+Anyone can fork, remix, extend, or adapt Gideon for:
+
+teaching
+
+labs
+
+PBQ practice
+
+scenario design
+
+identity engineering demos
+
+personal learning
+
+Open source means Gideon belongs to everyone — not just one person.
+
+Development Hardware
+Gideon was built entirely on a low‑spec, everyday home laptop, proving that meaningful cybersecurity tools don’t require expensive hardware or enterprise‑grade machines.
+
+Development machine:
+
+Model: HP 15‑fd0xxx
+
+CPU: 12th/13th‑gen Intel mobile processor
+
+RAM: 16 GB
+
+GPU: Integrated graphics
+
+OS: Windows 11 Home
+
+Editor: Micro (terminal‑based)
+
+AI Assistant: Free version of Microsoft Copilot
+
+This project demonstrates that curiosity, persistence, and creativity matter far more than hardware.
+
+
+
+Many students believe they need a powerful workstation or expensive tools to start learning cybersecurity or building projects. Gideon was intentionally developed on modest hardware to show that you can start exactly where you are, with what you have.
+
+⭐ 🤝 How to Contribute
+Contributions of all kinds are welcome:
+
+New scenarios
+
+New PBQ categories
+
+Improvements to the menu system
+
+Better error handling
+
+UI enhancements
+
+Documentation improvements
+
+Bug fixes
+
+Feature ideas
+
+To contribute:
+
+Fork the repository
+
+Create a new branch
+
+Make your changes
+
+Submit a pull request
+
+Even small contributions help the project grow.
+
+⭐ 🗺️ Roadmap
+Here’s what’s planned for future versions of Gideon:
+
+[ ] Add CyberArk‑specific PBQ templates
+
+[ ] Add Entra ID attack chains
+
+[ ] Add a web‑based UI (optional future project)
+
+[ ] Add a “scenario builder” for non‑technical users
+
+[ ] Add a “PBQ difficulty calibration” system
+
+[ ] Add more governance & compliance scenarios
+
+[ ] Add a plugin system for custom LLMs
+
+[ ] Add export options for instructors
+
+This roadmap will evolve as the community grows.
+
+⭐ 👤 Credits
+Created by:  
+John Pickering  
+Identity & Access Management Student
+CyberArk Defender Candidate
+Creator of the Gideon PBQ Generator
+
+AI Collaboration:  
+Microsoft Copilot (free version) — architectural guidance, code generation, debugging, and educational design.
 IAM practitioners
 
 Certification prep

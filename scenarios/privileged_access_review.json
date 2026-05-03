@@ -1,0 +1,20 @@
+{
+  "id": "privileged_access_review",
+  "description": "A privileged user signs in from a compliant device but with unusual timing.",
+  "user": "karen.thompson",
+  "location": "Auckland, New Zealand",
+  "previous_location": "Auckland, New Zealand",
+  "device": "Corporate desktop (compliant)",
+  "mfa": "Successful MFA",
+  "privilege_level": "Privileged Role Administrator",
+  "sign_in_result": "Success",
+  "metadata": {
+    "title": "Privileged Access Review Scenario",
+    "learning_objectives": [
+      "Identity risk evaluation",
+      "Conditional Access reasoning"
+    ],
+    "difficulty": "medium"
+  }
+}
+

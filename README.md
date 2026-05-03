@@ -154,27 +154,136 @@ Make your changes
 Submit a pull request
 
 Even small contributions help the project grow.
+GIDEON: Identity Attack Simulator & PBQ Generator
+Gideon is an open‑source Identity & Access Management (IAM) attack simulator and PBQ (Performance‑Based Question) generator designed for:
 
-⭐ 🗺️ Roadmap
-Here’s what’s planned for future versions of Gideon:
+SC‑300 (Microsoft Identity)
 
-[ ] Add CyberArk‑specific PBQ templates
+CyberArk Defender
 
-[ ] Add Entra ID attack chains
+IAM fundamentals
 
-[ ] Add a web‑based UI (optional future project)
+Governance & compliance
 
-[ ] Add a “scenario builder” for non‑technical users
+Privileged access investigations
 
-[ ] Add a “PBQ difficulty calibration” system
+Security training & labs
 
-[ ] Add more governance & compliance scenarios
+Gideon generates realistic IAM scenarios, then produces PBQs with:
 
-[ ] Add a plugin system for custom LLMs
+stems
 
-[ ] Add export options for instructors
+exhibits
 
-This roadmap will evolve as the community grows.
+tasks
+
+options
+
+correct answers
+
+rationales (optional Student Mode)
+
+It can run:
+
+single scenarios
+
+PBQ‑only mode
+
+batch PBQ generation
+
+student/instructor modes
+
+Features
+✔ IAM Attack Simulator
+Run realistic identity breach scenarios:
+
+Admin privilege escalation
+
+MFA fatigue attacks
+
+PIM emergency access
+
+CyberArk PSM session misuse
+
+Contractor onboarding
+
+Privileged access reviews
+
+✔ PBQ Generator
+Create exam‑style PBQs with:
+
+JSON output
+
+Markdown output
+
+Exhibits
+
+Multi‑task questions
+
+Hidden rationales (Student Mode)
+
+✔ Batch PBQ Mode
+Generate 5, 10, 20+ PBQs at once.
+
+✔ Student / Instructor Mode
+Student Mode hides rationales
+
+Instructor Mode shows full explanations
+
+✔ Fully Local
+Runs entirely on your machine using Ollama + Phi‑3.
+
+Installation
+1. Install Python 3.10+
+2. Install Ollama
+https://ollama.com
+
+3. Pull the Phi‑3 model
+Code
+ollama pull phi3:mini-instruct
+4. Install Python dependencies
+Code
+pip install -r requirements.txt
+Usage
+Start Gideon:
+Code
+python Start.py
+Menu Options:
+Run scenarios
+
+Generate PBQs
+
+Batch PBQ mode
+
+Toggle Student Mode
+
+Exit
+
+Output
+PBQs are saved to:
+
+Code
+output/pbq_output/
+output/batch_pbq/
+Both JSON and Markdown formats are supported.
+
+Roadmap
+Okta IAM scenarios
+
+AWS IAM scenarios
+
+GCP IAM scenarios
+
+SailPoint governance scenarios
+
+Web UI dashboard
+
+PBQ difficulty tuning
+
+Multi‑exhibit PBQs
+
+Log‑rich investigations
+
 
 ⭐ 👤 Credits
 Created by:  

@@ -1,1 +1,75 @@
+{
+  "pbq_id": "pbq_example_001",
+  "scenario_id": "example_001",
+  "title": "IAM Sign-In Anomaly Investigation",
+  "category": "Identity & Access Management",
+  "difficulty": "easy",
+  "summary": "A user signs in from an unusual location using an unknown device, with an MFA failure prior to a successful authentication.",
+  "exhibits": [
+    {
+      "id": "exhibit_1",
+      "type": "log",
+      "title": "Azure AD Sign-In Log",
+      "content": {
+        "user": "User",
+        "location": "New Zealand",
+        "previous_location": "Australia",
+        "device": "unknown",
+        "mfa": "failed",
+        "sign_in_result": "success",
+        "timestamp": "2026-05-04T12:45:00Z"
+      }
+    },
+    {
+      "id": "exhibit_2",
+      "type": "table",
+      "title": "Risk Indicators",
+      "content": [
+        ["Risk Factor", "Detected"],
+        ["Unusual location", "Yes"],
+        ["Unknown device", "Yes"],
+        ["MFA failure", "Yes"],
+        ["Privileged account", "No"]
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_1",
+      "question": "Identify the IAM risk factors present in this sign-in event.",
+      "answer": [
+        "Unusual location sign-in (New Zealand vs previous Australia).",
+        "Unknown or unmanaged device.",
+        "MFA failure prior to successful authentication."
+      ],
+      "rationale": "These indicators align with common identity protection risk signals, including impossible travel, device trust issues, and MFA anomalies."
+    },
+    {
+      "id": "task_2",
+      "question": "Recommend Conditional Access controls that should apply to this scenario.",
+      "answer": [
+        "Require MFA for all sign-ins from unfamiliar locations.",
+        "Block access from unknown or non-compliant devices.",
+        "Enable sign-in risk policies to enforce additional verification."
+      ],
+      "rationale": "Conditional Access policies mitigate identity risks by enforcing stronger authentication and device compliance requirements."
+    },
+    {
+      "id": "task_3",
+      "question": "Explain whether this scenario requires Privileged Identity Management (PIM) intervention.",
+      "answer": "No PIM intervention is required because the user is not a privileged or administrative account.",
+      "rationale": "PIM applies only to privileged roles such as Global Administrator or Privileged Role Administrator."
+    }
+  ],
+  "learning_objectives": [
+    "Identify IAM risk indicators in sign-in logs.",
+    "Apply Conditional Access policies to mitigate identity threats.",
+    "Differentiate between standard and privileged account handling."
+  ],
+  "metadata": {
+    "generated_by": "Gideon IAM Simulator",
+    "model": "mistral:7b-instruct-q4_K_M",
+    "timestamp": "2026-05-04T12:46:12Z"
+  }
+}
 

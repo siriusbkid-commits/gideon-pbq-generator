@@ -1,1 +1,15 @@
+# Python cache folders
+__pycache__/
+*.pyc
+
+# Output folders
+output/
+pbq_output/
+
+# OS junk
+.DS_Store
+
+# Virtual environments
+venv/
+.env/
 

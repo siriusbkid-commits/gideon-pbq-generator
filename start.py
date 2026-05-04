@@ -21,6 +21,8 @@ SCENARIO_DIR = "scenarios"
 
 def list_scenarios():
     """Return a list of all .json scenario files."""
+    if not os.path.isdir(SCENARIO_DIR):
+        return []
     files = [f for f in os.listdir(SCENARIO_DIR) if f.endswith(".json")]
     return sorted(files)
 
@@ -31,10 +33,30 @@ def exit_sim():
     sys.exit(0)
 
 
+def resolve_scenario_path(scenario_file):
+    """
+    Ensure the scenario path is valid.
+    If the user only typed a filename, prepend the scenarios/ directory.
+    """
+    # If user typed a full path and it exists, use it
+    if os.path.isfile(scenario_file):
+        return scenario_file
+
+    # Otherwise assume it's inside scenarios/
+    candidate = os.path.join(SCENARIO_DIR, scenario_file)
+    if os.path.isfile(candidate):
+        return candidate
+
+    # If still not found, return original (will error later)
+    return scenario_file
+
+
 def run_scenario(scenario_file):
     """Run run_chained.py with the selected scenario."""
-    print(f"\nRunning scenario: {scenario_file}\n")
-    subprocess.run([sys.executable, "run_chained.py", scenario_file])
+    scenario_path = resolve_scenario_path(scenario_file)
+
+    print(f"\nRunning scenario: {scenario_path}\n")
+    subprocess.run([sys.executable, "run_chained.py", scenario_path])
 
 
 def run_pbq_only():
@@ -51,7 +73,7 @@ def run_pbq_only():
 
     scenario_index = get_scenario_number(len(scenarios))
     scenario_file = scenarios[scenario_index - 1]
-    scenario_path = f"{SCENARIO_DIR}/{scenario_file}"
+    scenario_path = resolve_scenario_path(scenario_file)
 
     try:
         with open(scenario_path, "r") as f:
@@ -114,7 +136,7 @@ def run_pbq_batch():
 
     scenario_index = get_scenario_number(len(scenarios))
     scenario_file = scenarios[scenario_index - 1]
-    scenario_path = f"{SCENARIO_DIR}/{scenario_file}"
+    scenario_path = resolve_scenario_path(scenario_file)
 
     try:
         with open(scenario_path, "r") as f:
@@ -202,3 +224,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

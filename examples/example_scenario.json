@@ -1,1 +1,25 @@
+{
+  "id": "example_001",
+  "metadata": {
+    "title": "Example IAM Sign-In Scenario",
+    "summary": "A simple demonstration scenario showing an unusual location sign-in with MFA failure.",
+    "actors": ["User", "Azure AD"],
+    "systems": ["Azure AD", "Conditional Access"],
+    "risks": ["Unusual location sign-in", "MFA failure", "Unknown device"],
+    "controls": ["Conditional Access", "MFA", "Identity Protection"],
+    "learning_objectives": [
+      "Identify IAM risk factors",
+      "Understand Conditional Access evaluation",
+      "Interpret sign-in anomalies"
+    ],
+    "difficulty": "easy",
+    "category": "Identity & Access Management"
+  },
+  "location": "New Zealand",
+  "previous_location": "Australia",
+  "device": "unknown",
+  "mfa": "failed",
+  "privilege_level": "user",
+  "sign_in_result": "success"
+}
 

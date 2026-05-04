@@ -1,10 +1,11 @@
 import json
+import re
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 
 
 # ============================================================
-# PBQ DATA STRUCTURES
+# PBQ DATA MODELS
 # ============================================================
 
 @dataclass
@@ -41,7 +42,7 @@ class PBQ:
     exhibits: List[PBQExhibit]
     tasks: List[PBQTask]
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict:
         return {
             "id": self.id,
             "scenario_id": self.scenario_id,
@@ -54,7 +55,7 @@ class PBQ:
                     "id": t.id,
                     "type": t.type,
                     "prompt": t.prompt,
-                    "options": [opt.__dict__ for opt in t.options],
+                    "options": [o.__dict__ for o in t.options],
                     "correct_options": t.correct_options,
                     "rationale": t.rationale,
                 }
@@ -72,44 +73,60 @@ class PBQContext:
     scenario_id: str
     title: str
     summary: str
-    actors: List[str]
-    systems: List[str]
-    risks_findings: List[str]
-    controls_in_scope: List[str]
-    learning_objectives: List[str]
+    actors: list
+    systems: list
+    risks_findings: list
+    controls_in_scope: list
+    learning_objectives: list
     difficulty: str
     category: str
 
 
 # ============================================================
-# JSON EXTRACTION (HARDENED)
+# PBQ GENERATOR
 # ============================================================
 
-def extract_last_json_block(text: str) -> str:
-    """
-    Extracts the FIRST valid JSON object in the text.
-    Removes markdown, commentary, and stray characters.
-    """
-    cleaned = (
-        text.replace("```json", "")
-            .replace("```", "")
-            .replace("\r", "")
-            .strip()
-    )
+class PBQGenerator:
+    def __init__(self, llm):
+        self.llm = llm
 
-    starts = [i for i, ch in enumerate(cleaned) if ch == "{"]
+    # ----------------------------------------------------------
+    # STEP 1: Strip ANSI escape sequences (cursor movement, color codes)
+    # ----------------------------------------------------------
+    def _strip_ansi(self, text: str) -> str:
+        # Single-line raw string — safe on all platforms
+        return re.sub(r"\033\[[0-?]*[ -/]*[@-~]", "", text)
 
-    if not starts:
-        raise ValueError("No JSON object found in LLM output.")
+    # ----------------------------------------------------------
+    # STEP 2: Strip ASCII control characters (except \t \n \r)
+    # ----------------------------------------------------------
+    def _strip_control_chars(self, text: str) -> str:
+        return re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", " ", text)
 
-    for start in starts:
+    # ----------------------------------------------------------
+    # STEP 3: Remove markdown fences and extract outermost JSON block
+    # ----------------------------------------------------------
+    def _extract_json_block(self, text: str) -> str:
+        if not text:
+            raise ValueError("Empty input to JSON extractor.")
+
+        # Strip markdown fences
+        cleaned = re.sub(r"```json|```", "", text, flags=re.IGNORECASE).strip()
+
+        # Find the FIRST { and walk forward to find its matching }
+        # This ensures we get the outermost object, not a nested rationale block
+        start = cleaned.find("{")
+        if start == -1:
+            raise ValueError("No JSON object found in LLM output.")
+
         brace_count = 0
         in_string = False
+        i = start
 
-        for i in range(start, len(cleaned)):
+        while i < len(cleaned):
             ch = cleaned[i]
 
-            if ch == '"' and cleaned[i - 1] != "\\":
+            if ch == '"' and (i == 0 or cleaned[i - 1] != "\\"):
                 in_string = not in_string
 
             if not in_string:
@@ -119,117 +136,173 @@ def extract_last_json_block(text: str) -> str:
                     brace_count -= 1
 
                 if brace_count == 0:
-                    candidate = cleaned[start:i + 1].strip()
-                    try:
-                        json.loads(candidate)
-                        return candidate
-                    except Exception:
-                        pass
+                    return cleaned[start:i + 1]
 
-    raise ValueError("No valid JSON object found in LLM output.")
+            i += 1
 
+        raise ValueError("No valid JSON object found — unmatched braces.")
 
-# ============================================================
-# PBQ GENERATOR (FULLY HARDENED)
-# ============================================================
+    # ----------------------------------------------------------
+    # STEP 4: Fix raw newlines inside quoted string values
+    # Character-by-character to avoid regex multiline edge cases
+    # ----------------------------------------------------------
+    def _fix_newlines_in_strings(self, text: str) -> str:
+        result = []
+        in_string = False
+        i = 0
 
-class PBQGenerator:
-    def __init__(self, llm):
-        self.llm = llm
+        while i < len(text):
+            ch = text[i]
 
-    def build_prompt(self, ctx: PBQContext) -> str:
-        """
-        This is the strictest JSON-only PBQ prompt possible.
-        It forbids multiline strings, markdown, commentary, and schema drift.
-        """
-        return f"""
-You are an AI that outputs ONLY valid JSON. You MUST obey these rules with ZERO exceptions:
+            if ch == '"' and (i == 0 or text[i - 1] != "\\"):
+                in_string = not in_string
+                result.append(ch)
+            elif ch in ("\n", "\r") and in_string:
+                result.append(" ")
+            else:
+                result.append(ch)
 
-1. Output ONLY a single JSON object.
-2. NO markdown, NO backticks, NO commentary, NO explanations.
-3. ALL strings MUST be valid JSON strings.
-4. You MUST escape ALL newline characters inside strings as \\n.
-5. You MUST NOT output raw line breaks inside any JSON string.
-6. You MUST NOT output placeholder values like <string>.
-7. You MUST NOT output trailing commas.
-8. You MUST NOT output keys that are not in the schema.
-9. If you cannot produce valid JSON, output exactly: {{}}
+            i += 1
 
-Your JSON MUST match this schema EXACTLY:
+        return "".join(result)
 
-{{
-  "title": "PBQ: {ctx.title}",
-  "stem": "<string>",
-  "exhibits": [],
-  "tasks": []
-}}
+    # ----------------------------------------------------------
+    # BUILD PROMPT
+    # ----------------------------------------------------------
+    def _build_prompt(self, ctx: PBQContext) -> str:
+        return (
+            "You are generating a PBQ (Performance-Based Question) for cybersecurity training.\n\n"
+            "Return ONLY a single valid JSON object. No markdown. No backticks. No explanation.\n\n"
+            "The JSON MUST have exactly these top-level keys:\n"
+            '  "title", "stem", "exhibits", "tasks"\n\n'
+            "title format: \"PBQ: " + ctx.title + "\"\n\n"
+            "Each task MUST have:\n"
+            '  "id", "type", "prompt", "options", "correct_options", "rationale"\n\n'
+            "rationale MUST be a JSON object keyed by option id — NOT a plain string.\n"
+            'Correct:   "rationale": {"a": "Why a is correct.", "b": "Why b is wrong."}\n'
+            'Incorrect: "rationale": "Option a is correct because..."\n\n'
+            "Each option MUST have: \"id\", \"text\"\n\n"
+            "Each exhibit MUST have: \"id\", \"type\", \"label\", \"content\"\n\n"
+            "CONTEXT:\n"
+            f"Scenario ID: {ctx.scenario_id}\n"
+            f"Title: {ctx.title}\n"
+            f"Summary: {ctx.summary}\n"
+            f"Actors: {', '.join(ctx.actors)}\n"
+            f"Systems: {', '.join(ctx.systems)}\n"
+            f"Risks: {', '.join(ctx.risks_findings)}\n"
+            f"Controls: {', '.join(ctx.controls_in_scope)}\n"
+            f"Learning Objectives: {', '.join(ctx.learning_objectives)}\n"
+            f"Difficulty: {ctx.difficulty}\n"
+            f"Category: {ctx.category}\n\n"
+            "Output ONLY the JSON object."
+        )
 
-Where:
-- "stem" MUST be a concise, single-paragraph scenario description.
-- "stem" MUST NOT contain unescaped newlines.
-- "exhibits" MUST be an array (may be empty).
-- "tasks" MUST be an array (may be empty).
-
-SCENARIO CONTEXT (summarize into the PBQ stem):
-Title: {ctx.title}
-Summary: {ctx.summary}
-Actors: {", ".join(ctx.actors)}
-Systems: {", ".join(ctx.systems)}
-Risks: {", ".join(ctx.risks_findings)}
-Controls: {", ".join(ctx.controls_in_scope)}
-Learning Objectives: {", ".join(ctx.learning_objectives)}
-Difficulty: {ctx.difficulty}
-Category: {ctx.category}
-
-Output ONLY the JSON object. No other text.
-"""
-
+    # ----------------------------------------------------------
+    # MAIN GENERATION WITH RETRY
+    # ----------------------------------------------------------
     def generate_pbq(self, ctx: PBQContext, pbq_id: str) -> Optional[PBQ]:
-        prompt = self.build_prompt(ctx)
+        prompt = self._build_prompt(ctx)
 
         for attempt in range(3):
-            raw_output = self.llm.call(prompt)
-            print("DEBUG raw_output:\n", raw_output[:2000])
+            raw = self.llm.call(prompt)
+            print(f"\nDEBUG raw_output (attempt {attempt + 1}):\n{raw}\n")
 
             try:
-                json_str = extract_last_json_block(raw_output)
-            except Exception as e:
-                if attempt < 2:
-                    print(f"[Retry {attempt + 1}/2] JSON error: {e}\n")
-                    continue
-                print("❗ WARNING: All retries failed for this PBQ.")
-                return None
+                # Clean pipeline — order matters
+                cleaned = self._strip_ansi(raw)
+                cleaned = self._strip_control_chars(cleaned)
+                cleaned = self._extract_json_block(cleaned)
+                cleaned = self._fix_newlines_in_strings(cleaned)
 
-            try:
-                data = json.loads(json_str)
+                data = json.loads(cleaned)
                 print("DEBUG parsed JSON keys:", list(data.keys()))
 
-                return PBQ(
-                    id=pbq_id,
-                    scenario_id=ctx.scenario_id,
-                    difficulty=ctx.difficulty,
-                    title=data["title"],
-                    stem=data["stem"],
-                    exhibits=[PBQExhibit(**ex) for ex in data.get("exhibits", [])],
-                    tasks=[
-                        PBQTask(
-                            id=t["id"],
-                            type=t["type"],
-                            prompt=t["prompt"],
-                            options=[PBQTaskOption(**opt) for opt in t["options"]],
-                            correct_options=t["correct_options"],
-                            rationale=t["rationale"],
-                        )
-                        for t in data.get("tasks", [])
-                    ],
-                )
-
             except Exception as e:
+                print(f"[Attempt {attempt + 1}/3] Parse error: {e}")
                 if attempt < 2:
-                    print(f"[Retry {attempt + 1}/2] JSON parse error: {e}\n")
                     continue
-                print("❗ WARNING: All retries failed for this PBQ.")
+                print("WARNING: All attempts failed.")
                 return None
 
-        return None
+            # --------------------------------------------------
+            # BUILD EXHIBITS
+            # --------------------------------------------------
+            exhibits = []
+            for i, ex in enumerate(data.get("exhibits", [])):
+                if isinstance(ex, str):
+                    exhibits.append(PBQExhibit(
+                        id=f"ex{i + 1}",
+                        type="text",
+                        label=f"Exhibit {i + 1}",
+                        content=ex
+                    ))
+                elif isinstance(ex, dict):
+                    exhibits.append(PBQExhibit(
+                        id=ex.get("id", f"ex{i + 1}"),
+                        type=ex.get("type", "text"),
+                        label=ex.get("label", f"Exhibit {i + 1}"),
+                        content=ex.get("content", ex.get("description", ""))
+                    ))
 
+            # Fallback exhibit if none provided
+            if not exhibits:
+                exhibits = [
+                    PBQExhibit(id="ex1", type="text", label="Session Overview",
+                               content="Review the privileged session timeline and connection metadata."),
+                    PBQExhibit(id="ex2", type="text", label="Activity Log",
+                               content="Review suspicious commands or PowerShell activity from the session."),
+                ]
+
+            # --------------------------------------------------
+            # BUILD TASKS
+            # --------------------------------------------------
+            tasks = []
+            for i, t in enumerate(data.get("tasks", [])):
+                if not isinstance(t, dict):
+                    continue
+
+                options = [
+                    PBQTaskOption(id=o["id"], text=o["text"])
+                    for o in t.get("options", [])
+                    if isinstance(o, dict) and "id" in o and "text" in o
+                ]
+
+                raw_rationale = t.get("rationale", {})
+                if isinstance(raw_rationale, dict):
+                    rationale = raw_rationale
+                elif isinstance(raw_rationale, str) and raw_rationale.strip():
+                    rationale = {"note": raw_rationale}
+                else:
+                    rationale = {}
+
+                tasks.append(PBQTask(
+                    id=t.get("id", f"task{i + 1}"),
+                    type=t.get("type", "multiple_choice"),
+                    prompt=t.get("prompt", t.get("title", t.get("description", f"Task {i + 1}"))),
+                    options=options,
+                    correct_options=t.get("correct_options", []),
+                    rationale=rationale
+                ))
+
+            # Fallback tasks if none provided
+            if not tasks:
+                tasks = [
+                    PBQTask(id="task1", type="multiple_choice",
+                            prompt="Identify any privileged access policy violations.",
+                            options=[], correct_options=[], rationale={}),
+                    PBQTask(id="task2", type="multiple_choice",
+                            prompt="Determine whether the session was authorized or anomalous.",
+                            options=[], correct_options=[], rationale={}),
+                ]
+
+            return PBQ(
+                id=pbq_id,
+                scenario_id=ctx.scenario_id,
+                difficulty=ctx.difficulty,
+                title=data.get("title", f"PBQ: {ctx.title}"),
+                stem=data.get("stem", ctx.summary),
+                exhibits=exhibits,
+                tasks=tasks
+            )
+
+        return None

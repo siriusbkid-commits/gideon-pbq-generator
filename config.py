@@ -4,7 +4,7 @@ import os
 SIMULATOR_MODE = "local"
 
 # Local Ollama model
-LOCAL_MODEL = "mistral:7b-instruct-q4_K_M"
+LOCAL_MODEL = "mistral-nemo"
 
 # PBQ generation mode (Phase 1 = small, offline-friendly)
 PBQ_MODE = "small"

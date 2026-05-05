@@ -11,5 +11,9 @@ pbq_output/
 
 # Virtual environments
 venv/
+
+__pycache__/
+*.pyc
+.env
 .env/
 

@@ -1,0 +1,143 @@
+
+
+========================================
+ GIDEON: Identity Attack Simulator
+========================================
+
+Choose an option:
+
+1. Run scenario → breach_admin_escalation.json
+2. Run scenario → contractor_onboarding.json
+3. Run scenario → cyberark_session_misuse.json
+4. Run scenario → default.json
+5. Run scenario → mfa_fatigue_attack.json
+6. Run scenario → pim_emergency_access.json
+7. Run scenario → privileged_access_review.json
+8. Exit
+9. PBQ-Only Mode (Generate PBQ without IAM chain)
+10. Batch PBQ Mode (Generate multiple PBQs)
+11. Toggle Student Mode (Hide/Show Rationales)
+
+Current Mode: STUDENT MODE (Rationales Hidden)
+
+Enter your choice: 9
+
+=== PBQ-ONLY MODE ===
+
+
+Choose PBQ Category:
+
+1. SC-300 (Microsoft Identity)
+2. IAM Fundamentals
+3. Governance & Compliance
+4. CyberArk Defender
+5. Vendor-Neutral IAM
+
+Select a category number: 1
+
+Choose Difficulty:
+
+1. Beginner
+2. Intermediate
+3. Advanced
+
+Select a difficulty number: 3
+
+Available scenarios:
+
+1. breach_admin_escalation.json
+2. contractor_onboarding.json
+3. cyberark_session_misuse.json
+4. default.json
+5. mfa_fatigue_attack.json
+6. pim_emergency_access.json
+7. privileged_access_review.json
+Select a scenario number (1–7): 6
+
+DEBUG raw_output (attempt 1):
+ERROR: Unexpected error calling Ollama API: timed out
+
+
+[Attempt 1/3] No JSON block found.
+
+DEBUG raw_output (attempt 2):
+{
+  "title": "PIM Emergency Access Escalation",
+  "stem": "You are a Security Administrator monitoring Azure AD PIM. You notice an engineer activated privileged access without proper justification, triggering an access review.",
+  "exhibits": [
+    {
+      "id": "e1",
+      "type": "text",
+      "label": "Access Review Finding",
+      "content": "Engineer John Doe activated emergency access to Azure AD Global Administrator role at 08:30 AM without justification."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "type": "evaluate",
+      "prompt": "What is the potential security risk in this scenario?",
+      "options": [
+        {"id": "a", "text": "Unauthorized privilege escalation"},
+        {"id": "b", "text": "Compliance with least privilege policies"}
+      ],
+      "correct_options": ["a"],
+      "rationale": {
+        "a": "John Doe activated privileged access without justification, which is an unauthorized privilege escalation.",
+        "b": "This option is incorrect as the scenario describes a lack of compliance with least privilege policies."
+      }
+    },
+    {
+      "id": "t2",
+      "type": "apply",
+      "prompt": "What control can you enable to prevent such incidents in the future?",
+      "options": [
+        {"id": "a", "text": "Mandatory access reviews"},
+        {"id": "b", "text": "Just-in-time (JIT) access"}
+      ],
+      "correct_options": ["a", "b"],
+      "rationale": {
+        "a": "Mandatory access reviews can help prevent unauthorized privilege escalation by regularly reviewing and updating admin roles.",
+        "b": "JIT access ensures that users only have access to resources for the time they need them, reducing the risk of prolonged elevated privileges."
+      }
+    }
+  ]
+}
+
+
+
+=== PBQ GENERATED ===
+
+PBQ(id='pbq-only-001', scenario_id='pim_emergency_access', title='PIM Emergency Access Escalation', stem='You are a Security Administrator monitoring Azure AD PIM. You notice an engineer activated privileged access without proper justification, triggering an access review.', exhibits=[Exhibit(id='e1', type='text', label='Access Review Finding', content='Engineer John Doe activated emergency access to Azure AD Global Administrator role at 08:30 AM without justification.')], tasks=[Task(id='t1', type='evaluate', prompt='What is the potential security risk in this scenario?', options=[Option(id='a', text='Unauthorized privilege escalation'), Option(id='b', text='Compliance with least privilege policies')], correct_options=['a'], rationale={'a': 'John Doe activated privileged access without justification, which is an unauthorized privilege escalation.', 'b': 'This option is incorrect as the scenario describes a lack of compliance with least privilege policies.'}), Task(id='t2', type='apply', prompt='What control can you enable to prevent such incidents in the future?', options=[Option(id='a', text='Mandatory access reviews'), Option(id='b', text='Just-in-time (JIT) access')], correct_options=['a', 'b'], rationale={'a': 'Mandatory access reviews can help prevent unauthorized privilege escalation by regularly reviewing and updating admin roles.', 'b': 'JIT access ensures that users only have access to resources for the time they need them, reducing the risk of prolonged elevated privileges.'})], difficulty='advanced', category='SC-300')
+
+======================
+
+Save PBQ to file? (y/n): y
+
+PBQ saved successfully:
+- JSON: pbq_output\pbq_pbq-only-001_20260505_131302.json
+- Markdown: pbq_output\pbq_pbq-only-001_20260505_131302_instructor.md
+
+
+
+========================================
+ GIDEON: Identity Attack Simulator
+========================================
+
+Choose an option:
+
+1. Run scenario → breach_admin_escalation.json
+2. Run scenario → contractor_onboarding.json
+3. Run scenario → cyberark_session_misuse.json
+4. Run scenario → default.json
+5. Run scenario → mfa_fatigue_attack.json
+6. Run scenario → pim_emergency_access.json
+7. Run scenario → privileged_access_review.json
+8. Exit
+9. PBQ-Only Mode (Generate PBQ without IAM chain)
+10. Batch PBQ Mode (Generate multiple PBQs)
+11. Toggle Student Mode (Hide/Show Rationales)
+
+Current Mode: STUDENT MODE (Rationales Hidden)
+
+Enter your choice:

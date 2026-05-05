@@ -112,4 +112,4 @@ def toggle_student_mode():
     global STUDENT_MODE
     STUDENT_MODE = not STUDENT_MODE
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
-    print(f"\nGideon is now in: {mode}\n"
+    print(f"\nGideon is now in: {mode}\n")

@@ -214,15 +214,26 @@ if __name__ == "__main__":
     OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    out_file = os.path.join(OUTPUT_DIR, f"{pbq_id}.json")
-
     pbq = generator.generate_pbq(ctx, pbq_id)
 
     if pbq:
-        out_json = pbq.to_json()
-        with open(out_file, "w") as f:
-            json.dump(out_json, f, indent=2)
-        print(f"\nPBQ saved to {out_file}\n")
+        # Save JSON
+        out_json_file = os.path.join(OUTPUT_DIR, f"{pbq_id}.json")
+        with open(out_json_file, "w", encoding="utf-8") as f:
+            json.dump(pbq.to_json(), f, indent=2)
+        print(f"\nPBQ JSON saved to {out_json_file}")
+
+        # Save Instructor Markdown (with answers + rationales)
+        out_md_instructor = os.path.join(OUTPUT_DIR, f"{pbq_id}_instructor.md")
+        with open(out_md_instructor, "w", encoding="utf-8") as f:
+            f.write(pbq.to_markdown_instructor())
+        print(f"PBQ Instructor MD saved to {out_md_instructor}")
+
+        # Save Student Markdown (no answers, no rationales)
+        out_md_student = os.path.join(OUTPUT_DIR, f"{pbq_id}_student.md")
+        with open(out_md_student, "w", encoding="utf-8") as f:
+            f.write(pbq.to_markdown_student())
+        print(f"PBQ Student MD saved to {out_md_student}\n")
+
     else:
         print("\nPBQ generation failed.\n")
-

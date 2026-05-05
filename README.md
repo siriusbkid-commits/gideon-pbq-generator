@@ -1,57 +1,205 @@
-# gideon-pbq-generator
-“Agentic AI that transforms IAM scenarios into exam‑ready PBQs.”
+# GIDEON — Identity Attack Simulator
 
-Agentic AI system that generates exam‑quality Performance‑Based Questions (PBQs) from IAM and cybersecurity scenarios.
-Gideon — Agentic PBQ Generator for IAM & Cybersecurity
-Gideon is an agentic AI system that autonomously generates exam‑quality Performance‑Based Questions (PBQs) from structured IAM and cybersecurity scenarios.
-It interprets scenario JSON, builds a reasoning context, and produces validated PBQ output in both JSON and Markdown formats.
+**GIDEON** is an open source, offline AI-powered simulator for generating Performance-Based Questions (PBQs) for Identity & Access Management (IAM) certification training.
 
-Designed for students, instructors, and cybersecurity practitioners, Gideon provides:
+Built for people studying certifications like **SC-300**, **CyberArk Defender**, **CISSP**, and other IAM-focused exams who couldn't find enough free, practical PBQ practice material.
 
-Multi‑stage autonomous reasoning
+---
 
-Scenario‑driven PBQ generation
+## What is a PBQ?
 
-Student Mode / Instructor Mode
+A Performance-Based Question (PBQ) is a scenario-driven exam question that tests practical knowledge rather than simple recall. They appear in certifications like SC-300, CompTIA Security+, and CyberArk exams. They are expensive to produce and rarely available for free practice — GIDEON fixes that.
 
-Batch generation support
+---
 
-Deterministic offline model compatibility (Ollama)
+## Features
 
-Groq API support for high‑speed generation
+- Generate unlimited PBQs from scenario files
+- Supports multiple IAM categories: SC-300, CyberArk Defender, IAM Fundamentals, Governance & Compliance
+- Instructor mode (with answers and rationales) and Student mode (clean practice version)
+- Outputs JSON and Markdown files for each PBQ
+- Batch generation mode for producing multiple PBQs at once
+- Fully offline — runs on a local Ollama LLM, no API keys or internet required
+- Scenario-driven — add your own `.json` scenario files to extend coverage
 
-Structured JSON validation and retry logic
+---
 
-Gideon turns simple scenario files into fully‑formed PBQs that mirror real exam formats used in IAM, identity governance, and security certifications.
+## Prerequisites
 
-Why Gideon?
+- Python 3.10+
+- [Ollama](https://ollama.com) installed and running locally
+- `mistral-nemo` model pulled in Ollama
 
-Traditional PBQ creation is slow, manual, and inconsistent.
-Gideon automates the entire process:
+---
 
-Reads scenario JSON
+## Installation
 
-Builds a structured PBQ context
+### 1. Clone the repo
 
-Generates tasks, exhibits, distractors, and rationales
+```bash
+git clone https://github.com/your-username/gideon-iam-simulator.git
+cd gideon-iam-simulator
+```
 
-Validates JSON output
+### 2. Install Python dependencies
 
-Retries on failure
+```bash
+pip install -r requirements.txt
+```
 
-Saves clean PBQ files to pbq_output/
+### 3. Install Ollama
 
-This makes it ideal for:
+Download and install Ollama from [https://ollama.com](https://ollama.com).
 
-Cybersecurity students
+### 4. Pull the required model
 
-Instructors building labs
+```bash
+ollama pull mistral-nemo
+```
 
-⭐ 🙌 Acknowledgements
+This is approximately a 7GB download. Once complete, confirm it works:
+
+```bash
+ollama run mistral-nemo "say hello"
+```
+
+---
+
+## Usage
+
+### Start the simulator
+
+```bash
+python start.py
+```
+
+You will see the main menu:
+
+```
+========================================
+ GIDEON: Identity Attack Simulator
+========================================
+
+1. Run scenario → breach_admin_escalation.json
+2. Run scenario → contractor_onboarding.json
+3. Run scenario → cyberark_session_misuse.json
+...
+9. PBQ-Only Mode (Generate PBQ without IAM chain)
+10. Batch PBQ Mode (Generate multiple PBQs)
+11. Toggle Student Mode (Hide/Show Rationales)
+```
+
+### Menu options
+
+| Option | Description |
+|--------|-------------|
+| 1–7 | Run a full IAM chain analysis + generate a PBQ for that scenario |
+| 8 | Exit |
+| 9 | Generate a PBQ directly without running the IAM chain |
+| 10 | Batch generate multiple PBQs from a scenario |
+| 11 | Toggle between Instructor mode (answers shown) and Student mode (answers hidden) |
+
+### Output files
+
+Each generated PBQ produces up to three files in the `output/` or `pbq_output/` folder:
+
+- `pbq_[id]_[timestamp].json` — full structured PBQ data
+- `pbq_[id]_[timestamp]_instructor.md` — Markdown with correct answers and rationales
+- `pbq_[id]_[timestamp]_student.md` — Clean Markdown for practice (no answers)
+
+---
+
+## Adding Scenarios
+
+Scenarios are `.json` files in the `scenarios/` folder. Each scenario follows this structure:
+
+```json
+{
+  "id": "your_scenario_id",
+  "metadata": {
+    "title": "Your Scenario Title",
+    "summary": "A brief description of the scenario.",
+    "actors": ["Actor 1", "Actor 2"],
+    "systems": ["System 1", "System 2"],
+    "risks": ["Risk 1", "Risk 2"],
+    "controls": ["Control 1", "Control 2"],
+    "learning_objectives": ["Objective 1", "Objective 2"],
+    "difficulty": "medium",
+    "category": "SC-300"
+  }
+}
+```
+
+Add your file to the `scenarios/` folder and it will appear in the menu automatically.
+
+---
+
+## Project Structure
+
+```
+gideon-iam-simulator/
+├── scenarios/              # Scenario JSON files
+├── pbq/
+│   ├── __init__.py
+│   ├── generator.py        # Core PBQ generation logic and data models
+│   └── menu.py             # CLI menu helpers
+├── utils/
+│   └── save_pbq.py         # File saving helpers (JSON + Markdown)
+├── output/                 # Generated PBQ outputs (gitignored)
+├── pbq_output/             # PBQ-only mode outputs (gitignored)
+├── start.py                # Main entry point
+├── run_chained.py          # IAM chain + PBQ runner
+├── llm_factory.py          # Ollama LLM wrapper
+├── config.py               # Model and mode configuration
+└── README.md
+```
+
+---
+
+## Configuration
+
+Edit `config.py` to change the model:
+
+```python
+LOCAL_MODEL = "mistral-nemo"  # Change to any Ollama model
+```
+
+---
+
+## Forking and Contributing
+
+This project is open source and built to be forked and extended. Some ideas for contributions:
+
+- Add new scenario files for different certification domains
+- Add support for drag-and-drop or matching question types
+- Build a web UI for the simulator
+- Add scoring and progress tracking
+- Support additional LLM backends
+
+Pull requests are welcome!
+
+---
+
+## Why GIDEON?
+
+PBQ practice material is either paywalled, scarce, or outdated. This project was built out of frustration while studying for IAM certifications and not being able to find enough free, practical scenario-based questions. GIDEON generates unlimited, scenario-specific PBQs locally with no cost and no internet connection required.
+
+---
+
+## License
+
+MIT License — free to use, modify, and distribute.
+
+---
+
+## Disclaimer
+
+Generated PBQs are AI-produced and intended for study purposes only. Always verify answers against official certification documentation and study materials.
+
 
 This project was created as a collaborative learning journey using the free version of Microsoft Copilot and a basic, low‑spec home computer. The goal is to show that anyone — regardless of budget or hardware — can build meaningful cybersecurity tools with curiosity, persistence, and creativity.
 
-Special thanks to Microsoft Copilot for assisting with architecture, code generation, debugging, and educational design throughout the development of Gideon.
+Special thanks to Microsoft Copilot & Claude for assisting with architecture, code generation, debugging, and educational design throughout the development of Gideon.
 
 ⭐ 🌱 Project Philosophy
 Gideon was built on a simple belief:
@@ -231,36 +379,6 @@ Student Mode hides rationales
 Instructor Mode shows full explanations
 
 ✔ Fully Local
-Runs entirely on your machine using Ollama + Phi‑3.
-
-Installation
-1. Install Python 3.10+
-2. Install Ollama
-https://ollama.com
-
-3. Pull the Phi‑3 model
-Code
-ollama pull phi3:mini-instruct
-4. Install Python dependencies
-Code
-pip install -r requirements.txt
-Usage
-Start Gideon:
-Code
-python Start.py
-Menu Options:
-Run scenarios
-
-Generate PBQs
-
-Batch PBQ mode
-
-Toggle Student Mode
-
-Exit
-
-Output
-PBQs are saved to:
 
 Code
 output/pbq_output/
@@ -293,7 +411,7 @@ CyberArk Defender Candidate
 Creator of the Gideon PBQ Generator
 
 AI Collaboration:  
-Microsoft Copilot (free version) — architectural guidance, code generation, debugging, and educational design.
+Microsoft Copilot & Claude (free versions) — architectural guidance, code generation, debugging, and educational design.
 IAM practitioners
 
 Certification prep

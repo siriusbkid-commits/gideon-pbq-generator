@@ -19,6 +19,10 @@ from pbq.menu import (
 SCENARIO_DIR = "scenarios"
 
 
+# ============================================================
+# Scenario Helpers
+# ============================================================
+
 def list_scenarios():
     """Return a list of all .json scenario files."""
     if not os.path.isdir(SCENARIO_DIR):
@@ -38,16 +42,13 @@ def resolve_scenario_path(scenario_file):
     Ensure the scenario path is valid.
     If the user only typed a filename, prepend the scenarios/ directory.
     """
-    # If user typed a full path and it exists, use it
     if os.path.isfile(scenario_file):
         return scenario_file
 
-    # Otherwise assume it's inside scenarios/
     candidate = os.path.join(SCENARIO_DIR, scenario_file)
     if os.path.isfile(candidate):
         return candidate
 
-    # If still not found, return original (will error later)
     return scenario_file
 
 
@@ -58,6 +59,10 @@ def run_scenario(scenario_file):
     print(f"\nRunning scenario: {scenario_path}\n")
     subprocess.run([sys.executable, "run_chained.py", scenario_path])
 
+
+# ============================================================
+# PBQ-ONLY MODE
+# ============================================================
 
 def run_pbq_only():
     """Generate a PBQ directly without running the IAM chain."""
@@ -84,6 +89,7 @@ def run_pbq_only():
 
     from pbq.generator import PBQGenerator, PBQContext
     from llm_factory import get_llm
+    from utils.save_pbq import save_pbq_json, save_pbq_markdown
 
     llm = get_llm()
     generator = PBQGenerator(llm)
@@ -112,8 +118,6 @@ def run_pbq_only():
     print("\n======================\n")
 
     if get_yes_no("Save PBQ to file? (y/n): "):
-        from utils.save_pbq import save_pbq_json, save_pbq_markdown
-
         json_path = save_pbq_json(pbq)
         md_path = save_pbq_markdown(pbq, student_mode=STUDENT_MODE)
 
@@ -122,6 +126,10 @@ def run_pbq_only():
         print(f"- Markdown: {md_path}")
         print("\n")
 
+
+# ============================================================
+# BATCH PBQ MODE
+# ============================================================
 
 def run_pbq_batch():
     """Generate multiple PBQs and save them into a unique batch folder."""
@@ -195,6 +203,10 @@ def run_pbq_batch():
     print(f"All files saved in: {batch_dir}\n")
 
 
+# ============================================================
+# MAIN MENU LOOP
+# ============================================================
+
 def main():
     scenarios = list_scenarios()
 
@@ -224,3 +236,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

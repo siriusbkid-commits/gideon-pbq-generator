@@ -106,6 +106,11 @@ Each generated PBQ produces up to three files in the `output/` or `pbq_output/` 
 - `pbq_[id]_[timestamp].json` — full structured PBQ data
 - `pbq_[id]_[timestamp]_instructor.md` — Markdown with correct answers and rationales
 - `pbq_[id]_[timestamp]_student.md` — Clean Markdown for practice (no answers)
+- ## Viewing Your Output Files
+
+Open any `.md` file in VS Code and press `Ctrl+Shift+V` 
+to see the beautifully rendered markdown preview instead 
+of raw text.
 
 ---
 

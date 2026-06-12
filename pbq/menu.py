@@ -16,7 +16,8 @@ def print_menu(scenarios):
     print(f"{len(scenarios) + 4}. Toggle Student Mode (Hide/Show Rationales)")
     print(f"{len(scenarios) + 5}. CySA+ CS0-004 PBQ Mode (Generate CySA+ Practice Questions)")
     print(f"{len(scenarios) + 6}. CySA+ CS0-004 Log Analysis Mode (Generate Log Analysis PBQs)")
-    print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)\n")
+    print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)")
+    print(f"{len(scenarios) + 8}. IoT Security Scenarios (Generate IoT Practice Scenarios)\n")
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"Current Mode: {mode}\n")
 
@@ -170,3 +171,25 @@ def get_ot_domain_choice() -> str:
         if choice in domains:
             return domains[choice]
         print("Invalid choice. Please enter a number between 1 and 5.")
+
+def get_iot_domain_choice() -> str:
+    print("\nChoose IoT Security Domain:\n")
+    print("1. IoT Architecture and Attack Surface")
+    print("2. OWASP IoT Top 10")
+    print("3. IoT Network Security")
+    print("4. Industrial IoT (IIoT)")
+    print("5. IoT Incident Response")
+    print("6. Random (any domain)\n")
+    domains = {
+        "1": "architecture",
+        "2": "owasp",
+        "3": "network",
+        "4": "iiot",
+        "5": "incident_response",
+        "6": None,
+    }
+    while True:
+        choice = input("Select a domain number: ").strip()
+        if choice in domains:
+            return domains[choice]
+        print("Invalid choice. Please enter a number between 1 and 6.")

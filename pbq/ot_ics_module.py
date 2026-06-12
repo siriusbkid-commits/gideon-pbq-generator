@@ -792,26 +792,17 @@ Questions:
    for the lowest cost and operational disruption?
 """,
         "variables": {
-            "industry": [
-                "water treatment facility",
-                "electricity generation plant",
-                "food processing facility",
-                "hospital with building management systems",
-            ],
-            "critical_function": [
-                "water treatment for 200,000 residents",
-                "electricity generation for 50,000 homes",
-                "food production for major supermarket chains",
-                "HVAC and medical gas systems for 500 patients",
-            ],
-            "impact_area": [
-                "public health and safety",
-                "regional electricity supply",
-                "national food supply chain",
-                "patient safety",
-            ],
+            "industry": ["water treatment facility"],
+            "critical_function": ["water treatment for 200,000 residents"],
+            "impact_area": ["public health and safety"],
             "system_age": ["15", "20", "8", "25"],
         },
+        "variable_sets": [
+            {"industry": "water treatment facility", "critical_function": "water treatment for 200,000 residents", "impact_area": "public health and safety"},
+            {"industry": "electricity generation plant", "critical_function": "electricity generation for 50,000 homes", "impact_area": "regional electricity supply"},
+            {"industry": "food processing facility", "critical_function": "food production for major supermarket chains", "impact_area": "national food supply chain"},
+            {"industry": "hospital with building management systems", "critical_function": "HVAC and medical gas systems for 500 patients", "impact_area": "patient safety"},
+        ],
         "frameworks": ["NIST SP 800-82", "CISA advisories"],
         "real_world_reference": "Stuxnet proved air-gapped systems can be compromised. Oldsmar showed remote access risks.",
     },

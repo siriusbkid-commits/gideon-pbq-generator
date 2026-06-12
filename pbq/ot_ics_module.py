@@ -573,10 +573,10 @@ def generate_ot_scenario(domain_filter=None, difficulty_filter=None):
         pool = ALL_OT_SCENARIOS
 
     if difficulty_filter:
-        pool = [s for s in pool if s["difficulty"] == difficulty_filter]
-
-    if not pool:
-        return {"error": "No scenarios match the selected filters."}
+        filtered = [s for s in pool if s["difficulty"] == difficulty_filter]
+        if filtered:
+            pool = filtered
+        # else fall back to full domain pool
 
     template = random.choice(pool)
     scenario_text = template["scenario_template"]

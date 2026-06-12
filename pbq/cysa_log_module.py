@@ -776,7 +776,7 @@ def generate_log_pbq(log_type_filter=None, difficulty_filter=None):
     if difficulty_filter:
         pool = [s for s in pool if s["difficulty"] == difficulty_filter]
     if not pool:
-        return {"error": "No scenarios match the selected filters."}
+        pool = ALL_LOG_SCENARIOS  # final fallback to everything
     template = random.choice(pool)
     scenario_text = template["scenario_template"]
     for var_name, options in template.get("variables", {}).items():

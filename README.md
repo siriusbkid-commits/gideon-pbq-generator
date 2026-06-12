@@ -161,9 +161,9 @@ GIDEON pairs perfectly with these Udemy courses:
 
 ### CySA+ CS0-004
 - CySA+ Log Mastery: Practice Tests for CS0-004
-  ADD YOUR UDEMY URL HERE
+  https://www.udemy.com/course/cysa-log-mastery-practice-tests-for-cs0-004
 - GIDEON: Generate Unlimited SC-300 and CyberArk PBQs for Free
-  ADD YOUR UDEMY URL HERE
+ https://www.udemy.com/course/pbq-generator-mastery-create-iam-sc300-practice-pbqs
 
 ### OT/ICS Security
 - OT/ICS Security for IT Professionals

@@ -15,7 +15,8 @@ def print_menu(scenarios):
     print(f"{len(scenarios) + 3}. Batch PBQ Mode (Generate multiple PBQs)")
     print(f"{len(scenarios) + 4}. Toggle Student Mode (Hide/Show Rationales)")
     print(f"{len(scenarios) + 5}. CySA+ CS0-004 PBQ Mode (Generate CySA+ Practice Questions)")
-    print(f"{len(scenarios) + 6}. CySA+ CS0-004 Log Analysis Mode (Generate Log Analysis PBQs)\n")
+    print(f"{len(scenarios) + 6}. CySA+ CS0-004 Log Analysis Mode (Generate Log Analysis PBQs)")
+    print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)\n")
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"Current Mode: {mode}\n")
 
@@ -129,3 +130,43 @@ def toggle_student_mode():
     STUDENT_MODE = not STUDENT_MODE
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"\nGideon is now in: {mode}\n")
+
+def get_ot_domain_choice() -> str:
+    print("\nChoose OT/ICS Domain:\n")
+    print("1. Architecture (Purdue Model, Protocols)")
+    print("2. Threat Landscape (Nation-state, Ransomware)")
+    print("3. Defensive Controls (IEC 62443, Vulnerability Mgmt)")
+    print("4. Incident Response")
+    print("5. Random (any domain)\n")
+    domains = {
+        "1": "architecture",
+        "2": "threats",
+        "3": "defensive",
+        "4": "incident_response",
+        "5": None,
+    }
+    while True:
+        choice = input("Select a domain number: ").strip()
+        if choice in domains:
+            return domains[choice]
+        print("Invalid choice. Please enter a number between 1 and 5.")
+
+def get_ot_domain_choice() -> str:
+    print("\nChoose OT/ICS Domain:\n")
+    print("1. Architecture (Purdue Model, Protocols)")
+    print("2. Threat Landscape (Nation-state, Ransomware)")
+    print("3. Defensive Controls (IEC 62443, Vulnerability Mgmt)")
+    print("4. Incident Response")
+    print("5. Random (any domain)\n")
+    domains = {
+        "1": "architecture",
+        "2": "threats",
+        "3": "defensive",
+        "4": "incident_response",
+        "5": None,
+    }
+    while True:
+        choice = input("Select a domain number: ").strip()
+        if choice in domains:
+            return domains[choice]
+        print("Invalid choice. Please enter a number between 1 and 5.")

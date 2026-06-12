@@ -1,0 +1,19 @@
+{
+  "id": "default",
+  "description": "A standard sign-in event with moderate risk indicators.",
+  "user": "alex.wilson",
+  "location": "Sydney, Australia",
+  "previous_location": "Auckland, New Zealand",
+  "device": "Corporate laptop (compliant)",
+  "mfa": "Successful MFA prompt",
+  "privilege_level": "Standard User",
+  "sign_in_result": "Success",
+  "metadata": {
+    "title": "Default IAM Scenario",
+    "learning_objectives": [
+      "Identity risk evaluation",
+      "Conditional Access reasoning"
+    ],
+    "difficulty": "medium"
+  }
+}

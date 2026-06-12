@@ -1,0 +1,42 @@
+{
+  "id": "cyberark_session_misuse",
+  "description": "A privileged user initiates a PSM session to a critical Windows server and executes suspicious commands that violate the organization's privileged access policies.",
+  "metadata": {
+    "title": "CyberArk PSM Session Misuse Investigation",
+    "summary": "A privileged user initiates a PSM session to a critical Windows server and executes suspicious commands that violate the organization's privileged access policies. The security team must investigate the session, review audit logs, and determine whether the access was legitimate.",
+    "actors": [
+      "Privileged User",
+      "CyberArk Security Administrator",
+      "SOC Analyst",
+      "Vault Administrator"
+    ],
+    "systems": [
+      "CyberArk Vault",
+      "Privileged Session Manager (PSM)",
+      "Central Policy Manager (CPM)",
+      "PVWA",
+      "Windows Server 2019"
+    ],
+    "risks": [
+      "Unauthorized use of privileged accounts",
+      "Suspicious or malicious commands executed during PSM sessions",
+      "Break-glass account misuse",
+      "Lack of proper session monitoring or alerting"
+    ],
+    "controls": [
+      "PSM session recording and keystroke logging",
+      "Dual-control workflow for high-risk accounts",
+      "CPM credential rotation",
+      "Real-time session monitoring",
+      "Privileged access audit reviews"
+    ],
+    "learning_objectives": [
+      "Interpret CyberArk PSM session recordings",
+      "Identify suspicious privileged activity",
+      "Apply CyberArk governance controls to mitigate misuse",
+      "Understand dual-control and break-glass workflows",
+      "Review and analyze privileged access audit logs"
+    ],
+    "difficulty": "medium"
+  }
+}

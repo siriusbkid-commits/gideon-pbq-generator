@@ -1,0 +1,38 @@
+{
+  "id": "pim_emergency_access",
+  "description": "An engineer activates privileged access through Azure AD PIM without proper justification, triggering an access review and potential security investigation.",
+  "metadata": {
+    "title": "PIM Emergency Access Escalation",
+    "summary": "An engineer activates privileged access through Azure AD PIM without proper justification, triggering an access review and potential security investigation.",
+    "actors": [
+      "Cloud Engineer",
+      "Security Administrator",
+      "Identity Governance Team"
+    ],
+    "systems": [
+      "Azure AD",
+      "Privileged Identity Management (PIM)",
+      "Azure Portal",
+      "Access Review Dashboard"
+    ],
+    "risks": [
+      "Unauthorized privilege escalation",
+      "Lack of justification for elevated access",
+      "Potential misuse of admin roles",
+      "Non-compliance with least privilege policies"
+    ],
+    "controls": [
+      "PIM activation approval workflow",
+      "Just-in-time (JIT) access",
+      "Access reviews",
+      "Privileged role audit logs"
+    ],
+    "learning_objectives": [
+      "Understand PIM activation workflows",
+      "Identify improper use of emergency access",
+      "Apply least privilege and governance controls",
+      "Interpret PIM audit logs and access review findings"
+    ],
+    "difficulty": "medium"
+  }
+}

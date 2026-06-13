@@ -166,8 +166,8 @@ GIDEON pairs perfectly with these Udemy courses:
  https://www.udemy.com/course/pbq-generator-mastery-create-iam-sc300-practice-pbqs
 
 ### OT/ICS Security
-- OT/ICS Security for IT Professionals
-  COMING SOON
+- OT/ICS Security Practice Tests for IT Professionals (Now includes AI and Agentic AI threats!)
+https://www.udemy.com/course/otics-security-practice-tests-for-it-professionals
 
 ### IoT Security
 - IoT Security for IT Professionals

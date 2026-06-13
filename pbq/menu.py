@@ -138,19 +138,21 @@ def get_ot_domain_choice() -> str:
     print("2. Threat Landscape (Nation-state, Ransomware)")
     print("3. Defensive Controls (IEC 62443, Vulnerability Mgmt)")
     print("4. Incident Response")
-    print("5. Random (any domain)\n")
+    print("5. AI and Agentic AI Threats")
+    print("6. Random (any domain)\n")
     domains = {
         "1": "architecture",
         "2": "threats",
         "3": "defensive",
         "4": "incident_response",
-        "5": None,
+        "5": "ai_threats",
+        "6": None,
     }
     while True:
         choice = input("Select a domain number: ").strip()
         if choice in domains:
             return domains[choice]
-        print("Invalid choice. Please enter a number between 1 and 5.")
+        print("Invalid choice. Please enter a number between 1 and 6.")
 
 def get_ot_domain_choice() -> str:
     print("\nChoose OT/ICS Domain:\n")
@@ -158,19 +160,21 @@ def get_ot_domain_choice() -> str:
     print("2. Threat Landscape (Nation-state, Ransomware)")
     print("3. Defensive Controls (IEC 62443, Vulnerability Mgmt)")
     print("4. Incident Response")
-    print("5. Random (any domain)\n")
+    print("5. AI and Agentic AI Threats")
+    print("6. Random (any domain)\n")
     domains = {
         "1": "architecture",
         "2": "threats",
         "3": "defensive",
         "4": "incident_response",
-        "5": None,
+        "5": "ai_threats",
+        "6": None,
     }
     while True:
         choice = input("Select a domain number: ").strip()
         if choice in domains:
             return domains[choice]
-        print("Invalid choice. Please enter a number between 1 and 5.")
+        print("Invalid choice. Please enter a number between 1 and 6.")
 
 def get_iot_domain_choice() -> str:
     print("\nChoose IoT Security Domain:\n")

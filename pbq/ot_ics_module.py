@@ -1426,6 +1426,341 @@ ALL_OT_SCENARIOS.extend(
     INCIDENT_RESPONSE_SCENARIOS
 )
 
+
+# ================================================================
+# SECTION 5 - AI AND AGENTIC AI THREAT SCENARIOS
+# ================================================================
+
+AI_THREAT_SCENARIOS = [
+    {
+        "id": "OT-AI-001",
+        "domain": "AI and Agentic AI Threats",
+        "sub_topic": "Agentic AI as an OT Attack Tool",
+        "difficulty": "beginner",
+        "objective": "Understand how agentic AI changes the OT threat landscape",
+        "scenario_template": """
+You are the OT Security Manager at a {industry}. A threat intelligence
+briefing warns that a nation-state group is using agentic AI tools
+to conduct autonomous reconnaissance and attacks against critical
+infrastructure OT environments.
+
+The briefing states the agentic AI can:
+  - Autonomously map OT networks and identify device types
+  - Learn industrial protocols by analysing captured traffic
+  - Identify high-consequence targets within OT environments
+  - Execute targeted attacks without human direction
+  - Adapt its tactics based on defensive responses
+
+Your environment includes:
+  - {num_assets} OT assets across {num_sites} sites
+  - {legacy_systems} running end-of-life operating systems
+  - IT/OT connectivity via a {connection_type}
+  - OT monitoring: {monitoring_status}
+
+Questions:
+1. Explain how agentic AI differs from traditional malware in its
+   approach to attacking OT environments. What makes it particularly
+   dangerous against legacy industrial control systems?
+
+2. Your environment has {legacy_systems} running end-of-life systems.
+   Why does this significantly increase your vulnerability to
+   agentic AI attacks compared to modern systems?
+
+3. The agentic AI can learn industrial protocols from captured traffic.
+   What specific OT protocols in your environment could it learn and
+   what malicious actions could it take once it understands them?
+
+4. What defensive controls would you implement immediately to reduce
+   the risk of agentic AI lateral movement through your OT network?
+   Focus on controls that work regardless of the AI sophistication level.
+
+5. Your board asks: "Can we detect an agentic AI attacker in our
+   OT network?" What is your honest answer and what detection
+   capabilities would you need to improve detection probability?
+""",
+        "variables": {
+            "industry": [
+                "electricity generation company",
+                "water treatment utility",
+                "oil and gas pipeline operator",
+                "pharmaceutical manufacturer",
+            ],
+            "num_assets": ["340", "127", "520", "89"],
+            "num_sites": ["8", "4", "12", "2"],
+            "legacy_systems": [
+                "47 Windows XP embedded systems",
+                "12 Windows Server 2008 historians",
+                "23 unsupported embedded Linux devices",
+            ],
+            "connection_type": [
+                "historian server in a DMZ",
+                "direct firewall with multiple permitted rules",
+                "vendor remote access VPN",
+            ],
+            "monitoring_status": [
+                "no OT-specific monitoring deployed",
+                "basic firewall logging only",
+                "passive monitoring on one site only",
+            ],
+        },
+        "frameworks": ["MITRE ATT&CK for ICS", "NIST AI RMF", "CISA AI guidance"],
+        "real_world_reference": "Nation-state groups are actively researching agentic AI for offensive OT operations",
+        "answers": """
+MODEL ANSWERS - OT-AI-001 (Instructor Mode)
+
+Q1. Agentic AI differs from traditional malware in three key ways:
+    Traditional malware follows fixed programmed attack patterns.
+    Agentic AI autonomously adapts its tactics based on what it
+    discovers. It can reason about the environment, make decisions,
+    and change approach when defences are encountered. Against legacy
+    OT systems with slow human response times this creates a
+    significant defensive gap as the AI can operate faster than
+    any human analyst can respond.
+
+Q2. End-of-life systems cannot be patched meaning known vulnerabilities
+    remain permanently exploitable. Agentic AI can automatically
+    identify EoL system versions from network traffic and banner
+    information then select and deploy appropriate exploits from
+    public databases. Human attackers require expertise to exploit
+    specific vulnerabilities. AI can do this automatically at scale.
+
+Q3. Common OT protocols the AI could learn include Modbus TCP,
+    DNP3 and EtherNet/IP. Once learned it could send unauthorised
+    write commands to PLCs, manipulate setpoints, disable safety
+    functions, or cause process disruptions by injecting malicious
+    commands that appear legitimate to unprotected devices.
+
+Q4. Immediate controls: network segmentation limiting lateral movement,
+    OT protocol whitelisting allowing only approved commands between
+    approved devices, disable all unnecessary network connectivity,
+    implement AI-powered OT monitoring to detect anomalous behaviour
+    at machine speed, and increase physical security at all OT sites.
+
+Q5. Honest answer: detection probability is currently low without
+    dedicated OT monitoring. To improve: deploy AI-powered passive
+    OT monitoring establishing communication baselines, implement
+    anomaly detection on all OT protocol traffic, and create alerts
+    for any new device or unexpected communication path.
+""",
+    },
+    {
+        "id": "OT-AI-002",
+        "domain": "AI and Agentic AI Threats",
+        "sub_topic": "Adversarial AI and Sensor Data Manipulation",
+        "difficulty": "beginner",
+        "objective": "Understand adversarial attacks against AI systems in OT environments",
+        "scenario_template": """
+A {industry} has deployed an AI-powered system that automatically
+adjusts {process_parameter} based on real-time sensor readings.
+The system has been operating successfully for {operating_period}.
+
+A security researcher reports that the AI system is vulnerable to
+adversarial input attacks. By feeding carefully crafted false
+readings to {num_sensors} sensors the attacker could cause the
+AI to make dangerous automated adjustments without any operator
+awareness.
+
+Current safeguards:
+  - AI makes automatic adjustments within defined limits
+  - Operators monitor a dashboard but rarely intervene
+  - Physical safety systems exist but are set at extreme limits
+  - No sensor data validation or cross-checking is implemented
+  - No anomaly detection on sensor readings themselves
+
+Questions:
+1. Explain what an adversarial AI attack is in the context of
+   OT environments. How does feeding false sensor data to an
+   AI system differ from traditional sensor spoofing attacks?
+
+2. The AI operates within defined limits. Why does this not
+   adequately protect against adversarial sensor manipulation
+   in a {industry} context?
+
+3. What immediate technical controls would you implement to
+   validate sensor data integrity before the AI processes it?
+   Describe at least THREE specific validation approaches.
+
+4. The physical safety systems are set at extreme limits.
+   Why is this insufficient as the primary safeguard against
+   AI adversarial attacks on {process_parameter} control?
+
+5. Design a human-in-the-loop framework for this AI system
+   that maintains operational efficiency while ensuring human
+   oversight of safety-critical automated decisions.
+""",
+        "variables": {
+            "industry": [
+                "water treatment facility",
+                "chemical processing plant",
+                "pharmaceutical manufacturer",
+                "food processing facility",
+            ],
+            "process_parameter": [
+                "chemical dosing rates",
+                "reactor temperature and pressure",
+                "mixing ratios and temperatures",
+                "pasteurisation temperatures",
+            ],
+            "operating_period": ["6 months", "2 years", "18 months", "3 years"],
+            "num_sensors": ["12", "8", "24", "6"],
+        },
+        "frameworks": ["NIST AI RMF", "IEC 62443", "NIST SP 800-82"],
+        "real_world_reference": "The Oldsmar water treatment attack demonstrated direct manipulation of chemical dosing - AI control amplifies this risk",
+        "answers": """
+MODEL ANSWERS - OT-AI-002 (Instructor Mode)
+
+Q1. An adversarial AI attack specifically targets the AI decision-making
+    process by crafting inputs that cause incorrect outputs while
+    appearing normal. Traditional sensor spoofing sends obviously
+    false values. Adversarial attacks send carefully calculated values
+    that stay within normal ranges but cause the AI model to make
+    dangerous decisions due to how AI models process edge-case inputs.
+
+Q2. Operating within defined limits does not protect against gradual
+    adversarial manipulation that stays within those limits while
+    causing harmful cumulative effects. In a water treatment facility
+    for example dosing rates could be manipulated to dangerous levels
+    through small incremental changes that each individually appear
+    within acceptable bounds.
+
+Q3. Three sensor validation approaches:
+    - Cross-check multiple independent sensors measuring the same
+      parameter and alert when readings diverge significantly.
+    - Implement physical sample testing to periodically verify
+      sensor readings against independent laboratory measurements.
+    - Apply statistical process control to detect sensor readings
+      that deviate from expected process behaviour patterns.
+
+Q4. Extreme physical safety limits mean the safety system only
+    intervenes at catastrophic levels. Adversarial attacks aim to
+    cause harm at levels below these extreme limits where the
+    safety system does not activate. The gap between AI operating
+    limits and physical safety system limits is the attack space.
+
+Q5. Human-in-the-loop framework: AI makes routine adjustments
+    autonomously within tight bounds, alerts operators for any
+    adjustment exceeding 10% of normal range requiring acknowledgement,
+    requires human approval for any adjustment to safety-critical
+    parameters, and escalates automatically when multiple sensors
+    show correlated unusual readings.
+""",
+    },
+    {
+        "id": "OT-AI-003",
+        "domain": "AI and Agentic AI Threats",
+        "sub_topic": "AI-Powered OT Defence and Anomaly Detection",
+        "difficulty": "beginner",
+        "objective": "Understand how AI can be used defensively in OT environments",
+        "scenario_template": """
+You are implementing an AI-powered security monitoring programme
+for a {industry}. The organisation has {num_assets} OT assets
+and has never had dedicated OT security monitoring before.
+
+The AI monitoring platform you are deploying will:
+  - Passively analyse all OT network traffic
+  - Learn normal communication patterns over {baseline_period}
+  - Generate alerts when deviations are detected
+  - Integrate with your existing IT SIEM
+  - Provide asset discovery and inventory
+
+Initial deployment challenges:
+  - {challenge_1}
+  - {challenge_2}
+  - Operations team concerned about false positives disrupting work
+  - Limited OT security expertise on the team
+
+Questions:
+1. Explain the difference between AI-powered anomaly detection
+   and traditional signature-based OT monitoring. Why is AI
+   particularly valuable in OT environments with legacy protocols?
+
+2. The baseline learning period is {baseline_period}. What factors
+   in the OT environment could cause the AI to learn an incorrect
+   baseline and how would you ensure baseline accuracy?
+
+3. The operations team is concerned about false positives.
+   How would you address this concern and what processes would
+   you implement to tune the AI model over time?
+
+4. The AI monitoring integrates with your IT SIEM. What specific
+   OT security events should generate the highest priority alerts
+   and why?
+
+5. After {baseline_period} of learning the AI generates its first
+   high-confidence alert showing an engineering workstation
+   communicating with a PLC using an unusual Modbus function code
+   at 2AM. Walk through your investigation and response process.
+""",
+        "variables": {
+            "industry": [
+                "electricity distribution company",
+                "water utility",
+                "gas pipeline operator",
+                "manufacturing facility",
+            ],
+            "num_assets": ["127", "340", "89", "520"],
+            "baseline_period": ["30 days", "60 days", "90 days", "45 days"],
+            "challenge_1": [
+                "Multiple legacy protocols including Modbus and DNP3",
+                "12 different vendor platforms with proprietary protocols",
+                "Sites spread across a wide geographic area",
+            ],
+            "challenge_2": [
+                "No existing network documentation or diagrams",
+                "Unknown asset inventory at remote sites",
+                "Inconsistent network architecture across sites",
+            ],
+        },
+        "frameworks": ["NIST AI RMF", "NIST SP 800-82", "IEC 62443-3-3"],
+        "real_world_reference": "Dragos Claroty and Nozomi Networks use AI to detect OT threats that signature-based tools miss",
+        "answers": """
+MODEL ANSWERS - OT-AI-003 (Instructor Mode)
+
+Q1. Traditional signature-based monitoring requires known attack
+    signatures to detect threats. It cannot detect novel attacks
+    or techniques without known patterns. AI anomaly detection
+    learns what normal looks like for the specific environment and
+    detects any deviation including completely novel attack techniques.
+    In OT environments with legacy protocols that lack built-in
+    security AI anomaly detection provides detection capability
+    that signatures alone cannot achieve.
+
+Q2. Baseline accuracy risks: scheduled maintenance activities
+    creating unusual but legitimate traffic during the baseline
+    period, seasonal process variations, legacy devices with
+    inconsistent communication patterns. Ensure accuracy by:
+    documenting all maintenance scheduled during baseline period,
+    extending baseline to capture full operational cycle,
+    and having OT engineers review and validate the learned baseline.
+
+Q3. Address false positive concerns: start with alerting only
+    on highest-confidence anomalies, create a feedback process
+    where operators mark false positives to improve the model,
+    tune alert thresholds progressively as confidence grows,
+    and track false positive rate as a key metric reporting
+    improvements to operations management monthly.
+
+Q4. Highest priority OT alerts: new unauthorised device on OT
+    network, engineering workstation communicating with PLC
+    outside maintenance windows, unknown Modbus function codes,
+    safety system parameter changes without change request,
+    and any communication to/from external IP addresses.
+
+Q5. Investigation process: check change management records for
+    any approved 2AM maintenance, review workstation event logs
+    for user login activity, examine the specific Modbus function
+    code sent and what register it targeted, check PLC audit log
+    for any resulting configuration changes, and if no legitimate
+    explanation isolate the workstation and escalate to incident
+    response.
+""",
+    },
+]
+
+# Add to OT_DOMAIN_MAP
+OT_DOMAIN_MAP["ai_threats"] = AI_THREAT_SCENARIOS
+ALL_OT_SCENARIOS.extend(AI_THREAT_SCENARIOS)
+
 if __name__ == "__main__":
     print("GIDEON - OT/ICS Security Module Test")
     print(f"Total scenarios: {len(ALL_OT_SCENARIOS)}")

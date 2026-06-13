@@ -99,6 +99,39 @@ Questions:
         },
         "frameworks": ["IEC 62443-3-3", "NIST SP 800-82", "Purdue Model"],
         "real_world_reference": "Similar architecture flaws contributed to the 2021 Oldsmar Water Treatment attack",
+        "answers": """
+MODEL ANSWERS - OT-ARCH-001 (Instructor Mode)
+
+Q1. The Purdue Model divides OT networks into levels 0-5. Levels 0-2 are OT
+    (field devices, controllers, supervisory). Level 3 is operations. Levels
+    4-5 are enterprise IT. It is foundational because it defines where security
+    boundaries must exist between OT and IT.
+
+Q2. Three critical violations:
+    - Direct Level 0-2 to Level 4-5 connectivity allows malware to move
+      freely from IT into OT with no security boundary.
+    - Internet browsing on Level 2 engineering workstations exposes OT
+      systems to phishing and drive-by download attacks.
+    - Vendor remote access direct to Level 1 controllers bypasses all
+      security controls and monitoring.
+
+Q3. Ransomware entering at Level 5 can traverse to Level 0 via the flat
+    network, potentially manipulating physical processes. In an electricity
+    generation plant this could cause turbine damage, power outages, or
+    safety system failures with potential for physical harm.
+
+Q4. Secure architecture recommendations:
+    - Place a DMZ between Level 3 and Level 4 with data diodes for
+      one-way data flow where possible.
+    - Implement application-aware firewalls at each level boundary.
+    - Use a jump server or PAM solution for all vendor remote access
+      with session recording and time-limited access.
+
+Q5. In OT environments least privilege is more critical because
+    unauthorised commands to physical devices can cause equipment damage,
+    process disruption, or safety incidents. Unlike IT where the worst
+    case is data loss, OT failures can harm people and infrastructure.
+""",
     },
     {
         "id": "OT-ARCH-002",
@@ -160,6 +193,36 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-4-2"],
         "real_world_reference": "Modbus and DNP3 lack authentication by design — this was exploited in multiple ICS attacks",
+        "answers": """
+MODEL ANSWERS - OT-ARCH-002 (Instructor Mode)
+
+Q1. Industrial protocols like Modbus and DNP3 were designed in the 1970-80s
+    for isolated networks where reliability and speed were priorities.
+    Security was not considered because systems were air-gapped. IT protocols
+    were designed for open networks and built security in from the start.
+
+Q2. An attacker sending crafted Modbus commands could manipulate valve
+    positions, pump speeds or pressure setpoints. In a gas pipeline this
+    could cause overpressure, equipment damage, explosion risk or
+    environmental damage from uncontrolled releases.
+
+Q3. Three challenges applying TLS to OT protocols:
+    - Legacy PLCs lack processing power for encryption overhead.
+    - Real-time control systems cannot tolerate encryption latency.
+    - Vendor support contracts may prohibit protocol modifications.
+
+Q4. Compensating controls without modifying PLCs:
+    - Deploy unidirectional security gateways (data diodes).
+    - Implement OT-aware firewalls with Modbus deep packet inspection.
+    - Use VLANs to isolate OT protocols from IT network segments.
+    - Deploy protocol whitelisting on managed switches.
+
+Q5. IT priorities are Confidentiality, Integrity, Availability (CIA).
+    OT priorities are Safety, Availability, Integrity, Confidentiality (SAIC).
+    Availability is critical in OT because downtime means production loss
+    or safety incidents. Confidentiality is least important as OT data
+    is operational not sensitive.
+""",
     },
 ]
 
@@ -240,6 +303,39 @@ Questions:
         },
         "frameworks": ["MITRE ATT&CK for ICS", "NIST SP 800-82"],
         "real_world_reference": "Stuxnet 2010, Ukraine power grid 2015/2016, Colonial Pipeline 2021",
+        "answers": """
+MODEL ANSWERS - OT-THREAT-001 (Instructor Mode)
+
+Q1. Stuxnet was the first known cyberweapon designed to cause physical
+    damage. It used four zero-day vulnerabilities, targeted Siemens PLCs
+    specifically, and caused centrifuges to destroy themselves while
+    reporting normal operation. It proved nation-states could use cyber
+    tools to cause physical infrastructure damage.
+
+Q2. MITRE ATT&CK for ICS attack lifecycle:
+    - Initial Access T0817: Spear-phishing or supply chain compromise.
+    - Execution T0807: Native API abuse on engineering workstations.
+    - Persistence T0891: Hardcoded credentials in OT systems.
+    - Lateral Movement T0812: Remote services to reach OT network.
+    - Impact T0813: Denial of control or manipulation of setpoints.
+
+Q3. Compensating controls for unpatched systems:
+    - Network segmentation isolating vulnerable systems.
+    - Application whitelisting preventing unauthorised code execution.
+    - Enhanced monitoring for anomalous behaviour on legacy systems.
+    - Physical security controls limiting physical access.
+
+Q4. Response depends on the specific threat actor named. Generally
+    nation-state actors use living-off-the-land techniques, target
+    safety systems, and conduct lengthy reconnaissance before impact.
+    Detection focuses on anomalous authentication, unusual OT protocol
+    commands and unexpected network connections.
+
+Q5. Board summary should explain that critical infrastructure faces
+    nation-state cyber threats, consequences include physical damage
+    and safety incidents, and investment in OT security is essential
+    to protect operations, people and regulatory compliance.
+""",
     },
     {
         "id": "OT-THREAT-002",
@@ -317,6 +413,39 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "ICS-CERT advisories"],
         "real_world_reference": "Colonial Pipeline 2021, Norsk Hydro 2019, TRITON/TRISIS malware targeting Safety Instrumented Systems",
+        "answers": """
+MODEL ANSWERS - OT-THREAT-002 (Instructor Mode)
+
+Q1. The immediate OT decision is to isolate OT from IT at the firewall
+    boundary while keeping OT running if it is safe to do so.
+    Shutting down OT prematurely can itself cause safety incidents
+    if processes are in a state that requires controlled shutdown.
+
+Q2. Colonial Pipeline did not shut down because OT was infected.
+    They shut down OT proactively because their billing and IT systems
+    were compromised making it impossible to safely manage pipeline
+    operations. The lesson is that IT/OT dependencies can force OT
+    shutdowns even when OT itself is unaffected.
+
+Q3. If production is running with hazardous materials in process an
+    emergency shutdown may be more dangerous than a controlled one.
+    The safety team must assess whether the current process state
+    can be safely held, paused or must continue to completion before
+    any cybersecurity response affects physical operations.
+
+Q4. Double extortion changes the response because even paying the
+    ransom does not prevent data publication. It also raises the
+    stakes considerably if threat actors can manipulate safety systems.
+    The priority shifts to containment and safety system protection
+    over recovery of encrypted systems.
+
+Q5. OT ransomware response plan:
+    1. Activate incident response team including OT engineers and safety.
+    2. Assess OT network status and isolate from IT if safe to do so.
+    3. Preserve forensic evidence before any remediation.
+    4. Notify regulators within required timeframe.
+    5. Begin recovery from immutable backups prioritising safety systems.
+""",
     },
 ]
 
@@ -387,6 +516,39 @@ Questions:
         },
         "frameworks": ["IEC 62443-3-2", "IEC 62443-3-3", "NIST SP 800-82"],
         "real_world_reference": "IEC 62443 is the primary international standard for OT/ICS security",
+        "answers": """
+MODEL ANSWERS - OT-DEF-001 (Instructor Mode)
+
+Q1. Security Zones group assets with similar security requirements.
+    Conduits are the communication paths between zones with defined
+    security controls. Unlike IT VLANs, zones and conduits consider
+    the safety and availability requirements of OT systems and
+    define security levels based on consequence of compromise.
+
+Q2. Security Levels:
+    - Field device network: SL2 - targeted attacks possible.
+    - SCADA/HMI network: SL2-3 - sophisticated attacks likely.
+    - Historian server: SL2 - important but not safety critical.
+    - Vendor remote access conduit: SL3 - high risk entry point
+      requiring strong authentication and monitoring.
+
+Q3. Zone design example: Field Device Zone contains PLCs and sensors.
+    Control Zone contains HMIs and engineering workstations.
+    Operations Zone contains historian and MES systems.
+    DMZ Zone bridges OT and IT. Conduits between zones implement
+    firewalls, protocol filtering and authentication controls.
+
+Q4. Vendor access architecture: dedicated vendor DMZ with jump server.
+    MFA required for all vendor connections. Session recording enabled.
+    Access limited to approved systems only. Time-limited credentials.
+    All vendor activities logged and reviewed post-session.
+
+Q5. Business case for IEC 62443:
+    Compliance reduces cyber insurance premiums and demonstrates due
+    diligence to regulators. In the event of an incident non-compliance
+    increases liability exposure. Many operators now require IEC 62443
+    compliance from their suppliers and partners.
+""",
     },
     {
         "id": "OT-DEF-002",
@@ -453,6 +615,38 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-2-3", "CISA advisories"],
         "real_world_reference": "The TRITON/TRISIS attack specifically targeted Safety Instrumented Systems in 2017",
+        "answers": """
+MODEL ANSWERS - OT-DEF-002 (Instructor Mode)
+
+Q1. Active scanning sends network packets that OT devices must respond
+    to. Legacy PLCs and RTUs may crash, freeze or behave unexpectedly
+    when receiving unexpected network traffic. A crashed PLC during
+    production can cause safety incidents and unplanned downtime.
+
+Q2. A 30-day SLA is unrealistic for OT because patches must be tested
+    in a replica environment, vendor approval may be required, and
+    maintenance windows in OT are typically quarterly or annual.
+    A risk-based approach with compensating controls during extended
+    patching cycles is more appropriate.
+
+Q3. For unsupported legacy systems the risk acceptance process requires:
+    formal risk assessment documenting the vulnerability and likelihood,
+    compensating controls implemented and documented, sign-off by the
+    CISO and operations manager, regular review of the accepted risk,
+    and a remediation roadmap even if timelines are long.
+
+Q4. Four validation methods after patching:
+    - Re-scan to confirm vulnerability is no longer detected.
+    - Functional testing to confirm OT system operates correctly.
+    - Vendor confirmation that patch was successfully applied.
+    - Log review confirming no errors during patch process.
+
+Q5. Exception management for failed patches:
+    Track in a risk register with asset owner, date identified,
+    reason for failure and compensating controls in place.
+    Review exceptions monthly and escalate unresolved exceptions
+    to management after 90 days.
+""",
     },
 ]
 
@@ -541,6 +735,40 @@ Questions:
         },
         "frameworks": ["MITRE ATT&CK for ICS", "NIST SP 800-82", "ICS-CERT"],
         "real_world_reference": "TRITON/TRISIS malware targeted safety instrumented systems in a Middle East petrochemical facility 2017",
+        "answers": """
+MODEL ANSWERS - OT-IR-001 (Instructor Mode)
+
+Q1. Alert priority order: Alert 4 (safety setpoint change) is most
+    critical as it represents immediate physical safety risk.
+    Alert 3 (PLC logic modification) is second. Alert 1 (reconnaissance
+    scanning) is third. Alert 2 (unknown device) is fourth but
+    likely related to the other alerts.
+
+Q2. Immediate response to safety setpoint change:
+    Notify operations and safety team immediately. Do not change the
+    setpoint back without engineering authorisation as the process
+    may have adapted. Verify physical safety status at the affected
+    equipment. Initiate emergency change process to restore correct
+    setpoint through approved channels.
+
+Q3. The sequence suggests reconnaissance (Alert 1), attacker device
+    introduction (Alert 2), PLC program modification (Alert 3),
+    safety system manipulation (Alert 4). This maps to MITRE ATT&CK
+    for ICS: Discovery, Lateral Movement, Modify Control Logic,
+    and Manipulation of Control.
+
+Q4. The production shutdown decision requires operations manager,
+    safety officer, and CISO involvement. Factors include:
+    current process safety state, risk of continuing versus stopping,
+    regulatory requirements for safety system integrity, and
+    whether the attack is still active or has been contained.
+
+Q5. Three notifications:
+    Operations: focus on safety status, what systems are affected,
+    and operational impact. CISO: focus on attack vector, scope of
+    compromise, and containment status. Regulator: focus on incident
+    timeline, safety systems affected, and actions taken.
+""",
     },
 ]
 
@@ -595,6 +823,7 @@ def generate_ot_scenario(domain_filter=None, difficulty_filter=None):
         "frameworks":  ", ".join(template.get("frameworks", [])),
         "real_world":  template.get("real_world_reference", ""),
         "scenario":    scenario_text.strip(),
+        "answers":     template.get("answers", ""),
     }
 
 
@@ -602,7 +831,7 @@ def get_random_ot_scenario():
     return generate_ot_scenario()
 
 
-def display_ot_scenario(s: dict):
+def display_ot_scenario(s: dict, student_mode: bool = True):
     sep = "=" * 70
     print(f"\n{sep}")
     print(f"  GIDEON - OT/ICS Security Module")
@@ -613,8 +842,13 @@ def display_ot_scenario(s: dict):
     print(f"  Difficulty : {s.get('difficulty', 'N/A').upper()}")
     print(f"  Frameworks : {s.get('frameworks', 'N/A')}")
     print(f"  Real World : {s.get('real_world', 'N/A')}")
+    mode_label = "STUDENT MODE" if student_mode else "INSTRUCTOR MODE"
+    print(f"  Mode       : {mode_label}")
     print(sep)
     print(s.get("scenario", "No scenario generated."))
+    if not student_mode and s.get("answers"):
+        print(f"\n{sep}")
+        print(s.get("answers", ""))
     print(f"\n{sep}\n")
 
 
@@ -681,6 +915,38 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-2-1"],
         "real_world_reference": "IT/OT convergence is the primary driver of increased OT attack surface",
+        "answers": """
+MODEL ANSWERS - OT-ARCH-003 (Instructor Mode)
+
+Q1. IT/OT convergence connects operational technology networks to IT
+    systems and the internet for efficiency and data analytics.
+    Business benefits include predictive maintenance, real-time production
+    visibility, reduced operational costs and remote management capability.
+
+Q2. Five security risks:
+    - Cloud historian connection creates internet-facing OT data path.
+    - Microsoft 365 on Level 2 workstations introduces phishing risk.
+    - IoT platform creates additional attack surface into OT network.
+    - IT patch management tools can disrupt OT systems not designed
+      for automated updates.
+    - Shared Active Directory means IT credential compromise gives
+      OT network access.
+
+Q3. Shared Active Directory is dangerous because a compromised IT
+    account gains OT access. Colonial Pipeline attackers used a
+    compromised VPN account to access both IT and OT networks leading
+    to the shutdown of fuel supply to the US East Coast.
+
+Q4. Recommended architecture uses a secure DMZ with data historian
+    in a demilitarised zone. OT data flows one-way to the historian.
+    IT systems read from the historian but cannot write back to OT.
+    A separate OT Active Directory with no trust relationship to IT AD.
+
+Q5. A 2-week OT production outage costs: lost production revenue,
+    emergency response costs, regulatory fines, reputation damage
+    and potential liability. For most industrial operators this
+    exceeds the annual saving making the security investment essential.
+""",
     },
     {
         "id": "OT-ARCH-004",
@@ -745,6 +1011,37 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-3-3"],
         "real_world_reference": "Shared HMI credentials were a factor in the 2021 Oldsmar Florida water treatment attack",
+        "answers": """
+MODEL ANSWERS - OT-ARCH-004 (Instructor Mode)
+
+Q1. SCADA monitors and controls distributed processes remotely.
+    DCS manages complex continuous processes at one site.
+    HMI is the operator interface showing process graphics and controls.
+    Historian stores time-series process data for analysis and reporting.
+
+Q2. Three incident investigations:
+    - Unexpected HMI values: could indicate unauthorised PLC program
+      changes or network man-in-the-middle attack on OT traffic.
+    - Unexpected reboot: could indicate malware infection, remote
+      access misuse or ransomware beginning encryption process.
+    - Unauthorised vendor connection: could indicate compromised vendor
+      credentials or supply chain attack via vendor remote access.
+
+Q3. MFA on OT systems is complex because legacy HMI software may not
+    support modern authentication. Solutions include hardware tokens,
+    smart cards, or PAM solutions that add MFA at the jump server
+    level without modifying the HMI application itself.
+
+Q4. SCADA redundancy improves security resilience by eliminating single
+    points of failure that attackers can target. A redundant system
+    allows failover during an incident and supports patching one node
+    while the other remains operational.
+
+Q5. Secure remote access design: dedicated jump server in OT DMZ with
+    MFA required for all connections. Session recording for all remote
+    sessions. Time-limited access with automatic disconnection.
+    Vendor access approved per change request with defined scope.
+""",
     },
 ]
 
@@ -805,6 +1102,34 @@ Questions:
         ],
         "frameworks": ["NIST SP 800-82", "CISA advisories"],
         "real_world_reference": "Stuxnet proved air-gapped systems can be compromised. Oldsmar showed remote access risks.",
+        "answers": """
+MODEL ANSWERS - OT-THREAT-003 (Instructor Mode)
+
+Q1. OT systems built years ago operated in isolation with no internet
+    connectivity. IT/OT convergence, remote access requirements and
+    supply chain complexity have connected these systems to the internet
+    creating attack paths that did not previously exist.
+
+Q2. Three threat actor types targeting critical infrastructure:
+    - Nation-states seeking geopolitical leverage or pre-positioning.
+    - Ransomware groups motivated by financial extortion.
+    - Hacktivists motivated by political or environmental causes.
+
+Q3. An OT attack on critical infrastructure can cause physical damage,
+    safety incidents, environmental harm and loss of essential services
+    to the public. IT ransomware causes data loss and operational
+    disruption which is recoverable. OT attacks can harm people.
+
+Q4. The air gap myth is false. Attackers reach air-gapped systems via:
+    - Infected USB drives introduced by employees or vendors.
+    - Compromised vendor laptops connected during maintenance.
+    - Supply chain attacks on software or hardware components.
+
+Q5. Three highest impact low disruption improvements:
+    - Asset inventory to know what OT devices exist.
+    - Network segmentation separating OT from IT networks.
+    - Vendor remote access controls with MFA and session recording.
+""",
     },
     {
         "id": "OT-THREAT-004",
@@ -858,6 +1183,41 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-2-1", "CISA supply chain guidance"],
         "real_world_reference": "SolarWinds 2020 demonstrated supply chain attack scale. Multiple ICS vendors have been compromised.",
+        "answers": """
+MODEL ANSWERS - OT-THREAT-004 (Instructor Mode)
+
+Q1. A supply chain attack compromises a vendor or software provider
+    to use their trusted access as an entry point. SolarWinds showed
+    that trusted software updates can deliver malware at scale.
+    OT operators trust vendor remote access and software updates
+    creating identical risks to those exploited in SolarWinds.
+
+Q2. Before granting vendor remote access:
+    - Verify identity using MFA and approved credentials.
+    - Confirm a valid change request exists for the work.
+    - Restrict access to only the specific systems required.
+    - Enable session recording for the entire connection.
+    - Set automatic time limit on the access window.
+
+Q3. OT patch evaluation process:
+    - Obtain patch from vendor through verified secure channel.
+    - Test in a non-production environment that mirrors production.
+    - Review vendor release notes for OT compatibility issues.
+    - Schedule during planned maintenance window.
+    - Have rollback plan ready before deploying.
+
+Q4. Five supply chain controls:
+    - Vendor risk assessments before granting any network access.
+    - Just-in-time access provisioning for vendor connections.
+    - Software integrity verification using cryptographic hashing.
+    - Network monitoring for anomalous vendor session behaviour.
+    - Contractual security requirements for all OT vendors.
+
+Q5. Detection of compromised vendor sessions requires behavioural
+    baselines. Alerts should fire on access outside approved windows,
+    commands outside the approved scope, connections to unexpected
+    systems and data volumes exceeding normal maintenance activity.
+""",
     },
 ]
 
@@ -922,6 +1282,38 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-3-3", "CISA"],
         "real_world_reference": "Passive monitoring tools like Dragos and Claroty are designed specifically for OT environments",
+        "answers": """
+MODEL ANSWERS - OT-DEF-003 (Instructor Mode)
+
+Q1. Passive monitoring only listens to network traffic without sending
+    any packets. Active scanning sends probes that OT devices must
+    respond to. Legacy OT devices can crash or malfunction when
+    receiving unexpected network traffic making passive monitoring
+    essential in production OT environments.
+
+Q2. Recommended approach is passive network TAP with OT-aware deep
+    packet inspection. This provides full visibility without risk to
+    OT devices, understands industrial protocols like Modbus and DNP3,
+    and can identify assets passively without any active scanning.
+
+Q3. OT monitoring alerts for this environment should include:
+    new device appearing on OT network, unexpected protocol commands,
+    communication between devices that do not normally communicate,
+    engineering workstation connecting to field devices outside
+    maintenance windows, and large data transfers from OT systems.
+
+Q4. When an unauthorised device is detected: identify the device using
+    passive fingerprinting, check physical access logs for the area,
+    isolate the network segment if the device is unknown,
+    capture traffic from the device for analysis, and escalate to
+    incident response if malicious activity is confirmed.
+
+Q5. Business case for OT monitoring:
+    The average cost of an OT security incident is significantly higher
+    than the cost of monitoring tools. Cyber insurance increasingly
+    requires OT monitoring as a condition of coverage. Regulators in
+    critical infrastructure sectors are mandating OT visibility.
+""",
     },
 ]
 
@@ -989,6 +1381,39 @@ Questions:
         },
         "frameworks": ["NIST SP 800-82", "IEC 62443-2-1", "CISA ICS-CERT"],
         "real_world_reference": "Most OT operators have no OT-specific IR plan — a critical gap exposed by Colonial Pipeline",
+        "answers": """
+MODEL ANSWERS - OT-IR-002 (Instructor Mode)
+
+Q1. Three IT vs OT IR differences:
+    - OT IR must consider physical safety before cybersecurity response.
+    - OT systems cannot be simply shut down without safety assessment.
+    - OT forensics requires specialised tools that do not disrupt
+      production and OT engineers must be part of the response team.
+
+Q2. The conflict is resolved by establishing clear decision authority.
+    The safety officer has veto over any cybersecurity action that
+    creates safety risk. A pre-defined decision matrix should specify
+    when OT can be isolated versus when safety requires it to continue
+    operating despite cyber risk.
+
+Q3. Effective OT IR team bridges the gap by pairing OT engineers who
+    understand the process with IT security analysts who understand
+    the attack. A joint command structure with both disciplines
+    represented at the decision-making level is essential.
+
+Q4. Notifiable incidents typically include confirmed compromise of
+    OT systems, safety system manipulation, or significant operational
+    impact. Notification must include incident timeline, systems
+    affected, actions taken and potential impact on services.
+
+Q5. First 30 minutes checklist for non-security staff:
+    1. Do not touch or reboot any affected systems.
+    2. Call the security team and operations manager immediately.
+    3. Note exactly what you observed and when.
+    4. Preserve any unusual printouts or screen displays.
+    5. Restrict access to the affected area.
+    6. Do not discuss the incident on email or phone.
+""",
     },
 ]
 

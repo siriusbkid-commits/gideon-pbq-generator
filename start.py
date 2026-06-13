@@ -214,6 +214,116 @@ def _save_log_pbq(pbq, silent=False):
     return fn
 
 
+
+def run_ot_ics_scenario():
+    print("\n=== OT/ICS SECURITY SCENARIO MODE ===")
+    print("Operational Technology and Industrial Control Systems Security\n")
+    from pbq.ot_ics_module import generate_ot_scenario, display_ot_scenario
+    from pbq.menu import get_ot_domain_choice
+    print("1. Generate a single OT/ICS scenario")
+    print("2. Generate a batch of OT/ICS scenarios\n")
+    while True:
+        mode = input("Select mode (1 or 2): ").strip()
+        if mode in ("1", "2"):
+            break
+        print("Please enter 1 or 2.")
+    domain_filter = get_ot_domain_choice()
+    selected_difficulty = get_difficulty_choice()
+    if mode == "1":
+        pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+        if "error" in pbq:
+            print(pbq["error"])
+            return
+        display_ot_scenario(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this scenario to file? (y/n): "):
+            _save_ot_scenario(pbq)
+    else:
+        count = get_positive_int("How many OT/ICS scenarios? ")
+        for i in range(1, count + 1):
+            pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+            if "error" not in pbq:
+                display_ot_scenario(pbq, student_mode=STUDENT_MODE)
+                _save_ot_scenario(pbq, silent=True)
+        print("Batch complete!")
+
+
+def _save_ot_scenario(pbq, silent=False):
+    import datetime
+    os.makedirs("output", exist_ok=True)
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = pbq.get("id", "ot").replace("-", "_").lower()
+    fn = os.path.join("output", "ot_ics_" + slug + "_" + ts + ".txt")
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write("GIDEON - OT/ICS Security Scenario" + chr(10))
+        f.write("=" * 70 + chr(10))
+        for k in ["module","id","domain","sub_topic","objective","difficulty","frameworks","real_world"]:
+            f.write(k + ": " + str(pbq.get(k,"")) + chr(10))
+        f.write("=" * 70 + chr(10) + chr(10))
+        f.write(pbq.get("scenario",""))
+        if not STUDENT_MODE and pbq.get("answers"):
+            f.write(chr(10) + chr(10) + "=" * 70 + chr(10))
+            f.write("MODEL ANSWERS" + chr(10))
+            f.write("=" * 70 + chr(10))
+            f.write(pbq.get("answers",""))
+    if not silent:
+        print("Saved: " + fn)
+    return fn
+
+
+def run_ot_ics_scenario():
+    print("\n=== OT/ICS SECURITY SCENARIO MODE ===")
+    print("Operational Technology and Industrial Control Systems Security\n")
+    from pbq.ot_ics_module import generate_ot_scenario, display_ot_scenario
+    from pbq.menu import get_ot_domain_choice
+    print("1. Generate a single OT/ICS scenario")
+    print("2. Generate a batch of OT/ICS scenarios\n")
+    while True:
+        mode = input("Select mode (1 or 2): ").strip()
+        if mode in ("1", "2"):
+            break
+        print("Please enter 1 or 2.")
+    domain_filter = get_ot_domain_choice()
+    selected_difficulty = get_difficulty_choice()
+    if mode == "1":
+        pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+        if "error" in pbq:
+            print(pbq["error"])
+            return
+        display_ot_scenario(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this scenario to file? (y/n): "):
+            _save_ot_scenario(pbq)
+    else:
+        count = get_positive_int("How many OT/ICS scenarios? ")
+        for i in range(1, count + 1):
+            pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+            if "error" not in pbq:
+                display_ot_scenario(pbq, student_mode=STUDENT_MODE)
+                _save_ot_scenario(pbq, silent=True)
+        print("Batch complete!")
+
+
+def _save_ot_scenario(pbq, silent=False):
+    import datetime
+    os.makedirs("output", exist_ok=True)
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = pbq.get("id", "ot").replace("-", "_").lower()
+    fn = os.path.join("output", "ot_ics_" + slug + "_" + ts + ".txt")
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write("GIDEON - OT/ICS Security Scenario" + chr(10))
+        f.write("=" * 70 + chr(10))
+        for k in ["module","id","domain","sub_topic","objective","difficulty","frameworks","real_world"]:
+            f.write(k + ": " + str(pbq.get(k,"")) + chr(10))
+        f.write("=" * 70 + chr(10) + chr(10))
+        f.write(pbq.get("scenario",""))
+        if not STUDENT_MODE and pbq.get("answers"):
+            f.write(chr(10) + chr(10) + "=" * 70 + chr(10))
+            f.write("MODEL ANSWERS" + chr(10))
+            f.write("=" * 70 + chr(10))
+            f.write(pbq.get("answers",""))
+    if not silent:
+        print("Saved: " + fn)
+    return fn
+
 def run_iot_scenario():
     print("\n=== IoT SECURITY SCENARIO MODE ===")
     print("Internet of Things Security for IT Professionals\n")
@@ -233,7 +343,7 @@ def run_iot_scenario():
         if "error" in pbq:
             print(pbq["error"])
             return
-        display_iot_scenario(pbq)
+        display_iot_scenario(pbq, student_mode=STUDENT_MODE)
         if get_yes_no("Save this scenario to file? (y/n): "):
             _save_iot_scenario(pbq)
     else:
@@ -241,7 +351,7 @@ def run_iot_scenario():
         for i in range(1, count + 1):
             pbq = generate_iot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
             if "error" not in pbq:
-                display_iot_scenario(pbq)
+                display_iot_scenario(pbq, student_mode=STUDENT_MODE)
                 _save_iot_scenario(pbq, silent=True)
         print("Batch complete!")
 

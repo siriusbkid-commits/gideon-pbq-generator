@@ -96,6 +96,39 @@ Questions:
         },
         "frameworks": ["OWASP IoT Top 10", "NIST SP 800-213", "ENISA IoT Guidelines"],
         "real_world_reference": "Mirai botnet 2016 compromised 600,000 IoT devices using default credentials causing major internet outages",
+        "answers": """
+MODEL ANSWERS - IOT-ARCH-001 (Instructor Mode)
+
+Q1. Five IoT architecture components and risks:
+    - Devices: weak credentials, no encryption, unpatched firmware.
+    - Connectivity: unencrypted protocols, unauthenticated messaging.
+    - Edge gateways: pivot point between IoT and corporate networks.
+    - Cloud platform: API vulnerabilities, data exposure risks.
+    - Mobile apps: insecure data storage, weak authentication.
+
+Q2. Default credentials enabled the Mirai botnet in 2016 which
+    compromised 600,000 IoT devices using default usernames and
+    passwords. The botnet generated 1.2Tbps DDoS attacks taking
+    down major internet services including Twitter and Netflix.
+
+Q3. Flat IoT network creates pivot paths to corporate systems.
+    Segmentation approach: dedicated IoT VLAN with firewall rules
+    allowing only required outbound traffic. No direct communication
+    between IoT VLAN and corporate network. DMZ for any shared services.
+
+Q4. Manual USB updates risk infected firmware if USB is compromised.
+    Automatic updates with no verification risk malicious firmware injection.
+    Secure alternative: signed firmware updates with cryptographic
+    verification, delivered over encrypted TLS channel, with rollback capability.
+
+Q5. Attack surface analysis:
+    - Default credentials: Critical - enables mass compromise.
+    - Unencrypted communications: High - enables interception.
+    - No firmware signing: Critical - enables malicious updates.
+    - Flat network: High - enables lateral movement.
+    - Internet-exposed management: Critical - enables remote attack.
+    - No patch process: High - leaves known vulnerabilities unaddressed.
+""",
     },
     {
         "id": "IOT-ARCH-002",
@@ -155,6 +188,37 @@ Questions:
         },
         "frameworks": ["OWASP IoT Top 10", "NIST SP 800-213"],
         "real_world_reference": "Unsecured MQTT brokers are routinely found exposed on the internet with no authentication",
+        "answers": """
+MODEL ANSWERS - IOT-ARCH-002 (Instructor Mode)
+
+Q1. MQTT is a lightweight publish-subscribe messaging protocol designed
+    for constrained devices with low bandwidth. It lacks authentication
+    and encryption by default because it was designed for isolated
+    industrial networks. AMQP similarly prioritises reliability over security.
+
+Q2. Three unsecured MQTT broker attack scenarios:
+    - Attacker subscribes to all topics reading all device data and commands.
+    - Attacker publishes malicious commands to any device on the broker.
+    - Attacker uses broker access to map entire IoT infrastructure
+      and pivot to connected systems.
+
+Q3. mDNS and UPnP expose device names, IP addresses, open ports,
+    and service capabilities. An attacker uses this for reconnaissance
+    to identify targets before launching targeted attacks against
+    specific vulnerable device types.
+
+Q4. Beyond HTTPS: implement API authentication with rotating keys,
+    rate limiting to prevent brute force, input validation on all
+    parameters, audit logging of all API calls, and IP allowlisting
+    for management API access.
+
+Q5. Secure protocol stack:
+    - Device to gateway: MQTT over TLS with certificate authentication.
+    - Gateway to cloud: HTTPS with mutual TLS.
+    - Device management: HTTPS API with OAuth2 authentication.
+    - Local discovery: disable mDNS/UPnP in production deployments.
+    - Bluetooth pairing: use Numeric Comparison or Passkey Entry mode.
+""",
     },
 ]
 
@@ -229,6 +293,40 @@ Questions:
         },
         "frameworks": ["OWASP IoT Top 10", "NIST SP 800-213"],
         "real_world_reference": "Mirai botnet exploited default credentials. Firmware signing is now required by UK PSTI Act 2024",
+        "answers": """
+MODEL ANSWERS - IOT-OWASP-001 (Instructor Mode)
+
+Q1. Default credentials persist because manufacturers prioritise ease
+    of setup over security. Regulations like the UK PSTI Act 2024 and
+    US IoT Cybersecurity Improvement Act now require unique credentials
+    per device and ban default passwords.
+
+Q2. Attack steps from admin interface discovery:
+    - Scan with Shodan or Nmap to find exposed port.
+    - Try default credentials from manufacturer documentation.
+    - If successful access device management interface.
+    - Extract configuration including network credentials.
+    - Pivot to internal network using extracted credentials.
+
+Q3. Immediate recommendation: treat the known CVE as a critical
+    incident. Implement compensating controls: network isolation,
+    enhanced monitoring, block internet access for affected devices.
+    Risk of delay: public exploits mean active attacks are likely.
+    Patch within emergency change window, not standard process.
+
+Q4. Signed firmware update process: manufacturer signs firmware with
+    private key. Device verifies signature using embedded public key
+    before installing. Update delivered over encrypted TLS channel.
+    Failed verification aborts installation and alerts administrator.
+
+Q5. Remediation plan:
+    Finding 1 - Weak credentials: Change all default passwords within
+    24 hours. Implement unique credentials per device. Block internet
+    access to admin interface. Add account lockout.
+    Finding 2 - Insecure updates: Implement firmware signing verification.
+    Update all devices to latest signed firmware. Establish 30-day
+    patch SLA for critical vulnerabilities.
+""",
     },
     {
         "id": "IOT-OWASP-002",
@@ -299,6 +397,38 @@ Questions:
         },
         "frameworks": ["OWASP IoT Top 10", "NIST SP 800-213", "GDPR", "UK PSTI Act"],
         "real_world_reference": "Shodan regularly finds millions of unauthenticated RTSP streams and open Telnet ports on IoT devices",
+        "answers": """
+MODEL ANSWERS - IOT-OWASP-002 (Instructor Mode)
+
+Q1. Port mapping to OWASP IoT Top 10:
+    - Port 23 Telnet: I1 Weak Passwords and I2 Insecure Network Services.
+    - Port 80 HTTP: I3 Insecure Ecosystem Interfaces.
+    - Port 554 RTSP: I2 Insecure Network Services.
+    - Port 9999 BusyBox: I6 Insufficient Privacy Protection.
+    - Port 5555 ADB: I2 Insecure Network Services, I9 Insecure Default Settings.
+
+Q2. Unauthenticated baby monitor streams allow anyone to view
+    live video of children in private spaces. In 2014 a website
+    called Insecam aggregated feeds from thousands of unauthenticated
+    IP cameras worldwide exposing private homes, businesses and nurseries.
+
+Q3. ADB is Android Debug Bridge, a development tool for interacting
+    with Android devices. On production devices it provides shell
+    access, file system read/write, app installation and removal,
+    and the ability to bypass screen lock. It gives near-complete
+    device control to any attacker with network access.
+
+Q4. Regulations violated: GDPR in Europe, Privacy Act in New Zealand
+    and Australia. Returning all customer data with no authentication
+    is a personal data breach. GDPR fines can reach 4% of global
+    annual turnover or 20 million euros whichever is higher.
+
+Q5. Secure baseline for IP cameras:
+    - Enable: HTTPS management only, RTSP with authentication, NTP.
+    - Disable: Telnet, HTTP, ADB, UPnP, unnecessary open ports.
+    - Harden: unique credentials, firmware signing, encrypted streams,
+      certificate-based authentication for management access.
+""",
     },
 ]
 
@@ -371,6 +501,37 @@ Questions:
         },
         "frameworks": ["NIST SP 800-213", "ENISA IoT Security Guidelines"],
         "real_world_reference": "The Target breach 2013 began with a compromised HVAC contractor - IoT pivot attacks are well documented",
+        "answers": """
+MODEL ANSWERS - IOT-NET-001 (Instructor Mode)
+
+Q1. IoT network segmentation places IoT devices on a separate VLAN
+    or network segment isolated from corporate systems. The camera
+    pivot attack succeeded because both the camera and the file server
+    were on the same flat network with no security boundary between them.
+
+Q2. Segmented architecture: IoT VLAN 192.168.20.0/24 isolated from
+    corporate 192.168.1.0/24. Firewall rules: IoT devices allow
+    outbound to specific cloud endpoints only. No inbound from internet.
+    No direct communication to corporate network. DNS filtering on
+    IoT VLAN blocking known malicious domains.
+
+Q3. Normal IoT traffic baseline: regular small beacons to cloud,
+    firmware update traffic at scheduled times, consistent protocol
+    patterns. Anomaly indicators: unexpected inbound connections,
+    large outbound transfers, lateral scanning, connections to
+    new external IPs, traffic outside normal hours.
+
+Q4. Device onboarding security process: asset registration in inventory,
+    firmware version verification, default credential change, network
+    access limited to required destinations, security assessment of
+    vendor, placement in appropriate IoT VLAN segment.
+
+Q5. Security assessment checklist: default credentials changed,
+    firmware version and patch status, open ports and services,
+    encryption used for communications, cloud platform security,
+    data collected and privacy implications, vendor security certifications,
+    update mechanism, physical security, and support lifecycle.
+""",
     },
     {
         "id": "IOT-NET-002",
@@ -428,6 +589,40 @@ Questions:
         },
         "frameworks": ["NIST SP 800-213", "OWASP IoT Top 10", "IEC 62443"],
         "real_world_reference": "Shared IoT credentials in firmware have been found on GitHub repeatedly exposing entire device fleets",
+        "answers": """
+MODEL ANSWERS - IOT-NET-002 (Instructor Mode)
+
+Q1. Device identity means each device has a unique cryptographic
+    credential proving its identity. Shared credentials mean
+    compromising one device compromises all devices using the same
+    credential. An attacker impersonating any device in the fleet
+    can send malicious data or commands to the cloud platform.
+
+Q2. Immediate impact of exposed API key: all devices using that key
+    are potentially compromised. Attacker can impersonate any device,
+    inject false data, or issue commands. Immediate response: revoke
+    the exposed key, rotate credentials on all affected devices,
+    audit cloud logs for unauthorised activity since key exposure.
+
+Q3. Recommended approach: X.509 certificates with PKI.
+    Provides unique identity per device, cryptographic proof of
+    identity, certificate revocation capability, and industry standard
+    support. API keys are better than passwords but lack revocation.
+    HSMs provide strongest security but are expensive at scale.
+
+Q4. Mutual TLS requires both client and server to present certificates.
+    Standard TLS only verifies the server. mTLS protects against
+    rogue devices impersonating legitimate ones and prevents
+    man-in-the-middle attacks where an attacker intercepts device
+    communications by presenting a fake server certificate.
+
+Q5. Device identity lifecycle:
+    Provisioning: unique certificate generated and installed at manufacture.
+    Rotation: certificates renewed automatically before expiry.
+    Retirement: certificate revoked when device is decommissioned.
+    Compromise response: immediate revocation and replacement of
+    certificate with investigation of device behaviour history.
+""",
     },
 ]
 
@@ -503,6 +698,41 @@ Questions:
         },
         "frameworks": ["IEC 62443", "NIST SP 800-82", "NIST SP 800-213"],
         "real_world_reference": "IIoT deployments are increasingly targeted as entry points into OT environments",
+        "answers": """
+MODEL ANSWERS - IOT-IIOT-001 (Instructor Mode)
+
+Q1. IIoT creates new attack paths because sensors connect both to
+    production OT networks and to internet-connected cloud platforms.
+    An attacker compromising the cloud platform or the IIoT network
+    gains a path into the OT environment that bypasses traditional
+    perimeter controls designed for IT/OT separation.
+
+Q2. IIoT consequences are more severe because sensors connect directly
+    to physical industrial processes. A compromised IIoT sensor can
+    provide false readings causing automated systems to make dangerous
+    decisions. In a refinery false temperature readings could disable
+    safety systems designed to prevent explosions.
+
+Q3. Edge gateway controls: network interfaces must be strictly separated
+    with no routing between OT and internet-facing interfaces.
+    Whitelist only required OT protocols on the OT interface.
+    All cloud communications encrypted with certificate authentication.
+    Regular firmware updates and security monitoring of gateway itself.
+
+Q4. Remote access IAM controls: MFA required for all access.
+    Role-based access limiting each engineer to their specific systems.
+    Just-in-time access provisioning with automatic expiry.
+    Full session recording and anomaly detection.
+    Access from approved devices only using endpoint compliance checks.
+
+Q5. Top 5 IIoT risks:
+    1. OT network exposure via edge gateway - Critical - implement
+       strict network separation on gateways.
+    2. Cloud platform compromise - High - implement strong cloud IAM.
+    3. Sensor data manipulation - High - implement data integrity checks.
+    4. Remote access abuse - High - implement PAM solution.
+    5. Insecure firmware updates - Medium - implement signed updates.
+""",
     },
 ]
 
@@ -576,6 +806,41 @@ Questions:
         },
         "frameworks": ["NIST SP 800-213", "OWASP IoT Top 10"],
         "real_world_reference": "Compromised IoT devices are frequently used as botnet nodes for DDoS attacks and network pivoting",
+        "answers": """
+MODEL ANSWERS - IOT-IR-001 (Instructor Mode)
+
+Q1. Priority order: Alert 4 (foreign country camera login) is highest
+    as it confirms active attacker access. Alert 1 (massive outbound
+    traffic) is second as active exfiltration may be in progress.
+    Alert 2 (devices scanning network) is third as lateral movement
+    is underway. Alert 3 (unknown device) is fourth as it may be
+    the attacker entry point.
+
+Q2. Three explanations for massive outbound traffic:
+    - Device is part of botnet performing DDoS attack.
+    - Data exfiltration of captured video or network traffic.
+    - Malware downloading additional payloads or tools.
+    Quick determination: analyse destination IPs against threat
+    intelligence feeds and check traffic content if SSL inspection available.
+
+Q3. Together Alerts 1 and 2 suggest: attacker compromised IoT devices
+    and is using them to scan the internal network for pivot targets.
+    The massive outbound traffic indicates established C2 communication.
+    The attacker is performing internal reconnaissance before lateral movement.
+
+Q4. Changing the password is insufficient because the attacker likely
+    has persistent access via malware installed on the device.
+    Factory reset is required followed by firmware verification,
+    new unique credential, and network isolation until investigation complete.
+
+Q5. First 30 minutes IoT incident checklist:
+    1. Isolate affected IoT VLAN from corporate network immediately.
+    2. Identify all affected devices from network logs.
+    3. Block outbound traffic from IoT segment at perimeter firewall.
+    4. Preserve network logs and device logs before any remediation.
+    5. Notify security team and management.
+    6. Begin investigation of initial compromise vector.
+""",
     },
     {
         "id": "IOT-IR-002",
@@ -642,6 +907,42 @@ Questions:
         },
         "frameworks": ["NIST SP 800-213", "CISA IoT guidance"],
         "real_world_reference": "Mirai botnet 2016 used 600,000 compromised IoT devices to generate 1.2Tbps DDoS — largest recorded at the time",
+        "answers": """
+MODEL ANSWERS - IOT-IR-002 (Instructor Mode)
+
+Q1. Mirai works by scanning internet-connected devices for open
+    Telnet ports and trying default credential lists. Compromised
+    devices receive C2 instructions via IRC or HTTP. Persistence
+    maintained by disabling competing malware and surviving reboots
+    through re-infection from scanning other vulnerable devices.
+
+Q2. Immediate network actions to stop attack traffic:
+    Implement ACLs blocking outbound traffic from IoT device ranges.
+    Contact ISP to implement upstream filtering at their edge.
+    Isolate affected network segments from the internet.
+    Block known botnet C2 IP ranges at perimeter firewall.
+
+Q3. Remediation at scale without physical access:
+    Use out-of-band management network to access devices remotely.
+    Deploy automated remediation script to change credentials.
+    Push emergency firmware update if remote update is possible.
+    For devices that cannot be remediated remotely, quarantine
+    their network segment until physical intervention is possible.
+
+Q4. Systematic changes after infection via default credentials:
+    Implement device onboarding process requiring credential change.
+    Deploy network access control blocking devices with default credentials.
+    Regular automated scanning for devices using known default passwords.
+    Vendor contractual requirement to ship devices with unique credentials.
+
+Q5. Post-incident report:
+    Root cause: default credentials never changed on deployment.
+    Timeline: infection began on date X, detected on date Y.
+    Impact: operational internet disruption and legal liability risk.
+    Remediation: credentials rotated, firmware updated, segmentation improved.
+    Lessons learned: implement device onboarding security process and
+    automated credential audit for all IoT deployments.
+""",
     },
 ]
 
@@ -700,6 +1001,7 @@ def generate_iot_scenario(domain_filter=None, difficulty_filter=None):
         "frameworks":  ", ".join(template.get("frameworks", [])),
         "real_world":  template.get("real_world_reference", ""),
         "scenario":    scenario_text.strip(),
+        "answers":     template.get("answers", ""),
     }
 
 
@@ -707,7 +1009,7 @@ def get_random_iot_scenario():
     return generate_iot_scenario()
 
 
-def display_iot_scenario(s: dict):
+def display_iot_scenario(s: dict, student_mode: bool = True):
     sep = "=" * 70
     print(f"\n{sep}")
     print(f"  GIDEON - IoT Security Module")
@@ -718,8 +1020,13 @@ def display_iot_scenario(s: dict):
     print(f"  Difficulty : {s.get('difficulty', 'N/A').upper()}")
     print(f"  Frameworks : {s.get('frameworks', 'N/A')}")
     print(f"  Real World : {s.get('real_world', 'N/A')}")
+    mode_label = "STUDENT MODE" if student_mode else "INSTRUCTOR MODE"
+    print(f"  Mode       : {mode_label}")
     print(sep)
     print(s.get("scenario", "No scenario generated."))
+    if not student_mode and s.get("answers"):
+        print(f"\n{sep}")
+        print(s.get("answers", ""))
     print(f"\n{sep}\n")
 
 

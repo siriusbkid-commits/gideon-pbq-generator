@@ -1038,3 +1038,374 @@ if __name__ == "__main__":
     print()
     s = get_random_iot_scenario()
     display_iot_scenario(s)
+
+# ================================================================
+# SECTION 6 - AI AND EMERGING THREATS
+# ================================================================
+
+AI_SCENARIOS = [
+    {
+        "id": "IOT-AI-001",
+        "domain": "IoT Security - AI and Emerging Threats",
+        "sub_topic": "Agentic AI and IoT Fleet Compromise",
+        "difficulty": "intermediate",
+        "objective": "Understand how agentic AI changes the IoT attack landscape",
+        "scenario_template": """
+You are the IoT security lead at a {industry} managing a fleet of
+{num_devices} connected devices across {num_locations} locations.
+
+Your threat intelligence team has issued a warning that agentic AI
+tools are being used by threat actors to conduct automated IoT
+reconnaissance and exploitation campaigns.
+
+Current IoT security posture:
+  - Device inventory: {inventory_state}
+  - Network monitoring: {monitoring_state}
+  - Firmware patch status: {patch_state}
+  - Default credentials: {cred_state}
+  - Network segmentation: {seg_state}
+
+Questions:
+1. Explain how agentic AI changes IoT attack capability compared
+   to traditional human-directed attacks. What can agentic AI do
+   that human attackers cannot do at scale?
+
+2. Your {patch_state} patch status is a concern given agentic AI
+   can autonomously identify and exploit known vulnerabilities.
+   What is your immediate prioritisation approach for patching
+   {num_devices} devices across {num_locations} locations?
+
+3. AI-powered device fingerprinting can identify vulnerable device
+   models from network traffic alone. What network-level controls
+   reduce the effectiveness of AI fingerprinting against your fleet?
+
+4. Design an AI-speed defensive monitoring capability that can
+   detect agentic AI attacks against your IoT infrastructure.
+   What baselines and anomaly indicators would you implement?
+
+5. Write a board-level briefing summary (maximum 200 words)
+   explaining the emerging agentic AI IoT threat and what
+   investment is required to defend against it.
+""",
+        "variables": {
+            "industry": [
+                "smart city infrastructure operator",
+                "national energy utility",
+                "hospital network",
+                "logistics and transport company",
+            ],
+            "num_devices": ["50,000", "12,000", "4,500", "100,000"],
+            "num_locations": ["200", "50", "20", "500"],
+            "inventory_state": [
+                "partial - 60% of devices in asset management system",
+                "complete - all devices tracked in real time",
+                "poor - spreadsheet last updated 18 months ago",
+                "moderate - 80% tracked with gaps in remote sites",
+            ],
+            "monitoring_state": [
+                "basic firewall logs only",
+                "network flow monitoring with no IoT-specific baselines",
+                "AI-assisted anomaly detection deployed 6 months ago",
+                "no dedicated IoT monitoring",
+            ],
+            "patch_state": [
+                "40% of devices running firmware over 2 years old",
+                "critical patches applied but non-critical deferred",
+                "no formal patch process - updates applied ad hoc",
+                "90% patched within 30 days of release",
+            ],
+            "cred_state": [
+                "default credentials unchanged on approximately 30% of devices",
+                "unique credentials deployed on all devices",
+                "credential audit not performed in over 12 months",
+                "password policy enforced but not verified at device level",
+            ],
+            "seg_state": [
+                "IoT devices on dedicated VLAN with firewall controls",
+                "IoT devices on same network as corporate systems",
+                "partial segmentation - some device types isolated",
+                "micro-segmentation deployed on critical devices only",
+            ],
+        },
+        "frameworks": ["NIST AI RMF", "NIST SP 800-213", "ENISA AI Threat Landscape"],
+        "real_world_reference": "Mirai compromised 600,000 devices using simple automation. Agentic AI represents orders of magnitude increase in attack capability",
+        "answers": """
+MODEL ANSWERS - IOT-AI-001 (Instructor Mode)
+
+Q1. Agentic AI vs human attackers:
+    - Scale: AI scans billions of addresses simultaneously vs human sequential scanning.
+    - Speed: AI exploits vulnerabilities in milliseconds vs human hours.
+    - Adaptability: AI adapts tactics in real time based on defensive responses.
+    - Persistence: AI operates 24/7 without fatigue or human operational security errors.
+    - Intelligence: AI selects optimal exploits per device type automatically.
+
+Q2. Patching prioritisation for large fleet:
+    - Identify internet-facing devices first - highest AI attack exposure.
+    - Prioritise devices with known critical CVEs and public exploits.
+    - Group devices by firmware version for batch update efficiency.
+    - Implement emergency change process bypassing normal 30-day cycle.
+    - Deploy compensating controls (network isolation) for devices that cannot be patched immediately.
+
+Q3. Network controls reducing AI fingerprinting effectiveness:
+    - Suppress or randomise protocol banners and service responses.
+    - Implement network traffic normalisation hiding device-specific patterns.
+    - Deploy IoT honeypots detecting fingerprinting reconnaissance.
+    - Use network access control hiding device types from unauthenticated queries.
+
+Q4. AI-speed defensive monitoring:
+    - Establish per-device-type traffic baselines during 30-day learning period.
+    - Alert on: new outbound destinations, volume anomalies, protocol deviations.
+    - Implement automated isolation for devices showing compromise indicators.
+    - Correlate anomalies across multiple devices detecting coordinated AI attacks.
+    - Feed threat intelligence into monitoring for known AI attack infrastructure.
+
+Q5. Board briefing points:
+    - Agentic AI enables attackers to compromise IoT fleets at machine speed.
+    - Our {num_devices} device fleet represents a significant attack surface.
+    - Required investment: AI-powered monitoring, accelerated patch programme, network segmentation.
+    - Risk of inaction: fleet-wide compromise enabling operational disruption and data breach.
+    - Recommended budget: present specific figures based on gap assessment.
+""",
+    },
+    {
+        "id": "IOT-AI-002",
+        "domain": "IoT Security - AI and Emerging Threats",
+        "sub_topic": "AI Model Security and IoT Monitoring",
+        "difficulty": "intermediate",
+        "objective": "Understand AI model risks in IoT security contexts",
+        "scenario_template": """
+Your organisation has deployed an AI-powered IoT security monitoring
+platform across {num_devices} devices. The AI model was trained on
+{training_data} and has been running for {deployment_period}.
+
+Recent observations:
+  - Alert volume has {alert_trend} over the past {alert_period}
+  - A red team exercise found the AI missed {missed_attacks} attack types
+  - The AI model has not been retrained since {last_retrain}
+  - {governance_state}
+  - A vendor advisory warns of model poisoning attacks targeting
+    IoT security AI platforms similar to yours
+
+Questions:
+1. The alert volume has {alert_trend}. Why should a significant
+   change in alert volume always be investigated rather than
+   assumed to reflect improved security or accurate tuning?
+
+2. Explain model drift and concept drift in the context of IoT
+   security AI. How could either explain the red team finding
+   that {missed_attacks} attack types were not detected?
+
+3. A model poisoning attack targets your IoT security AI.
+   Describe the attack, how you would detect it, and your
+   immediate response steps if poisoning is confirmed.
+
+4. {governance_state} Assess this governance posture against
+   best practice. What specific governance controls are missing
+   and what risk does each gap create?
+
+5. Design a model health monitoring programme for your IoT
+   security AI including: performance metrics, retraining triggers,
+   red team schedule, and governance review cadence.
+""",
+        "variables": {
+            "num_devices": ["8,000", "25,000", "1,200", "50,000"],
+            "training_data": [
+                "12 months of historical IoT traffic from our environment",
+                "synthetic data generated by the vendor",
+                "a mix of real traffic and public IoT attack datasets",
+                "vendor-provided pre-trained model with no environment-specific training",
+            ],
+            "deployment_period": ["6 months", "18 months", "2 years", "3 years"],
+            "alert_trend": [
+                "decreased by 80%",
+                "increased by 300%",
+                "flatlined at exactly the same level",
+                "dropped to zero for the past 2 weeks",
+            ],
+            "alert_period": ["3 months", "6 weeks", "2 months", "4 months"],
+            "missed_attacks": [
+                "lateral movement and C2 communication",
+                "firmware injection and credential stuffing",
+                "botnet recruitment and DDoS preparation",
+                "data exfiltration and protocol abuse",
+            ],
+            "last_retrain": [
+                "initial deployment with no updates since",
+                "8 months ago",
+                "the vendor has never provided a retrained model",
+                "14 months ago",
+            ],
+            "governance_state": [
+                "No formal AI governance policy exists for the security platform",
+                "AI decisions are logged but never reviewed by humans",
+                "The AI can autonomously isolate devices with no human approval required",
+                "No override procedure exists if the AI makes an incorrect decision",
+            ],
+        },
+        "frameworks": ["NIST AI RMF", "ISO 42001", "NIST SP 800-213"],
+        "real_world_reference": "AI security model drift and poisoning are documented attack vectors against ML-based security platforms",
+        "answers": """
+MODEL ANSWERS - IOT-AI-002 (Instructor Mode)
+
+Q1. Alert volume changes always require investigation:
+    - Decrease could indicate model drift treating attacks as normal.
+    - Decrease could indicate successful adversarial manipulation of the model.
+    - Increase could indicate new attack campaign or false positive surge.
+    - Flat line could indicate monitoring infrastructure failure.
+    - No change in a changing threat environment suggests model is not adapting.
+    Validate by running known attack signatures against the model to confirm detection.
+
+Q2. Model drift vs concept drift:
+    - Model drift: statistical degradation of model performance over time without input changes.
+    - Concept drift: the underlying data distribution changes (new attack techniques) making the trained model obsolete.
+    Missed attack types likely reflect concept drift where new attack techniques emerged after training.
+    The model has no exposure to these techniques and correctly classifies them as normal
+    based on its training data.
+
+Q3. Model poisoning response:
+    - Detection: systematic alert suppression for specific attack patterns, red team failures.
+    - Confirmation: compare model behaviour against clean baseline model on test attack samples.
+    - Immediate response: take poisoned model offline, activate rule-based backup detection.
+    - Investigation: identify poisoning vector - training data, model update, or infrastructure compromise.
+    - Recovery: retrain from verified clean dataset, validate before redeployment.
+
+Q4. Governance gaps assessment:
+    - No policy: no accountability for AI decisions or defined acceptable use boundaries.
+    - Logs not reviewed: audit trail exists but provides no oversight value.
+    - Autonomous isolation: high-consequence action with no human approval creates operational risk.
+    - No override: inability to correct AI errors rapidly creates safety risk.
+    Each gap represents a control failure that could result in undetected attacks or
+    operational disruption from incorrect AI autonomous actions.
+
+Q5. AI model health monitoring programme:
+    - Weekly: automated test against known attack sample library.
+    - Monthly: human review of alert trend analysis and false positive rates.
+    - Quarterly: red team exercise specifically targeting AI detection gaps.
+    - Triggers for retraining: detection rate below threshold, new attack techniques, significant environment changes.
+    - Governance review: quarterly model performance review with security leadership.
+    - Annual: independent third-party audit of AI security platform.
+""",
+    },
+    {
+        "id": "IOT-AI-003",
+        "domain": "IoT Security - AI and Emerging Threats",
+        "sub_topic": "AI Governance for IoT Security Automation",
+        "difficulty": "advanced",
+        "objective": "Design AI governance frameworks for IoT security automation",
+        "scenario_template": """
+Your organisation is deploying AI-powered automation across your
+IoT security programme. The AI systems will perform:
+
+  - Autonomous device isolation when anomalies are detected
+  - AI-driven firmware update scheduling and deployment
+  - Automated threat response across {num_devices} devices
+  - AI provisioning of new IoT devices joining the network
+  - Continuous behavioural monitoring with autonomous remediation
+
+The deployment affects {affected_operations} operations.
+Regulatory environment: {regulatory_env}
+Current AI governance maturity: {governance_maturity}
+
+A recent incident at a peer organisation saw an AI system
+incorrectly isolate {isolation_incident} causing significant
+operational disruption.
+
+Questions:
+1. Define the principle of human oversight in AI security automation.
+   For each of the five AI functions listed above classify whether
+   it should be fully autonomous, human-assisted, or human-approved
+   and justify your classification.
+
+2. The peer organisation incident highlights AI error risk.
+   Design a tiered autonomy framework for IoT security AI that
+   balances response speed with human oversight based on
+   consequence severity.
+
+3. Your regulatory environment is {regulatory_env}. What specific
+   AI governance obligations apply to your IoT security automation
+   and what documentation must you maintain?
+
+4. Design an audit trail specification for AI IoT security decisions.
+   What must be logged, retained, and reviewable to satisfy both
+   security investigation needs and regulatory requirements?
+
+5. Write an AI governance policy for IoT security automation
+   covering: scope, autonomy boundaries, human escalation triggers,
+   override procedures, performance review, and incident response
+   for AI system failures.
+""",
+        "variables": {
+            "num_devices": ["15,000", "80,000", "5,000", "200,000"],
+            "affected_operations": [
+                "24/7 critical infrastructure including power distribution",
+                "healthcare patient monitoring and treatment systems",
+                "manufacturing production line control",
+                "financial transaction processing",
+            ],
+            "regulatory_env": [
+                "GDPR and NIS2 Directive in the European Union",
+                "HIPAA and FDA medical device regulations in the United States",
+                "Critical infrastructure protection regulations and Privacy Act in New Zealand",
+                "DORA financial sector digital resilience regulation",
+            ],
+            "governance_maturity": [
+                "no formal AI governance policy exists",
+                "basic AI policy covering data privacy but not security automation",
+                "AI governance framework exists but does not cover autonomous security decisions",
+                "mature AI governance with documented autonomy boundaries",
+            ],
+            "isolation_incident": [
+                "400 medical devices during a hospital shift change",
+                "all IoT devices at a manufacturing facility during peak production",
+                "smart city traffic management systems during rush hour",
+                "payment processing IoT terminals across a retail chain on Black Friday",
+            ],
+        },
+        "frameworks": ["NIST AI RMF", "ISO 42001", "EU AI Act", "NIST SP 800-213"],
+        "real_world_reference": "AI autonomous security decisions without governance have caused operational incidents across multiple sectors",
+        "answers": """
+MODEL ANSWERS - IOT-AI-003 (Instructor Mode)
+
+Q1. Human oversight classification for five AI functions:
+    - Autonomous device isolation: human-assisted for single device, human-approved for bulk isolation.
+    - Firmware update scheduling: human-assisted with human-approved for production deployments.
+    - Automated threat response: autonomous for low-risk containment, human-approved for high-consequence actions.
+    - AI provisioning: autonomous with human review gates for policy changes.
+    - Continuous monitoring with autonomous remediation: autonomous detection, tiered response based on consequence.
+
+Q2. Tiered autonomy framework:
+    - Tier 1 (autonomous): alert generation, traffic logging, single device isolation for confirmed malware.
+    - Tier 2 (human-assisted): isolation of device groups, firewall rule changes, blocking external IPs.
+    - Tier 3 (human-approved): bulk device isolation, firmware rollback, network segment shutdown.
+    - Tier 4 (human-only): actions affecting critical operations, regulatory notifications, vendor engagement.
+    Escalation is time-bounded: if human approval not received within defined window AI defaults to safe state.
+
+Q3. Regulatory obligations:
+    - GDPR/NIS2: document AI processing activities, conduct DPIA for high-risk monitoring, maintain incident records.
+    - HIPAA: ensure AI decisions affecting patient devices meet minimum necessary standard, maintain audit logs.
+    - NZ Privacy Act: document AI decision-making affecting personal data, enable subject access to AI decisions.
+    - DORA: document AI in operational resilience framework, test AI system recovery, report AI incidents.
+
+Q4. AI audit trail specification:
+    - Decision timestamp, device identifier, anomaly detected, confidence score.
+    - Action taken, autonomous or human-approved, approver identity if human.
+    - Outcome: device status post-action, subsequent alerts.
+    - Retention: minimum 12 months operational, 7 years for regulatory purposes.
+    - Accessibility: searchable by device, time range, action type, approver.
+    - Integrity: tamper-evident logging preventing retrospective modification.
+
+Q5. AI governance policy key elements:
+    - Scope: all AI systems making or recommending security decisions about IoT devices.
+    - Autonomy boundaries: defined by consequence tier with documented approval matrix.
+    - Escalation triggers: bulk actions, critical device types, outside business hours.
+    - Override: designated personnel with 24/7 override capability and defined procedure.
+    - Performance review: monthly metrics review, quarterly red team, annual audit.
+    - AI incident response: defined as security incident with same severity classification.
+""",
+    },
+]
+
+
+# Add AI scenarios to combined pool and domain map
+ALL_IOT_SCENARIOS.extend(AI_SCENARIOS)
+IOT_DOMAIN_MAP["ai_emerging_threats"] = AI_SCENARIOS

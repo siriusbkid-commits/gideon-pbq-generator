@@ -211,6 +211,26 @@ Add custom .json scenario files to the scenarios/ folder and they appear
 in the menu automatically. See examples/ for the scenario file format.
 
 ---
+---
+
+## 🗺️ Roadmap
+
+### Currently Available
+- ✅ SC-300 — Microsoft Identity Administrator scenarios
+- ✅ CyberArk Defender — PAM scenarios
+- ✅ OT/ICS Security — 120 practice questions
+- ✅ IoT Security — 120 practice questions + AI scenarios
+
+### Coming Soon
+- 🔜 **CompTIA SecOT+** — OT security scenarios aligned 
+  to SecOT+ exam objectives (launching December 2026)
+- 🔜 **NZ Health Security** — HISO 10029.1 compliance 
+  scenarios and clinical IAM PBQs
+- 🔜 **CompTIA SecurityAI+** — AI security scenarios
+- 🔜 **SC-500** — Microsoft Cloud and AI Security scenarios
+
+### Community Contributions Welcome
+Add your own scenario packs — see Adding Your Own Scenarios below.
 
 ## About
 

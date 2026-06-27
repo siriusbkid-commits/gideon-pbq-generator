@@ -213,8 +213,6 @@ def _save_log_pbq(pbq, silent=False):
         print("Saved: " + fn)
     return fn
 
-
-
 def run_ot_ics_scenario():
     print("\n=== OT/ICS SECURITY SCENARIO MODE ===")
     print("Operational Technology and Industrial Control Systems Security\n")
@@ -246,7 +244,6 @@ def run_ot_ics_scenario():
                 _save_ot_scenario(pbq, silent=True)
         print("Batch complete!")
 
-
 def _save_ot_scenario(pbq, silent=False):
     import datetime
     os.makedirs("output", exist_ok=True)
@@ -256,70 +253,15 @@ def _save_ot_scenario(pbq, silent=False):
     with open(fn, "w", encoding="utf-8") as f:
         f.write("GIDEON - OT/ICS Security Scenario" + chr(10))
         f.write("=" * 70 + chr(10))
-        for k in ["module","id","domain","sub_topic","objective","difficulty","frameworks","real_world"]:
-            f.write(k + ": " + str(pbq.get(k,"")) + chr(10))
+        for k in ["module", "id", "domain", "sub_topic", "objective", "difficulty", "frameworks", "real_world"]:
+            f.write(k + ": " + str(pbq.get(k, "")) + chr(10))
         f.write("=" * 70 + chr(10) + chr(10))
-        f.write(pbq.get("scenario",""))
+        f.write(pbq.get("scenario", ""))
         if not STUDENT_MODE and pbq.get("answers"):
             f.write(chr(10) + chr(10) + "=" * 70 + chr(10))
             f.write("MODEL ANSWERS" + chr(10))
             f.write("=" * 70 + chr(10))
-            f.write(pbq.get("answers",""))
-    if not silent:
-        print("Saved: " + fn)
-    return fn
-
-
-def run_ot_ics_scenario():
-    print("\n=== OT/ICS SECURITY SCENARIO MODE ===")
-    print("Operational Technology and Industrial Control Systems Security\n")
-    from pbq.ot_ics_module import generate_ot_scenario, display_ot_scenario
-    from pbq.menu import get_ot_domain_choice
-    print("1. Generate a single OT/ICS scenario")
-    print("2. Generate a batch of OT/ICS scenarios\n")
-    while True:
-        mode = input("Select mode (1 or 2): ").strip()
-        if mode in ("1", "2"):
-            break
-        print("Please enter 1 or 2.")
-    domain_filter = get_ot_domain_choice()
-    selected_difficulty = get_difficulty_choice()
-    if mode == "1":
-        pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
-        if "error" in pbq:
-            print(pbq["error"])
-            return
-        display_ot_scenario(pbq, student_mode=STUDENT_MODE)
-        if get_yes_no("Save this scenario to file? (y/n): "):
-            _save_ot_scenario(pbq)
-    else:
-        count = get_positive_int("How many OT/ICS scenarios? ")
-        for i in range(1, count + 1):
-            pbq = generate_ot_scenario(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
-            if "error" not in pbq:
-                display_ot_scenario(pbq, student_mode=STUDENT_MODE)
-                _save_ot_scenario(pbq, silent=True)
-        print("Batch complete!")
-
-
-def _save_ot_scenario(pbq, silent=False):
-    import datetime
-    os.makedirs("output", exist_ok=True)
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    slug = pbq.get("id", "ot").replace("-", "_").lower()
-    fn = os.path.join("output", "ot_ics_" + slug + "_" + ts + ".txt")
-    with open(fn, "w", encoding="utf-8") as f:
-        f.write("GIDEON - OT/ICS Security Scenario" + chr(10))
-        f.write("=" * 70 + chr(10))
-        for k in ["module","id","domain","sub_topic","objective","difficulty","frameworks","real_world"]:
-            f.write(k + ": " + str(pbq.get(k,"")) + chr(10))
-        f.write("=" * 70 + chr(10) + chr(10))
-        f.write(pbq.get("scenario",""))
-        if not STUDENT_MODE and pbq.get("answers"):
-            f.write(chr(10) + chr(10) + "=" * 70 + chr(10))
-            f.write("MODEL ANSWERS" + chr(10))
-            f.write("=" * 70 + chr(10))
-            f.write(pbq.get("answers",""))
+            f.write(pbq.get("answers", ""))
     if not silent:
         print("Saved: " + fn)
     return fn
@@ -355,7 +297,6 @@ def run_iot_scenario():
                 _save_iot_scenario(pbq, silent=True)
         print("Batch complete!")
 
-
 def _save_iot_scenario(pbq, silent=False):
     import datetime
     os.makedirs("output", exist_ok=True)
@@ -365,14 +306,62 @@ def _save_iot_scenario(pbq, silent=False):
     with open(fn, "w", encoding="utf-8") as f:
         f.write("GIDEON - IoT Security Scenario" + chr(10))
         f.write("=" * 70 + chr(10))
-        for k in ["module","id","domain","sub_topic","objective","difficulty","frameworks","real_world"]:
-            f.write(k + ": " + str(pbq.get(k,"")) + chr(10))
+        for k in ["module", "id", "domain", "sub_topic", "objective", "difficulty", "frameworks", "real_world"]:
+            f.write(k + ": " + str(pbq.get(k, "")) + chr(10))
         f.write("=" * 70 + chr(10) + chr(10))
-        f.write(pbq.get("scenario",""))
+        f.write(pbq.get("scenario", ""))
     if not silent:
         print("Saved: " + fn)
     return fn
 
+def run_sc300_pbq():
+    print("\n=== SC-300 PBQ MODE ===")
+    print("Microsoft Identity and Access Administrator\n")
+    from pbq.sc300_module import generate_sc300_pbq, get_weighted_sc300_pbq, display_sc300_pbq
+    from pbq.menu import get_sc300_domain_choice
+    print("1. Single  2. Batch")
+    while True:
+        mode = input("Select mode (1 or 2): ").strip()
+        if mode in ("1", "2"):
+            break
+        print("Please enter 1 or 2.")
+    domain_filter = get_sc300_domain_choice()
+    selected_difficulty = get_difficulty_choice()
+    if selected_difficulty == "beginner":
+        selected_difficulty = "intermediate"
+    if mode == "1":
+        pbq = get_weighted_sc300_pbq() if domain_filter is None else generate_sc300_pbq(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+        if "error" in pbq:
+            print(pbq["error"])
+            return
+        display_sc300_pbq(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this PBQ to file? (y/n): "):
+            _save_sc300_pbq(pbq)
+    else:
+        count = get_positive_int("How many SC-300 PBQs? ")
+        for i in range(1, count + 1):
+            pbq = get_weighted_sc300_pbq() if domain_filter is None else generate_sc300_pbq(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
+            if "error" not in pbq:
+                display_sc300_pbq(pbq, student_mode=STUDENT_MODE)
+                _save_sc300_pbq(pbq, silent=True)
+        print("Batch complete!")
+
+def _save_sc300_pbq(pbq, silent=False):
+    import datetime
+    os.makedirs("output", exist_ok=True)
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = pbq.get("id", "sc300").replace("-", "_").lower()
+    fn = os.path.join("output", "sc300_" + slug + "_" + ts + ".txt")
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write("GIDEON - SC-300 Microsoft Identity and Access Administrator PBQ" + chr(10))
+        f.write("=" * 70 + chr(10))
+        for k in ["exam", "id", "domain", "sub_topic", "objective", "difficulty", "exam_objectives"]:
+            f.write(k + ": " + str(pbq.get(k, "")) + chr(10))
+        f.write("=" * 70 + chr(10) + chr(10))
+        f.write(pbq.get("scenario", ""))
+    if not silent:
+        print("Saved: " + fn)
+    return fn
 
 def main():
     scenarios = list_scenarios()
@@ -381,7 +370,7 @@ def main():
         return
     while True:
         print_menu(scenarios)
-        max_choice = len(scenarios) + 8
+        max_choice = len(scenarios) + 9
         choice = get_menu_choice(max_choice)
         if 1 <= choice <= len(scenarios):
             run_scenario(scenarios[choice - 1])
@@ -401,6 +390,8 @@ def main():
             run_ot_ics_scenario()
         elif choice == len(scenarios) + 8:
             run_iot_scenario()
+        elif choice == len(scenarios) + 9:
+            run_sc300_pbq()
         else:
             print("Invalid choice. Try again.")
 

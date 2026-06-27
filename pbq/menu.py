@@ -17,7 +17,8 @@ def print_menu(scenarios):
     print(f"{len(scenarios) + 5}. CySA+ CS0-004 PBQ Mode (Generate CySA+ Practice Questions)")
     print(f"{len(scenarios) + 6}. CySA+ CS0-004 Log Analysis Mode (Generate Log Analysis PBQs)")
     print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)")
-    print(f"{len(scenarios) + 8}. IoT Security Scenarios (Generate IoT Practice Scenarios)\n")
+    print(f"{len(scenarios) + 8}. IoT Security Scenarios (Generate IoT Practice Scenarios)")
+    print(f"{len(scenarios) + 9}. SC-300 PBQ Mode (Microsoft Identity and Access Administrator)\n")
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"Current Mode: {mode}\n")
 
@@ -132,27 +133,6 @@ def toggle_student_mode():
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"\nGideon is now in: {mode}\n")
 
-def get_ot_domain_choice() -> str:
-    print("\nChoose OT/ICS Domain:\n")
-    print("1. Architecture (Purdue Model, Protocols)")
-    print("2. Threat Landscape (Nation-state, Ransomware)")
-    print("3. Defensive Controls (IEC 62443, Vulnerability Mgmt)")
-    print("4. Incident Response")
-    print("5. AI and Agentic AI Threats")
-    print("6. Random (any domain)\n")
-    domains = {
-        "1": "architecture",
-        "2": "threats",
-        "3": "defensive",
-        "4": "incident_response",
-        "5": "ai_threats",
-        "6": None,
-    }
-    while True:
-        choice = input("Select a domain number: ").strip()
-        if choice in domains:
-            return domains[choice]
-        print("Invalid choice. Please enter a number between 1 and 6.")
 
 def get_ot_domain_choice() -> str:
     print("\nChoose OT/ICS Domain:\n")
@@ -175,6 +155,7 @@ def get_ot_domain_choice() -> str:
         if choice in domains:
             return domains[choice]
         print("Invalid choice. Please enter a number between 1 and 6.")
+
 
 def get_iot_domain_choice() -> str:
     print("\nChoose IoT Security Domain:\n")
@@ -197,3 +178,18 @@ def get_iot_domain_choice() -> str:
         if choice in domains:
             return domains[choice]
         print("Invalid choice. Please enter a number between 1 and 6.")
+
+
+def get_sc300_domain_choice() -> str:
+    print("\nChoose SC-300 Domain:\n")
+    print("1. Implement and Manage User Identities        (20-25%)")
+    print("2. Implement Authentication and Access Mgmt    (25-30%)")
+    print("3. Plan and Implement Workload Identities      (20-25%)")
+    print("4. Plan and Automate Identity Governance       (25-30%)")
+    print("5. Random (weighted by exam %)\n")
+    domains = {"1": "1", "2": "2", "3": "3", "4": "4", "5": None}
+    while True:
+        choice = input("Select a domain number: ").strip()
+        if choice in domains:
+            return domains[choice]
+        print("Invalid choice. Please enter a number between 1 and 5.")

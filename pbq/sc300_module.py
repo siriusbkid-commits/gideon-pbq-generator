@@ -63,47 +63,47 @@ Questions:
         "exam_objectives": ["1.1"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC1-001: Microsoft Entra Tenant Configuration
+ANSWER GUIDE -- SC1-001: Microsoft Entra Tenant Configuration
 
-Q1 — Global Administrator count and least-privilege roles
+Q1 -- Global Administrator count and least-privilege roles
 Microsoft recommends a maximum of 2-4 Global Administrators (typically
 2 break-glass accounts + 1-2 active admins). Roles to use instead:
-  - Reset user passwords → Authentication Administrator (for non-admins)
+  - Reset user passwords -> Authentication Administrator (for non-admins)
     or Password Administrator
-  - Manage licences → Licence Administrator
-  - Read audit logs → Reports Reader or Security Reader
+  - Manage licences -> Licence Administrator
+  - Read audit logs -> Reports Reader or Security Reader
 Never use Global Admin for tasks that scoped roles can perform.
 
-Q2 — Administrative Unit design
+Q2 -- Administrative Unit design
 Create one AU per department. Delegate the Authentication Administrator
 (scoped) role to each department's IT support staff, restricting their
 actions to only that AU's members. Dynamic membership rules
 (e.g. user.department -eq "Finance") keep AUs current automatically.
-This enforces least privilege — a helpdesk agent in Finance cannot
+This enforces least privilege -- a helpdesk agent in Finance cannot
 reset passwords for users in HR.
 
-Q3 — Custom role for Conditional Access only
+Q3 -- Custom role for Conditional Access only
 Entra admin centre > Roles and administrators > New custom role.
 Minimum permission required:
   microsoft.directory/conditionalAccessPolicies/allProperties/allTasks
 Do NOT add any other permissions. Assign the role at tenant scope.
 Test with a pilot user before broad assignment.
 
-Q4 — Company branding elements
+Q4 -- Company branding elements
 Customise: sign-in page background image/colour, banner logo,
 username hint text, sign-in page text, footer links (privacy/terms),
 and SSPR link text. For regulated sectors (healthcare, finance) this
-is critical for phishing resistance — users recognise their org's
+is critical for phishing resistance -- users recognise their org's
 login page and are less likely to enter credentials on a spoofed page.
 Path: Entra admin centre > User experiences > Company branding.
 
-Q5 — Guest access settings
+Q5 -- Guest access settings
 Path: Entra admin centre > External Identities > External collaboration settings.
 Changes:
-  - Guest user access → "Guest users have limited access to properties
+  - Guest user access -> "Guest users have limited access to properties
     and memberships of directory objects" (or most restrictive option)
-  - Who can invite guests → Admins and users in the Guest Inviter role only
-  - Collaboration restrictions → Allow invitations only to specified domains
+  - Who can invite guests -> Admins and users in the Guest Inviter role only
+  - Collaboration restrictions -> Allow invitations only to specified domains
 """
     },
     {
@@ -148,9 +148,9 @@ Questions:
         "exam_objectives": ["1.2"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC1-002: Bulk Identity Operations and Licensing
+ANSWER GUIDE -- SC1-002: Bulk Identity Operations and Licensing
 
-Q1 — Bulk creation method comparison
+Q1 -- Bulk creation method comparison
   - Entra admin centre CSV upload: easiest for one-off ops, no coding required
   - PowerShell (Microsoft.Graph module): best for automation and transformation
   - Microsoft Graph API: best for long-term HR system integration
@@ -160,30 +160,30 @@ Example single user:
     -AccountEnabled -PasswordProfile @{Password="TempPass1!"; ForceChangePasswordNextSignIn=$true} `
     -UsageLocation "NZ" -Department "Finance" -EmployeeType "Employee"
 
-Q2 — Dynamic group + group-based licensing
+Q2 -- Dynamic group + group-based licensing
 Create dynamic security group rule: (user.employeeType -eq "Employee")
 Assign licence to the group: Entra admin centre > Groups > [group] > Licences.
 Select the licence plan and assign. Licence is automatically applied/removed
 as users join or leave the group via attribute changes.
 
-Q3 — Blocking contractors from SharePoint only
+Q3 -- Blocking contractors from SharePoint only
 Use group-based licensing with a contractor-specific licence profile.
 Create a separate licence assignment for contractors that includes
 Exchange Online and Teams but EXCLUDES the SharePoint Online plan.
 Uncheck SharePoint Online in the licence assignment for the contractor group.
-Do NOT remove their account — just remove that specific service plan.
+Do NOT remove their account -- just remove that specific service plan.
 
-Q4 — Custom security attributes
+Q4 -- Custom security attributes
 Entra admin centre > Custom security attributes > Add attribute set (e.g. "HR").
 Add attributes: "Department" (string), "WorkerType" (string: Employee/Contractor).
 Assign values: User profile > Custom security attributes > Edit.
 Only users with the Attribute Assignment Administrator role can assign values.
 Only users with Attribute Definition Administrator can create attribute sets.
 
-Q5 — Post-creation validation
-1. Entra admin centre > Users > filter by createdDateTime — verify count
+Q5 -- Post-creation validation
+1. Entra admin centre > Users > filter by createdDateTime -- verify count
 2. PowerShell: Get-MgUser -Filter "createdDateTime ge [date]" | Measure-Object
-3. Group-based licensing errors report: Groups > [licence group] > Licences —
+3. Group-based licensing errors report: Groups > [licence group] > Licences --
    any users with assignment errors are flagged with the reason
 """
     },
@@ -229,9 +229,9 @@ Questions:
         "exam_objectives": ["1.4"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC1-003: Hybrid Identity with Microsoft Entra Connect
+ANSWER GUIDE -- SC1-003: Hybrid Identity with Microsoft Entra Connect
 
-Q1 — Connect Sync vs Cloud Sync
+Q1 -- Connect Sync vs Cloud Sync
 Entra Connect Sync: full on-premises installation, supports complex
 topologies, multi-forest, custom attribute mapping, writeback features.
 Required for >100k objects or advanced transformation rules.
@@ -240,15 +240,15 @@ easier to deploy and maintain, supports most common single-forest scenarios.
 Recommendation: for multiple AD domains with existing AD FS, use Connect Sync
 for the migration due to the complex topology, then evaluate Cloud Sync post-stabilisation.
 
-Q2 — AD FS migration pre-migration checks
-1. Run AD FS activity report in Entra Connect Health — identify all relying
+Q2 -- AD FS migration pre-migration checks
+1. Run AD FS activity report in Entra Connect Health -- identify all relying
    party trusts and their last authentication date
 2. Identify apps using custom AD FS claims rules that cannot be replicated in Entra ID
 3. Test the target app in Entra ID using staged rollout before cutover
 Migration steps: register app in Entra ID > configure SAML/OIDC SSO >
 test with pilot group > cut over > decommission AD FS relying party trust.
 
-Q3 — PHS vs PTA vs AD FS
+Q3 -- PHS vs PTA vs AD FS
   - PHS: password hashes synced to cloud (encrypted hash of a hash).
     Enables leaked credential detection via ID Protection. Works during on-prem outage.
     Microsoft's recommended modern approach.
@@ -257,7 +257,7 @@ Q3 — PHS vs PTA vs AD FS
   - AD FS: full on-prem auth, maximum control, maximum complexity and cost.
     Being phased out by Microsoft in favour of cloud auth.
 
-Q4 — Seamless SSO GPO settings
+Q4 -- Seamless SSO GPO settings
 Deploy via Group Policy:
   Computer Configuration > Administrative Templates > Windows Components >
   Internet Explorer > Internet Control Panel > Security Page > Intranet Zone.
@@ -265,7 +265,7 @@ Deploy via Group Policy:
   Also enable: "Allow updates to status bar via script" in Intranet zone.
 Users on domain-joined machines will SSO without password prompts.
 
-Q5 — Connect Health alerts to configure
+Q5 -- Connect Health alerts to configure
   - Password Hash Sync heartbeat failure (sync stopped running)
   - Sync errors (object-level failures blocking specific users)
   - Agent connectivity failure (Connect Health agent offline)
@@ -286,7 +286,7 @@ Current problems:
   - Partners are being added as internal users (consuming licences)
   - No cross-tenant access policies configured
   - External users can access ALL SharePoint sites
-  - {partner_org} uses Google Workspace — their users cannot currently authenticate
+  - {partner_org} uses Google Workspace -- their users cannot currently authenticate
   - No lifecycle management for external accounts
 
 Questions:
@@ -313,24 +313,24 @@ Questions:
         "exam_objectives": ["1.3"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC1-004: External Identities and B2B Collaboration
+ANSWER GUIDE -- SC1-004: External Identities and B2B Collaboration
 
-Q1 — External Collaboration settings
+Q1 -- External Collaboration settings
 Path: Entra admin centre > External Identities > External collaboration settings.
-  - Guest invite settings → Only admins and users in the Guest Inviter role
-  - Collaboration restrictions → Allow invitations only to specified domains
+  - Guest invite settings -> Only admins and users in the Guest Inviter role
+  - Collaboration restrictions -> Allow invitations only to specified domains
     (add each approved partner domain to the allowlist)
-  - Guest user access → Restrict to own directory object properties only
+  - Guest user access -> Restrict to own directory object properties only
 
-Q2 — Google federation
+Q2 -- Google federation
 Google Workspace federation uses OpenID Connect (OIDC).
 Path: External Identities > All identity providers > Google.
 Information needed from partner's Google admin: their Google tenant domain
-(e.g. partnerorg.com). No client ID/secret needed — Google's standard
+(e.g. partnerorg.com). No client ID/secret needed -- Google's standard
 OIDC discovery endpoint is used automatically by Microsoft Entra ID.
 Partner users sign in with their Google credentials directly.
 
-Q3 — Cross-Tenant Access Settings
+Q3 -- Cross-Tenant Access Settings
 Path: Entra admin centre > External Identities > Cross-tenant access settings.
 Add partner tenant by tenant ID or domain.
   - Inbound settings: controls what THEIR users can do in YOUR tenant.
@@ -338,7 +338,7 @@ Add partner tenant by tenant ID or domain.
     to prevent double MFA prompts.
   - Outbound settings: controls what YOUR users can do in THEIR tenant.
 
-Q4 — Guest lifecycle with Access Reviews
+Q4 -- Guest lifecycle with Access Reviews
 Path: Identity Governance > Access Reviews > New access review.
   - Scope: Guest users only
   - Recurrence: every chosen number of days
@@ -347,7 +347,7 @@ Path: Identity Governance > Access Reviews > New access review.
   - If reviewers don't respond: Remove access
   - Notify sponsors before deadline via notification settings
 
-Q5 — Single SharePoint site guest access
+Q5 -- Single SharePoint site guest access
 Invite: Entra admin centre > Users > Invite external user.
 Restrict access: SharePoint admin centre > Sites > [site] > Permissions > Share.
 Do NOT add them to any M365 group or Teams channel.
@@ -398,25 +398,25 @@ Questions:
         "exam_objectives": ["2.2"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC2-001: Conditional Access Policy Design
+ANSWER GUIDE -- SC2-001: Conditional Access Policy Design
 
-Q1 — Report-only mode
+Q1 -- Report-only mode
 Create policy in Report-only mode. Monitor: Entra admin centre > Monitoring >
 Sign-in logs > filter by CA policy name > review "Report-only" column.
 Failure = would have been blocked. Check for: service accounts, legacy auth
 clients, shared mailboxes, break-glass accounts being impacted.
 Switch to "On" only when zero legitimate users show as "would fail."
 
-Q2 — Policy for compliant devices on corp network
+Q2 -- Policy for compliant devices on corp network
   Assignments:
-    Users: All users (exclude admins — covered separately)
+    Users: All users (exclude admins -- covered separately)
     Cloud apps: Office 365
     Conditions: Named location = corp IP range (trusted), Device = compliant
   Grant: Require device marked as compliant OR Hybrid Entra joined (OR logic)
   Named location: Entra > Security > CA > Named locations > IP ranges location.
   Mark as trusted location.
 
-Q3 — Authentication Context
+Q3 -- Authentication Context
 Standard CA targets an entire app. Authentication Context targets a SPECIFIC
 ACTION within an app (e.g. viewing payroll data within the HR app, not just
 logging in). The app developer calls the auth context ID in their code when
@@ -424,27 +424,27 @@ the sensitive action is triggered. A separate CA policy enforces stricter
 controls only when that context fires.
 Path: Entra > Security > CA > Authentication context > Add.
 
-Q4 — Legacy authentication discovery
+Q4 -- Legacy authentication discovery
 Run the "Sign-ins using legacy authentication" workbook:
 Entra admin centre > Monitoring > Workbooks > Legacy Authentication.
 Shows users, apps, and protocols (SMTP AUTH, POP3, IMAP) still using basic auth.
-Remediate these BEFORE blocking — otherwise legitimate services break.
+Remediate these BEFORE blocking -- otherwise legitimate services break.
 
-Q5 — Service account exclusion risk and compensating control
-Risk: excluded accounts bypass all CA policies — a compromised service account
+Q5 -- Service account exclusion risk and compensating control
+Risk: excluded accounts bypass all CA policies -- a compromised service account
 gives an attacker unchecked access.
 Compensating control: create a dedicated CA policy for the service account
 that ONLY allows sign-in from specific named IP locations (server IPs),
 blocking all other locations. Alert on any sign-in from outside those IPs.
 Better long-term: replace service account with Managed Identity.
 
-Q6 — CA troubleshooting
+Q6 -- CA troubleshooting
 1. Entra admin centre > Users > [user] > Sign-in logs
 2. Find failed sign-in > click it > Conditional Access tab
 3. Review which policies applied and what the outcome was
 4. Use "What If" tool: Entra > Security > CA > What If
-   Enter: user, app, IP, device state → shows exactly which policies apply
-5. Check for policy conflicts — most restrictive policy wins
+   Enter: user, app, IP, device state -> shows exactly which policies apply
+5. Check for policy conflicts -- most restrictive policy wins
 """
     },
     {
@@ -460,7 +460,7 @@ Current issues:
   - Users are using SMS OTP as their only MFA method (phishing risk)
   - {num_exec} executives refuse to use the Authenticator app
   - {num_field} field workers do not have smartphones
-  - SSPR is not enabled — all resets go through the helpdesk
+  - SSPR is not enabled -- all resets go through the helpdesk
     ({monthly_resets} resets/month at ${reset_cost} each)
   - Windows Hello for Business is not deployed
 
@@ -488,9 +488,9 @@ Questions:
         "exam_objectives": ["2.1"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC2-002: Authentication Methods and MFA
+ANSWER GUIDE -- SC2-002: Authentication Methods and MFA
 
-Q1 — Per-user MFA vs Authentication Methods policy
+Q1 -- Per-user MFA vs Authentication Methods policy
 Per-user MFA (legacy): configured per-user in M365 admin centre, separate
 from Conditional Access, limited method control.
 Authentication Methods policy (modern): Entra > Security > Authentication methods.
@@ -500,7 +500,7 @@ To avoid conflicts: disable legacy per-user MFA settings AND disable Security
 defaults before enabling CA-based MFA.
 Path to disable Security defaults: Entra > Overview > Properties > Manage security defaults.
 
-Q2 — Migration plan from SMS OTP to Authenticator
+Q2 -- Migration plan from SMS OTP to Authenticator
 Phase 1 (weeks 1-2): Enable Authenticator in Authentication Methods policy.
   Enable registration campaign to nudge users at next sign-in.
 Phase 2 (weeks 3-4): Set Authenticator as default method for enrolled users.
@@ -509,29 +509,29 @@ For resistant executives: escalate to CISO, frame as SIM swap / phishing risk.
 Offer FIDO2 security key as alternative. If still refused, document risk
 acceptance and implement monitoring on their accounts.
 
-Q3 — MFA without a smartphone
+Q3 -- MFA without a smartphone
 Options in Microsoft Entra ID:
-  - FIDO2 security key (YubiKey etc.) — best for field workers
-  - Temporary Access Pass (TAP) — time-limited passcode for onboarding/recovery
-  - Certificate-based authentication — requires PKI infrastructure
-  - Windows Hello for Business — requires Windows device
+  - FIDO2 security key (YubiKey etc.) -- best for field workers
+  - Temporary Access Pass (TAP) -- time-limited passcode for onboarding/recovery
+  - Certificate-based authentication -- requires PKI infrastructure
+  - Windows Hello for Business -- requires Windows device
 Recommendation for field workers: FIDO2 security keys.
 Path: Entra > Security > Authentication methods > FIDO2 security key > Enable.
 
-Q4 — SSPR cost and configuration
-Annual cost = monthly resets × cost per reset × 12.
+Q4 -- SSPR cost and configuration
+Annual cost = monthly resets x cost per reset x 12.
 Configure: Entra > Security > Password reset > Self service password reset = All.
 Require 2 authentication methods. Recommended methods for regulated sectors:
   - Microsoft Authenticator (primary)
   - Email to personal address (backup)
 Avoid SMS as a method due to SIM swap risk.
 
-Q5 — Windows Hello for Business
+Q5 -- Windows Hello for Business
 Prerequisites: Windows 10/11 devices, Entra joined or Hybrid Entra joined,
 Microsoft Entra ID P1 licence minimum, users must have completed MFA registration.
 WHfB replaces: passwords for Windows sign-in and browser/app authentication.
 Phishing resistance: uses asymmetric key cryptography. Private key never leaves
-the device (protected by TPM). No password or OTP to intercept — attacker
+the device (protected by TPM). No password or OTP to intercept -- attacker
 needs physical device access + PIN/biometric.
 """
     },
@@ -547,7 +547,7 @@ Your Microsoft Entra ID Protection dashboard shows:
   - {num_risky_signins} risky sign-ins in the past 7 days
   - Top detections: {top_detection_1}, {top_detection_2}
   - {executive_account} (CFO) has a HIGH risk sign-in from {risky_location}
-    at {risky_time} — CFO confirmed they were in Auckland at that time
+    at {risky_time} -- CFO confirmed they were in Auckland at that time
   - {num_mfa_not_registered} users have not completed MFA registration
 
 Questions:
@@ -575,43 +575,43 @@ Questions:
         "exam_objectives": ["2.3"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC2-003: Microsoft Entra ID Protection
+ANSWER GUIDE -- SC2-003: Microsoft Entra ID Protection
 
-Q1 — User Risk vs Sign-in Risk
+Q1 -- User Risk vs Sign-in Risk
 User Risk: probability that an identity is compromised. Accumulates over time.
 Triggered by: leaked credentials on dark web, unusual activity patterns,
 admin confirmation of compromise.
 Sign-in Risk: probability a specific authentication attempt is not from the
 legitimate user. Per-sign-in. Triggered by: anonymous IP, atypical travel,
 unfamiliar sign-in properties, malicious IP address.
-Risk levels: Low → log/monitor. Medium → require MFA step-up.
-High → block or force password reset immediately.
+Risk levels: Low -> log/monitor. Medium -> require MFA step-up.
+High -> block or force password reset immediately.
 
-Q2 — Risk-based policy: CA vs legacy
+Q2 -- Risk-based policy: CA vs legacy
 Use Conditional Access risk-based policies (modern approach).
 Legacy ID Protection policies (User/Sign-in risk policy tabs) are being
-deprecated — Microsoft recommends CA with risk conditions instead.
+deprecated -- Microsoft recommends CA with risk conditions instead.
 Configure: Entra > Security > CA > New policy > Conditions: User risk = High >
 Grant: Require password change (requires SSPR to be enabled first).
 
-Q3 — Investigating impossible travel
+Q3 -- Investigating impossible travel
 1. Entra > Security > Identity Protection > Risky sign-ins
 2. Find the CFO sign-in > review: IP, location, device, browser
-3. CFO confirmed they were in Auckland — select "Confirm compromised"
-   (NOT "Dismiss" — that clears the risk flag and loses the audit trail)
-"Confirm compromised" → sets user risk to High, triggers risk policy,
+3. CFO confirmed they were in Auckland -- select "Confirm compromised"
+   (NOT "Dismiss" -- that clears the risk flag and loses the audit trail)
+"Confirm compromised" -> sets user risk to High, triggers risk policy,
 forces password reset, invalidates ALL active sessions.
-"Dismiss user risk" → clears risk flag (use ONLY for confirmed false positives).
+"Dismiss user risk" -> clears risk flag (use ONLY for confirmed false positives).
 4. Also: revoke sessions manually > investigate all activity since the foreign sign-in.
 
-Q4 — MFA Registration Campaign
+Q4 -- MFA Registration Campaign
 Path: Entra > Security > Authentication methods > Registration campaign.
 Settings: State = Enabled, Days allowed to snooze = 1-14 days.
 Users who dismiss are prompted again after the snooze period.
 After the configured number of snoozes they CANNOT complete sign-in
-until they register — they are forced to the registration experience.
+until they register -- they are forced to the registration experience.
 
-Q5 — Risky workload identities
+Q5 -- Risky workload identities
 Licence: Microsoft Entra ID P2 (Workload Identities Premium add-on
 may be required separately for service principal risk detections).
 Detections available for workload identities:
@@ -662,17 +662,17 @@ Questions:
         "exam_objectives": ["2.4"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC2-004: Global Secure Access
+ANSWER GUIDE -- SC2-004: Global Secure Access
 
-Q1 — Private Access vs Internet Access
-Private Access: Zero Trust Network Access (ZTNA) — replaces VPN.
+Q1 -- Private Access vs Internet Access
+Private Access: Zero Trust Network Access (ZTNA) -- replaces VPN.
 Provides access to specific private resources only, not the whole network.
-Users connect to defined application segments — zero lateral movement.
+Users connect to defined application segments -- zero lateral movement.
 Internet Access: Secure Web Gateway for internet-bound traffic. Controls
 what users can access online, plus Microsoft 365 traffic optimisation.
-To replace the legacy VPN → deploy Private Access.
+To replace the legacy VPN -> deploy Private Access.
 
-Q2 — GSA client deployment
+Q2 -- GSA client deployment
 Prerequisites: Microsoft Entra ID P1, device must be Entra joined or
 Hybrid Entra joined, Global Secure Access enabled in Entra admin centre,
 Private Network Connector deployed on-premises.
@@ -680,26 +680,26 @@ Deployment at scale for Windows: Microsoft Intune (Endpoint Manager).
 Deploy the GSA client MSI as a Win32 app targeting the remote workers group.
 For macOS: Intune macOS LOB app deployment.
 
-Q3 — Configuring Private Access
-Step 1 — Deploy Private Network Connector:
+Q3 -- Configuring Private Access
+Step 1 -- Deploy Private Network Connector:
   Download from: Global Secure Access > Connect > Connectors.
   Install on on-premises Windows Server with line-of-sight to the app server.
-  Only outbound HTTPS required — no inbound firewall rules.
-Step 2 — Create Application Segment:
+  Only outbound HTTPS required -- no inbound firewall rules.
+Step 2 -- Create Application Segment:
   Global Secure Access > Applications > Enterprise applications > New app.
   Add segment: FQDN or IP of app server + port.
-Step 3 — Assign users/groups to the application.
-Step 4 — Create CA policy targeting the GSA app to enforce MFA + compliant device.
+Step 3 -- Assign users/groups to the application.
+Step 4 -- Create CA policy targeting the GSA app to enforce MFA + compliant device.
 
-Q4 — Microsoft 365 traffic profile
+Q4 -- Microsoft 365 traffic profile
 Global Secure Access > Traffic forwarding > Microsoft 365 access profile > Enable.
 This uses Microsoft's optimised network paths, bypassing the VPN hairpin.
 Profile automatically includes correct M365 endpoints (Exchange, SharePoint, Teams).
 No manual endpoint configuration required.
 
-Q5 — Verifying GSA usage
-Global Secure Access > Monitor > Traffic logs — filter by app name, user, connector.
-Dashboard: Global Secure Access > Dashboard — connected users, top apps, connector health.
+Q5 -- Verifying GSA usage
+Global Secure Access > Monitor > Traffic logs -- filter by app name, user, connector.
+Dashboard: Global Secure Access > Dashboard -- connected users, top apps, connector health.
 Cross-check: VPN gateway logs for the same user should show a drop in traffic
 volume after the GSA client is deployed and active.
 """
@@ -749,47 +749,47 @@ Questions:
         "exam_objectives": ["3.1"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC3-001: Managed Identities and Service Principals
+ANSWER GUIDE -- SC3-001: Managed Identities and Service Principals
 
-Q1 — System-Assigned vs User-Assigned
+Q1 -- System-Assigned vs User-Assigned
 System-Assigned: tied to one resource, deleted when resource is deleted.
 Best for single-resource workloads.
 User-Assigned: created independently, assignable to multiple resources,
 persists independently of any resource.
 Recommendations:
-  - Azure Function (app1) → System-Assigned (single resource, simple)
-  - Azure VM batch job (app2) → System-Assigned (single VM)
-  - AKS pod (app3) → User-Assigned (pods are ephemeral; need persistent identity)
-  - Logic App (app4) → System-Assigned (single resource)
+  - Azure Function (app1) -> System-Assigned (single resource, simple)
+  - Azure VM batch job (app2) -> System-Assigned (single VM)
+  - AKS pod (app3) -> User-Assigned (pods are ephemeral; need persistent identity)
+  - Logic App (app4) -> System-Assigned (single resource)
 
-Q2 — Enable MI on Azure Function + RBAC
+Q2 -- Enable MI on Azure Function + RBAC
 Azure portal > Function App > [app] > Identity > System assigned > On > Save.
 Note the Object ID generated.
 Assign RBAC: Storage Account > Access Control (IAM) > Add role assignment.
 Role: "Storage Blob Data Contributor" (minimum for write access).
 Assign to: Managed identity > select the Function App.
-Do NOT use Owner or Contributor — violates least privilege.
+Do NOT use Owner or Contributor -- violates least privilege.
 
-Q3 — AKS Workload Identity Federation
+Q3 -- AKS Workload Identity Federation
 WIF uses the AKS OIDC issuer URL to federate with Entra ID. The pod
 presents a Kubernetes service account token which Entra ID trusts and
 exchanges for an Entra access token.
 vs node pool MI: assigning MI to node pool gives ALL pods on that node
-the same identity — violates least privilege. WIF scopes identity to
+the same identity -- violates least privilege. WIF scopes identity to
 individual pods/service accounts.
 Setup: enable OIDC issuer on AKS cluster > create User-Assigned MI >
 create federated credential using AKS OIDC issuer URL +
 Kubernetes namespace + service account name.
 
-Q4 — App Registration for Microsoft Graph (Logic App)
+Q4 -- App Registration for Microsoft Graph (Logic App)
 Create App Registration: Entra > App registrations > New registration.
 API permissions > Microsoft Graph > Application permissions (NOT delegated
-— no signed-in user exists for a Logic App running unattended):
+-- no signed-in user exists for a Logic App running unattended):
 Permission: Mail.Send
-Click "Grant admin consent" — Application permissions always require admin consent.
+Click "Grant admin consent" -- Application permissions always require admin consent.
 Delegated = acts as a signed-in user. Application = acts as itself (daemon/service).
 
-Q5 — Detecting exposed credentials
+Q5 -- Detecting exposed credentials
 Microsoft Defender for Cloud: "Secrets should not be hardcoded" recommendation
 via Defender for DevOps / GitHub Advanced Security integration.
 Microsoft Entra ID Protection: detects leaked credentials (client secrets
@@ -841,9 +841,9 @@ Questions:
         "exam_objectives": ["3.2"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC3-002: Enterprise Application Integration
+ANSWER GUIDE -- SC3-002: Enterprise Application Integration
 
-Q1 — SAML 2.0 SSO configuration
+Q1 -- SAML 2.0 SSO configuration
 Information needed FROM the vendor (Service Provider):
   1. SP Entity ID (Audience URI)
   2. ACS URL (Assertion Consumer Service URL)
@@ -855,18 +855,18 @@ Information provided TO the vendor FROM Entra ID:
   3. Federation Metadata XML URL (or certificate download)
   4. Logout URL
 
-Q2 — Provisioning without SCIM
+Q2 -- Provisioning without SCIM
 For gallery apps: check if a proprietary Entra provisioning connector exists
 (many gallery apps have Entra-built provisioning even without published SCIM).
 Path: Enterprise apps > [app] > Provisioning > Provisioning mode: Automatic.
-If no connector exists: manual provisioning — assign users in Entra, create
+If no connector exists: manual provisioning -- assign users in Entra, create
 matching accounts manually in the target app.
-On-demand provisioning: Provisioning > Provision on demand — test provisioning
+On-demand provisioning: Provisioning > Provision on demand -- test provisioning
 a single user before enabling the full automated cycle.
 
-Q3 — Microsoft Entra Application Proxy
+Q3 -- Microsoft Entra Application Proxy
 On-premises requirement: Application Proxy Connector installed on a
-Windows Server inside the network. Only outbound HTTPS required —
+Windows Server inside the network. Only outbound HTTPS required --
 no inbound firewall rules needed.
 Pre-authentication options:
   - Microsoft Entra ID (recommended): users auth to Entra before request
@@ -875,7 +875,7 @@ Pre-authentication options:
 SSO methods: Kerberos Constrained Delegation (KCD) for Windows-auth apps,
 header-based SSO, SAML-based SSO, password-based SSO.
 
-Q4 — Gallery app SCIM provisioning
+Q4 -- Gallery app SCIM provisioning
 Add from gallery: Entra > Enterprise apps > New application > search.
 Provisioning > Provisioning mode: Automatic.
 Enter SCIM endpoint URL and secret token from vendor.
@@ -883,7 +883,7 @@ Scope: "Sync only assigned users and groups" (recommended over sync all).
 On-demand provisioning: Provisioning > Provision on demand > enter a specific
 user to test provisioning before enabling the full automated cycle.
 
-Q5 — SSO troubleshooting
+Q5 -- SSO troubleshooting
 Tool: use the "Test" button in Enterprise apps > [app] > Single sign-on.
 The SAML-based SSO test experience shows the raw SAML response and
 highlights claim mismatches.
@@ -931,36 +931,36 @@ Questions:
         "exam_objectives": ["3.3"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC3-003: App Registrations and API Permissions
+ANSWER GUIDE -- SC3-003: App Registrations and API Permissions
 
-Q1 — Why two app registrations
-Frontend (interactive): uses Authorization Code Flow with PKCE — user signs in,
+Q1 -- Why two app registrations
+Frontend (interactive): uses Authorization Code Flow with PKCE -- user signs in,
 gets delegated token representing the user. Delegated permissions only.
-Background job (daemon): uses Client Credentials Flow — no user, app acts
+Background job (daemon): uses Client Credentials Flow -- no user, app acts
 as itself. Requires Application permissions and admin consent.
 These flows and permission models are incompatible in a single registration.
-Separate registrations enforce least privilege — the frontend cannot use
+Separate registrations enforce least privilege -- the frontend cannot use
 Application permissions and the daemon cannot impersonate users.
 
-Q2 — Redirect URI by app type
+Q2 -- Redirect URI by app type
 Single-Page Application (SPA):
   Platform: Single-page application
   URI format: https://app.contoso.com/auth/callback
-  SPA uses Authorization Code + PKCE (no client secret — cannot be kept
+  SPA uses Authorization Code + PKCE (no client secret -- cannot be kept
   secure in browser-side JavaScript).
 Web Application (.NET): Platform = Web, URI = https://app/signin-oidc.
 Mobile (iOS): Platform = Mobile and desktop, URI = msauth.[bundle-id]://auth.
 
-Q3 — Background job Graph permission
+Q3 -- Background job Graph permission
 Permission: User.Read.All
 Type: Application permission (no signed-in user context).
 Admin consent: required. Only Global Administrator or Privileged Role
 Administrator can grant admin consent for Application permissions.
 Reason: Application permissions grant app-level access to ALL tenant data
-in that scope — cannot be delegated to end users.
+in that scope -- cannot be delegated to end users.
 Path: App registration > API permissions > Grant admin consent for [tenant].
 
-Q4 — Expose an API (backend registration)
+Q4 -- Expose an API (backend registration)
 App registration for backend API:
   Expose an API > Set Application ID URI (e.g. api://[client-id]).
   Add a scope:
@@ -971,12 +971,12 @@ Grant frontend app access to this scope:
   Frontend app registration > API permissions > Add permission >
   My APIs > [backend API] > Delegated permissions > Budget.Read.
 
-Q5 — Alternative to client secrets
+Q5 -- Alternative to client secrets
 Recommended: Certificate credentials (X.509 certificate).
 App holds the private key; Entra ID validates the public key.
 Certificates cannot be copied as easily as secrets and integrate with
 Azure Key Vault for automated rotation.
-Best for Azure workloads: Managed Identity — no credential at all to manage.
+Best for Azure workloads: Managed Identity -- no credential at all to manage.
 For SPA: no client secret is used by design (PKCE flow).
 Path to upload certificate: App registration > Certificates and secrets >
 Certificates tab > Upload certificate (.cer or .pem).
@@ -1036,54 +1036,54 @@ Questions:
         "exam_objectives": ["4.3"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE — SC4-001: Privileged Identity Management (PIM)
+ANSWER GUIDE -- SC4-001: Privileged Identity Management (PIM)
 
-Q1 — Converting permanent to eligible assignments
+Q1 -- Converting permanent to eligible assignments
 Path: Entra admin centre > Identity Governance > PIM > Microsoft Entra roles >
 Assignments > [Global Administrator].
 For each admin: Remove permanent active assignment > Add eligible assignment.
 Activation settings (PIM role settings for Global Administrator):
-  - Maximum activation duration: 4-8 hours (not 24 — limits exposure window)
+  - Maximum activation duration: 4-8 hours (not 24 -- limits exposure window)
   - Require MFA on activation: Yes (always for Global Admin)
   - Require justification: Yes (creates audit trail for every activation)
   - Require approval: Yes (Global Admin is too powerful to self-activate)
   - Approvers: 2-3 senior security team members
 
-Q2 — PIM settings for high-risk role
+Q2 -- PIM settings for high-risk role
 Path: Entra admin centre > PIM > Microsoft Entra roles > [role name] > Settings > Edit.
   - Activation maximum duration: set to chosen hours
   - On activation, require: MFA, Justification, Approval
   - Approval: add approver group members
-  - Notification: "Alert admins when eligible members activate" → add security team email
+  - Notification: "Alert admins when eligible members activate" -> add security team email
   - Assignment: prevent permanent active assignments (eligible only)
 All settings are on the "Settings" tab for the specific role in PIM.
 
-Q3 — Break-glass accounts
+Q3 -- Break-glass accounts
 Microsoft recommendations:
   - Create 2 accounts (so one is available if the other is locked)
-  - Use .onmicrosoft.com UPN (not federated — works even if federation/MFA fails)
+  - Use .onmicrosoft.com UPN (not federated -- works even if federation/MFA fails)
   - Do NOT require MFA via Conditional Access (exclude from ALL CA policies)
   - Use FIDO2 hardware key or very long random password stored in physical safe
-  - Assign Global Administrator PERMANENTLY (not eligible — must work if PIM is down)
-  - Monitor: create alert in Sentinel/Log Analytics — ANY sign-in from these
+  - Assign Global Administrator PERMANENTLY (not eligible -- must work if PIM is down)
+  - Monitor: create alert in Sentinel/Log Analytics -- ANY sign-in from these
     accounts triggers immediate security team notification
 
-Q4 — PIM for Azure Resources vs Entra roles
+Q4 -- PIM for Azure Resources vs Entra roles
 PIM for Entra roles: manages directory roles (Global Admin, User Admin, etc.)
 PIM for Azure Resources: manages Azure RBAC roles (Owner, Contributor, etc.)
 on subscriptions, resource groups, or individual resources.
 Path: PIM > Azure resources > [Production subscription] > Roles > Owner >
 Add eligible assignment > select DevOps group members > set time-bound duration.
 
-Q5 — PIM for Groups
+Q5 -- PIM for Groups
 Licence: Microsoft Entra ID P2.
 Path: PIM > Groups > Discover groups > select security group > Enable PIM.
 Members now activate their group membership before the group (and its
 associated resource access/app role assignments) takes effect.
-Use case: group is assigned to an app role or used in a CA policy —
+Use case: group is assigned to an app role or used in a CA policy --
 PIM for Groups gates that access behind activation.
 
-Q6 — PIM audit report
+Q6 -- PIM audit report
 Path: PIM > Microsoft Entra roles > Audit history.
 Filter: Date range = last 30 days, Activity = "Role activated."
 Export: Download CSV from the audit history view.
@@ -1102,12 +1102,12 @@ A compliance audit at {org_name} found these access control weaknesses:
   - {num_stale_users} accounts not signed in for 90+ days still retain full access
   - {num_privileged} privileged role members have never had their access reviewed
   - {num_guests} guest accounts in the tenant for over {guest_age} months with no review
-  - {sensitive_group} grants access to {sensitive_data} — not reviewed in {review_gap} months
+  - {sensitive_group} grants access to {sensitive_data} -- not reviewed in {review_gap} months
   - Terminated employees: {term_employee_status}
 
 Questions:
 1. Create a recurring Access Review for {sensitive_group} every {review_frequency} days.
-   Who should be the reviewer — group owner, the users themselves, or selected reviewers?
+   Who should be the reviewer -- group owner, the users themselves, or selected reviewers?
    Justify for a {sensitive_data} scenario.
 2. Configure an Access Review for the {num_privileged} privileged role members.
    What is different about reviewing privileged roles vs group membership?
@@ -1128,7 +1128,7 @@ Questions:
             "sensitive_data": ["financial records", "patient health information", "payroll data", "board-level documents"],
             "review_gap": ["18", "24", "12", "36"],
             "term_employee_status": [
-                "terminated employees are being manually offboarded — 3 recently missed",
+                "terminated employees are being manually offboarded -- 3 recently missed",
                 "there is no automated offboarding process in place",
                 "HR updates AD but Entra ID sync takes up to 24 hours",
             ],
@@ -1137,18 +1137,18 @@ Questions:
         "exam_objectives": ["4.2"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC4-002: Access Reviews
+ANSWER GUIDE -- SC4-002: Access Reviews
 
-Q1 — Access Review for sensitive group
+Q1 -- Access Review for sensitive group
 Path: Entra admin centre > Identity Governance > Access Reviews > New access review.
   - Review type: Teams + Groups > select the sensitive group
   - Recurrence: chosen frequency (e.g. every 90 days)
-  - Reviewers: Selected reviewers — choose the data owner or line manager
+  - Reviewers: Selected reviewers -- choose the data owner or line manager
 Do NOT use self-review for sensitive data: users have a conflict of interest
 reviewing their own access to payroll, patient records, or financial data.
 For sensitive data always use a named manager, data owner, or security reviewer.
 
-Q2 — Privileged role access review
+Q2 -- Privileged role access review
 Path: Access Reviews > New access review > Microsoft Entra roles.
 Key differences from group review:
   - Scope can target only active or only eligible PIM assignments (or both)
@@ -1156,21 +1156,21 @@ Key differences from group review:
   - Review scope = specific privileged roles, not group membership
   - Recommended reviewer: a senior security team member, not the role holders themselves
 
-Q3 — No-response setting
+Q3 -- No-response setting
 Path: Access Reviews > [review] > Settings > "If reviewers don't respond."
 For a sensitive group: set to "Remove access."
 Rationale: if a reviewer cannot confirm that someone still needs access to
 sensitive data, access should default to denied (least privilege principle).
 Never use "Approve access" as a no-response default for sensitive resources.
 
-Q4 — Guest-specific review with auto-removal
+Q4 -- Guest-specific review with auto-removal
 Configure: scope = Guest users only.
 Enable: Auto apply results to resource = Yes.
 Enable: If reviewer doesn't respond = Remove access.
 Enable: Action on denied guest users = Remove user's membership from the group
 AND disable sign-in (prevents lingering directory presence).
 
-Q5 — Lifecycle Workflow for offboarding
+Q5 -- Lifecycle Workflow for offboarding
 Path: Entra admin centre > Identity Governance > Lifecycle Workflows > New workflow.
   - Trigger type: "Employee leave" (triggered when employeeLeaveDateTime is set)
   - Tasks:
@@ -1191,7 +1191,7 @@ via writeback or direct Entra attribute update.
         "objective": "4.1 - Plan and implement entitlement management in Microsoft Entra",
         "scenario_template": """
 {org_name} has {num_apps} applications and {num_groups} security groups controlling
-access. Currently access requests are managed via email to the IT helpdesk —
+access. Currently access requests are managed via email to the IT helpdesk --
 causing delays and no audit trail.
 
 Access requirements to automate:
@@ -1244,28 +1244,28 @@ Questions:
         "exam_objectives": ["4.1"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC4-003: Entitlement Management and Access Packages
+ANSWER GUIDE -- SC4-003: Entitlement Management and Access Packages
 
-Q1 — Catalog vs Access Package
+Q1 -- Catalog vs Access Package
 Catalog: a container grouping related resources (apps, groups, SharePoint sites)
 and defining who can manage them. Department-level container.
 Access Package: a bundle of specific resources within a catalog that users
 can request or be auto-assigned. Think of it as a role or job profile.
-Catalog owner: department head or IT lead — manages what resources are in the catalog.
-Access Package manager: IT admin or HR — manages approval workflows and policies.
-Separation of duties: catalog owner ≠ access package manager.
+Catalog owner: department head or IT lead -- manages what resources are in the catalog.
+Access Package manager: IT admin or HR -- manages approval workflows and policies.
+Separation of duties: catalog owner ? access package manager.
 
-Q2 — Access Package for new employees with auto-assignment
+Q2 -- Access Package for new employees with auto-assignment
 Path: Identity Governance > Entitlement Management > Access packages > New.
 Resources tab: add required groups, apps, SharePoint sites.
-Requests tab — add two policies:
+Requests tab -- add two policies:
   Policy 1 (auto-assignment): "Automatic assignment" rule:
-    (user.department -eq "Finance") — users matching this are auto-assigned.
+    (user.department -eq "Finance") -- users matching this are auto-assigned.
     No approval required for auto-assignment.
   Policy 2 (self-service request): require manager approval for manual requests.
 Lifecycle tab: Expiration = after chosen days, require renewal = Yes.
 
-Q3 — External Access Package (Connected Organizations)
+Q3 -- External Access Package (Connected Organizations)
 Prerequisite: Identity Governance > Entitlement Management > Connected organizations >
 New connected organization. Add partner org by domain or tenant ID. State = Configured.
 Then in Access Package > Requests tab: add policy for "Users not in your directory"
@@ -1273,7 +1273,7 @@ Then in Access Package > Requests tab: add policy for "Users not in your directo
 Set approval: require sponsor or admin approval.
 Set expiration: time-limit to contractor duration days (hard expiry, no renewal).
 
-Q4 — Terms of Use enforcement
+Q4 -- Terms of Use enforcement
 ToU document must be in PDF format.
 Enforcement: via Conditional Access (not directly within the Access Package).
 Create ToU: Entra admin centre > Identity Governance > Terms of use > New terms.
@@ -1281,9 +1281,9 @@ Upload PDF, configure language settings, require expansion before acceptance.
 Create CA policy: target the sensitive app > Grant: Require terms of use.
 The Access Package grants access; CA enforces ToU acceptance at sign-in time.
 
-Q5 — Reporting and expiry behaviour
+Q5 -- Reporting and expiry behaviour
 Report: Identity Governance > Entitlement Management > Reports >
-"Access package assignments" — shows all current assignments, expiry dates, policies.
+"Access package assignments" -- shows all current assignments, expiry dates, policies.
 Also: "Requests" report (all requests, approvals, denials, cancellations).
 When assignment expires without renewal:
   - Auto-apply removes user from all resources in the package
@@ -1343,9 +1343,9 @@ Questions:
         "exam_objectives": ["4.4"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE — SC4-004: Identity Monitoring, Logs, and Reporting
+ANSWER GUIDE -- SC4-004: Identity Monitoring, Logs, and Reporting
 
-Q1 — Diagnostic Settings
+Q1 -- Diagnostic Settings
 Path: Entra admin centre > Monitoring > Diagnostic settings > Add diagnostic setting.
 Log categories to export:
   - SignInLogs (interactive user sign-ins)
@@ -1358,9 +1358,9 @@ Log Analytics vs Storage Account:
   - Log Analytics: query with KQL in real time, integrate with Sentinel,
     retention configurable up to 2 years, higher cost per GB but queryable
   - Storage Account: cheapest long-term archival, NOT queryable in real time
-Best practice: both — Log Analytics for active monitoring, Storage for archival.
+Best practice: both -- Log Analytics for active monitoring, Storage for archival.
 
-Q2 — KQL query: sign-ins from multiple countries in 24h
+Q2 -- KQL query: sign-ins from multiple countries in 24h
   SignInLogs
   | where ResultType == 0  // successful sign-ins only
   | extend Country = tostring(LocationDetails.countryOrRegion)
@@ -1370,7 +1370,7 @@ Q2 — KQL query: sign-ins from multiple countries in 24h
   | project TimeGenerated, UserPrincipalName, Countries, CountryList
   | order by Countries desc
 
-Q3 — Built-in Entra Workbooks
+Q3 -- Built-in Entra Workbooks
 Path for all: Entra admin centre > Monitoring > Workbooks.
   a) Legacy authentication: "Sign-ins using legacy authentication"
      (shows users, protocols, apps still using Basic auth)
@@ -1379,7 +1379,7 @@ Path for all: Entra admin centre > Monitoring > Workbooks.
   c) Risky sign-ins over time: "Microsoft Entra ID Protection" workbook
      or the Risky sign-ins report under Identity Protection
 
-Q4 — Secure Score improvement actions
+Q4 -- Secure Score improvement actions
 "Require MFA for administrative roles":
   Create CA policy: Assignments = directory roles (all admin roles) >
   Grant = Require MFA. This is the primary control Microsoft measures.
@@ -1387,12 +1387,12 @@ Q4 — Secure Score improvement actions
   Path: Entra > Security > Password reset > Self-service password reset = All.
   Reduces helpdesk load and enables risk policy password reset remediation.
 "Do not expire passwords":
-  Microsoft research: expiry causes weaker passwords (Password1! → Password2!).
+  Microsoft research: expiry causes weaker passwords (Password1! -> Password2!).
   Rely on breach detection (ID Protection) instead of forced rotation.
   Path: Entra > Users > Password expiration policy > Never expire.
   (Also configurable via Microsoft 365 admin centre or PowerShell.)
 
-Q5 — Investigating a potentially compromised account
+Q5 -- Investigating a potentially compromised account
 1. Entra admin centre > Users > [user] > Sign-in logs
 2. Filter: last 7-30 days, Status = All (include failures)
 3. Look for: unfamiliar IPs, unusual locations, new device/browser,
@@ -1475,3 +1475,4 @@ if __name__ == "__main__":
         pbq = get_weighted_sc300_pbq()
         display_sc300_pbq(pbq, student_mode=False)
         input("Press ENTER for next scenario...\n")
+

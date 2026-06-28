@@ -18,7 +18,8 @@ def print_menu(scenarios):
     print(f"{len(scenarios) + 6}. CySA+ CS0-004 Log Analysis Mode (Generate Log Analysis PBQs)")
     print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)")
     print(f"{len(scenarios) + 8}. IoT Security Scenarios (Generate IoT Practice Scenarios)")
-    print(f"{len(scenarios) + 9}. SC-300 PBQ Mode (Microsoft Identity and Access Administrator)\n")
+    print(f"{len(scenarios) + 9}. SC-300 PBQ Mode (Microsoft Identity and Access Administrator)")
+    print(f"{len(scenarios) + 10}. CyberArk Defender PAM-DEF PBQ Mode (Privileged Access Management)\n")
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"Current Mode: {mode}\n")
 
@@ -193,3 +194,21 @@ def get_sc300_domain_choice() -> str:
         if choice in domains:
             return domains[choice]
         print("Invalid choice. Please enter a number between 1 and 5.")
+
+
+def get_cyberark_domain_choice() -> str:
+    print("\nChoose CyberArk Defender Domain:\n")
+    print("1. Account Onboarding                  (~15%)")
+    print("2. Application Management              (~10%)")
+    print("3. Ongoing Maintenance                 (~15%)")
+    print("4. Password Management Configuration   (~15%)")
+    print("5. Security and Audit                  (~15%)")
+    print("6. Session Management Configuration    (~20%)")
+    print("7. User Management Configuration       (~10%)")
+    print("8. Random (weighted by exam %)\n")
+    domains = {"1":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"7","8":None}
+    while True:
+        choice = input("Select a domain number: ").strip()
+        if choice in domains:
+            return domains[choice]
+        print("Invalid choice. Please enter a number between 1 and 8.")

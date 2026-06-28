@@ -79,15 +79,21 @@ Frameworks: OWASP IoT Top 10, NIST SP 800-213, ENISA IoT Guidelines
 Dedicated Microsoft Identity and Access Administrator exam practice. No LLM required - instant generation. Covers all four SC-300 domains with randomised variables for unique scenarios every time:
 
 - Domain 1: Implement and Manage User Identities (20-25%)
-  - Entra tenant configuration, bulk identity operations, hybrid identity, external identities
 - Domain 2: Implement Authentication and Access Management (25-30%)
-  - Conditional Access policy design, MFA and authentication methods, ID Protection, Global Secure Access
 - Domain 3: Plan and Implement Workload Identities (20-25%)
-  - Managed identities, enterprise application integration, app registrations and API permissions
 - Domain 4: Plan and Automate Identity Governance (20-25%)
-  - PIM, access reviews, entitlement management, identity monitoring and KQL
 
-Every scenario uses randomised variables so you get a unique scenario every time. Hundreds of unique combinations from 15 SC-300 templates alone.
+### CyberArk Defender PAM-DEF PBQ Mode (Option 17)
+
+Dedicated CyberArk Defender PAM (PAM-DEF) exam practice. No LLM required - instant generation. Covers all seven official PAM-DEF knowledge domains:
+
+- Domain 1: Account Onboarding (~15%)
+- Domain 2: Application Management (~10%)
+- Domain 3: Ongoing Maintenance (~15%)
+- Domain 4: Password Management Configuration (~15%)
+- Domain 5: Security and Audit (~15%)
+- Domain 6: Session Management Configuration (~20%)
+- Domain 7: User Management Configuration (~10%)
 
 ## Complete Menu Reference
 
@@ -103,6 +109,7 @@ Every scenario uses randomised variables so you get a unique scenario every time
 | 14 | OT/ICS Security Scenarios | No - instant |
 | 15 | IoT Security Scenarios | No - instant |
 | 16 | SC-300 PBQ Mode (Microsoft Identity and Access Administrator) | No - instant |
+| 17 | CyberArk Defender PAM-DEF PBQ Mode (Privileged Access Management) | No - instant |
 
 ## Supported Topics
 
@@ -114,50 +121,49 @@ Every scenario uses randomised variables so you get a unique scenario every time
 | Log Analysis | 11 | CompTIA CS0-004 | Instant |
 | OT/ICS Security | 13 | IEC 62443 / NIST SP 800-82 | Instant |
 | IoT Security | 12 | OWASP IoT Top 10 / NIST SP 800-213 | Instant |
+| CyberArk Defender PAM-DEF | 11 | CyberArk PAM-DEF | Instant |
 
 ## Quick Start
 
-```bash
 git clone https://github.com/siriusbkid-commits/gideon-pbq-generator.git
 cd gideon-pbq-generator
 python start.py
-```
 
-For options 12-16 no additional setup is needed - just clone and run.
+For options 12-17 no additional setup is needed - just clone and run.
 
 For options 1-11 you also need Ollama installed with mistral-nemo:
 
 1. Download Ollama from https://ollama.com
-2. Run: `ollama pull mistral-nemo`
-3. Run: `ollama serve`
+2. Run: ollama pull mistral-nemo
+3. Run: ollama serve
 
 ## Requirements
 
 - Python 3.10+
-- No external dependencies for options 12-16
+- No external dependencies for options 12-17
 - Ollama with mistral-nemo (7GB download) for options 1-11
 
 ## Student and Instructor Mode
 
 Toggle between modes using Option 11:
 
-- **Student Mode**: scenarios and questions only - no answers shown
-- **Instructor Mode**: full model answers and rationales shown
+- Student Mode: scenarios and questions only - no answers shown
+- Instructor Mode: full model answers and rationales shown
 
 ## Output Files
 
 Each generated PBQ saves to your output folder:
 
-- **JSON file**: structured PBQ data
-- **Markdown file**: formatted for reading in VS Code
+- JSON file: structured PBQ data
+- Markdown file: formatted for reading in VS Code
 
-Open .md files in VS Code and press `Ctrl+Shift+V` for rendered preview.
+Open .md files in VS Code and press Ctrl+Shift+V for rendered preview.
 
 ## Who Is GIDEON For?
 
 - SC-300 Microsoft Identity and Access Administrator exam candidates
+- CyberArk Defender PAM-DEF exam candidates
 - CySA+ CS0-004 exam candidates
-- CyberArk Defender exam candidates
 - OT/ICS security professionals and students
 - IoT security researchers and practitioners
 - SOC analysts building scenario analysis skills
@@ -166,26 +172,15 @@ Open .md files in VS Code and press `Ctrl+Shift+V` for rendered preview.
 
 ## Pair With the Full Udemy Courses
 
-GIDEON pairs perfectly with these Udemy courses:
-
 ### CySA+ CS0-004
-- [CySA+ Log Mastery: Practice Tests for CS0-004](https://www.udemy.com/course/cysa-log-mastery-practice-tests-for-cs0-004)
-- [GIDEON: Generate Unlimited SC-300 and CyberArk PBQs for Free](https://www.udemy.com/course/pbq-generator-mastery-create-iam-sc300-practice-pbqs)
+- CySA+ Log Mastery: Practice Tests for CS0-004 https://www.udemy.com/course/cysa-log-mastery-practice-tests-for-cs0-004
+- GIDEON: Generate Unlimited SC-300 and CyberArk PBQs for Free https://www.udemy.com/course/pbq-generator-mastery-create-iam-sc300-practice-pbqs
 
 ### OT/ICS Security
-- [OT/ICS Security Practice Tests for IT Professionals](https://www.udemy.com/course/otics-security-practice-tests-for-it-professionals) (Now includes AI and Agentic AI threats!)
+- OT/ICS Security Practice Tests for IT Professionals https://www.udemy.com/course/otics-security-practice-tests-for-it-professionals
 
 ### IoT Security
-- [IoT Security Practice Tests for IT Professionals](https://www.udemy.com/course/iot-security-practice-tests-for-it-professionals)
-
-### How the Free Tool and Paid Courses Work Together
-
-| Tool | Format | Best For |
-|------|--------|----------|
-| GIDEON (free) | Open-ended scenarios | Building deep practical skills |
-| Udemy courses (paid) | Guided learning with explanations | Structured learning and exam prep |
-
-Use GIDEON to build the skill. Use the Udemy courses to structure the knowledge.
+- IoT Security Practice Tests for IT Professionals https://www.udemy.com/course/iot-security-practice-tests-for-it-professionals
 
 ## Free Study Resources
 
@@ -193,6 +188,11 @@ Use GIDEON to build the skill. Use the Udemy courses to structure the knowledge.
 - Microsoft SC-300 Exam Page: https://learn.microsoft.com/credentials/certifications/exams/sc-300
 - Microsoft Entra ID Documentation: https://learn.microsoft.com/entra/identity/
 - Microsoft Learn SC-300 Study Guide: https://learn.microsoft.com/credentials/certifications/identity-and-access-administrator/
+
+### CyberArk Defender PAM-DEF
+- CyberArk Certification Page: https://www.cyberark.com/services-support/training-certification/
+- CyberArk Documentation Portal: https://docs.cyberark.com
+- CyberArk PAM Administration Training: https://training.cyberark.com
 
 ### OT/ICS Security
 - NIST SP 800-82: https://csrc.nist.gov/publications/detail/sp/800-82/rev-3/final
@@ -210,31 +210,31 @@ Use GIDEON to build the skill. Use the Udemy courses to structure the knowledge.
 
 ## Adding Your Own Scenarios
 
-Add custom .json scenario files to the `scenarios/` folder and they appear in the menu automatically. See `examples/` for the scenario file format.
+Add custom .json scenario files to the scenarios/ folder and they appear in the menu automatically. See examples/ for the scenario file format.
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Currently Available
 
-- ✅ SC-300 — Microsoft Identity Administrator scenarios (LLM chain + dedicated instant PBQ mode)
-- ✅ CyberArk Defender — PAM scenarios
-- ✅ CySA+ CS0-004 — PBQ and log analysis scenarios
-- ✅ OT/ICS Security — 120 practice questions
-- ✅ IoT Security — 120 practice questions + AI scenarios
+- SC-300 - Microsoft Identity Administrator scenarios (LLM chain + dedicated instant PBQ mode)
+- CyberArk Defender PAM-DEF - dedicated instant PBQ mode across all 7 domains
+- CySA+ CS0-004 - PBQ and log analysis scenarios
+- OT/ICS Security - 120 practice questions
+- IoT Security - 120 practice questions + AI scenarios
 
 ### Coming Soon
 
-- 🔜 CompTIA SecOT+ — OT security scenarios aligned to SecOT+ exam objectives (launching December 2026)
-- 🔜 NZ Health Security — HISO 10029.1 compliance scenarios and clinical IAM PBQs
-- 🔜 CompTIA SecurityAI+ — AI security scenarios
-- 🔜 SC-500 — Microsoft Cloud and AI Security scenarios
+- CompTIA SecOT+ - OT security scenarios (launching December 2026)
+- CompTIA SecurityAI+ - AI security scenarios
+- NZ Health Security - HISO 10029.1 compliance scenarios and clinical IAM PBQs
+- SC-500 - Microsoft Cloud and AI Security scenarios
 
 ## Community Contributions Welcome
 
-Add your own scenario packs — see Adding Your Own Scenarios above.
+Add your own scenario packs - see Adding Your Own Scenarios above.
 
 ## About
 
 Built by John Pickering as a free companion tool for cybersecurity students and professionals worldwide.
 
-⭐ Star this repo if you find it useful - it helps other students find it!
+Star this repo if you find it useful - it helps other students find it!

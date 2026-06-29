@@ -1,12 +1,12 @@
-"""
+﻿"""
 GIDEON SC-300 Module
 ====================
 Microsoft Identity and Access Administrator (SC-300)
 Exam domains and weights (2025-01):
-  1. Implement and Manage User Identities         20-25%
+  1. Implement and Manage User Identities         25-30%
   2. Implement Authentication and Access Mgmt     25-30%
-  3. Plan and Implement Workload Identities       20-25%
-  4. Plan and Automate Identity Governance        20-25%
+  3. Plan and Implement Workload Identities       25-30%
+  4. Plan and Automate Identity Governance        25-30%
 """
 
 import random

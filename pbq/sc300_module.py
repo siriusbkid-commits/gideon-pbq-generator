@@ -16,10 +16,10 @@ SC300_EXAM = {
     "name": "Microsoft Identity and Access Administrator",
     "version": "2025-01",
     "domains": {
-        "1": {"name": "Implement and Manage User Identities",         "weight": "20-25"},
+        "1": {"name": "Implement and Manage User Identities",         "weight": "25-30"},
         "2": {"name": "Implement Authentication and Access Management","weight": "25-30"},
-        "3": {"name": "Plan and Implement Workload Identities",        "weight": "20-25"},
-        "4": {"name": "Plan and Automate Identity Governance",         "weight": "20-25"},
+        "3": {"name": "Plan and Implement Workload Identities",        "weight": "25-30"},
+        "4": {"name": "Plan and Automate Identity Governance",         "weight": "25-30"},
     }
 }
 

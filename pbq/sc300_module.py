@@ -1475,4 +1475,11 @@ if __name__ == "__main__":
         pbq = get_weighted_sc300_pbq()
         display_sc300_pbq(pbq, student_mode=False)
         input("Press ENTER for next scenario...\n")
-
+# ── Scenario ID search (sc300_search_patch) ──────────────────────────────────
+from pbq.sc300_search_patch import (
+    generate_sc300_pbq_by_id,
+    display_sc300_pbq_with_nudge,
+    show_sc300_scenario_index,
+    SC300_SCENARIO_INDEX,
+    SC300_SCENARIO_TOPICS,
+)

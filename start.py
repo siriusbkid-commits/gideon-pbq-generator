@@ -318,17 +318,45 @@ def run_sc300_pbq():
     print("\n=== SC-300 PBQ MODE ===")
     print("Microsoft Identity and Access Administrator\n")
     from pbq.sc300_module import generate_sc300_pbq, get_weighted_sc300_pbq, display_sc300_pbq
+    from pbq.sc300_search_patch import (
+        generate_sc300_pbq_by_id,
+        display_sc300_pbq_with_nudge,
+        show_sc300_scenario_index,
+    )
     from pbq.menu import get_sc300_domain_choice
-    print("1. Single  2. Batch")
+
+    print("1. Single  2. Batch  S. Search by Scenario ID  ?. Show all Scenario IDs")
+
+    # ── Mode selection ────────────────────────────────────────
     while True:
-        mode = input("Select mode (1 or 2): ").strip()
-        if mode in ("1", "2"):
+        mode = input("Select mode (1, 2, S or ?): ").strip()
+        if mode in ("1", "2", "S", "s", "?"):
             break
-        print("Please enter 1 or 2.")
+        print("Please enter 1, 2, S or ?.")
+
+    # ── ? — Show scenario index ───────────────────────────────
+    if mode == "?":
+        show_sc300_scenario_index()
+        return
+
+    # ── S — Search by Scenario ID ─────────────────────────────
+    if mode.upper() == "S":
+        sid = input("  Enter Scenario ID (e.g. SC2-003): ").strip()
+        pbq, err = generate_sc300_pbq_by_id(sid)
+        if err:
+            print(f"\n  ⚠  {err}\n")
+            return
+        display_sc300_pbq_with_nudge(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this PBQ to file? (y/n): "):
+            _save_sc300_pbq(pbq)
+        return
+
+    # ── 1 / 2 — Normal random / batch mode ───────────────────
     domain_filter = get_sc300_domain_choice()
     selected_difficulty = get_difficulty_choice()
     if selected_difficulty == "beginner":
         selected_difficulty = "intermediate"
+
     if mode == "1":
         pbq = get_weighted_sc300_pbq() if domain_filter is None else generate_sc300_pbq(domain_filter=domain_filter, difficulty_filter=selected_difficulty)
         if "error" in pbq:

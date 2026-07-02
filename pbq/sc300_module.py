@@ -984,23 +984,27 @@ Certificates tab > Upload certificate (.cer or .pem).
     },
 ]
 
-DOMAIN4_SCENARIOS = [
+
+SC4_001_TEMPLATES = [
+ 
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC4-001",
+        "template_variant": "A",
         "domain": "4",
         "sub_topic": "Privileged Identity Management (PIM)",
         "objective": "4.3 - Plan and implement privileged access",
         "scenario_template": """
 {org_name} has just enabled Microsoft Entra PIM for the first time.
 Current state:
-
+ 
   - {num_permanent_admins} users have PERMANENT Global Administrator assignment
   - {num_eligible} users need occasional admin access (currently permanent)
   - {risky_role} assigned to {num_risky} users with no approval required
   - Break-glass accounts: {break_glass_status}
   - PIM for Groups: not configured
   - Azure resource roles in PIM: not configured
-
+ 
 Questions:
 1. Convert {num_permanent_admins} permanent Global Admins to eligible assignments.
    What activation settings would you configure: duration, MFA, justification, approval?
@@ -1036,8 +1040,8 @@ Questions:
         "exam_objectives": ["4.3"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE -- SC4-001: Privileged Identity Management (PIM)
-
+ANSWER GUIDE -- SC4-001-A: Privileged Identity Management (PIM)
+ 
 Q1 -- Converting permanent to eligible assignments
 Path: Entra admin centre > Identity Governance > PIM > Microsoft Entra roles >
 Assignments > [Global Administrator].
@@ -1048,7 +1052,7 @@ Activation settings (PIM role settings for Global Administrator):
   - Require justification: Yes (creates audit trail for every activation)
   - Require approval: Yes (Global Admin is too powerful to self-activate)
   - Approvers: 2-3 senior security team members
-
+ 
 Q2 -- PIM settings for high-risk role
 Path: Entra admin centre > PIM > Microsoft Entra roles > [role name] > Settings > Edit.
   - Activation maximum duration: set to chosen hours
@@ -1057,7 +1061,7 @@ Path: Entra admin centre > PIM > Microsoft Entra roles > [role name] > Settings 
   - Notification: "Alert admins when eligible members activate" -> add security team email
   - Assignment: prevent permanent active assignments (eligible only)
 All settings are on the "Settings" tab for the specific role in PIM.
-
+ 
 Q3 -- Break-glass accounts
 Microsoft recommendations:
   - Create 2 accounts (so one is available if the other is locked)
@@ -1067,44 +1071,273 @@ Microsoft recommendations:
   - Assign Global Administrator PERMANENTLY (not eligible -- must work if PIM is down)
   - Monitor: create alert in Sentinel/Log Analytics -- ANY sign-in from these
     accounts triggers immediate security team notification
-
+ 
 Q4 -- PIM for Azure Resources vs Entra roles
 PIM for Entra roles: manages directory roles (Global Admin, User Admin, etc.)
 PIM for Azure Resources: manages Azure RBAC roles (Owner, Contributor, etc.)
 on subscriptions, resource groups, or individual resources.
 Path: PIM > Azure resources > [Production subscription] > Roles > Owner >
 Add eligible assignment > select DevOps group members > set time-bound duration.
-
+ 
 Q5 -- PIM for Groups
 Licence: Microsoft Entra ID P2.
 Path: PIM > Groups > Discover groups > select security group > Enable PIM.
 Members now activate their group membership before the group (and its
 associated resource access/app role assignments) takes effect.
-Use case: group is assigned to an app role or used in a CA policy --
-PIM for Groups gates that access behind activation.
-
+ 
 Q6 -- PIM audit report
 Path: PIM > Microsoft Entra roles > Audit history.
 Filter: Date range = last 30 days, Activity = "Role activated."
 Export: Download CSV from the audit history view.
-Report shows: who activated, which role, when, duration, justification provided,
-whether approval was required and granted. Suitable for compliance audit submission.
 """
     },
+ 
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-001",
+        "template_variant": "B",
+        "domain": "4",
+        "sub_topic": "Privileged Identity Management (PIM)",
+        "objective": "4.3 - Plan and implement privileged access",
+        "scenario_template": """
+A security review at {org_name} has flagged the following PIM misconfigurations:
+ 
+  - {risky_role} can be self-activated with no approval and no time limit
+  - {num_permanent_admins} users have active (not eligible) assignments to sensitive roles
+  - PIM alerts are not configured -- activations happen silently
+  - A third-party auditor needs read-only access to PIM audit logs
+  - {num_devops} developers have permanent Contributor access to ALL Azure subscriptions
+  - The "{pim_group}" group has 34 members but no-one knows who approved them
+ 
+Questions:
+1. {risky_role} has no approval requirement. Walk through configuring approval workflow
+   in PIM. What is the difference between "approver" and "backup approver"?
+   What happens if no approver responds within the configured timeframe?
+2. Explain the difference between "Active assignment" and "Eligible assignment" in PIM.
+   When would you use a permanent Active assignment legitimately?
+3. Configure PIM alerts for your tenant. Name THREE built-in PIM alerts and
+   what each detects. Where are alerts configured and how are notifications sent?
+4. The third-party auditor needs PIM audit log access only. What is the minimum
+   Entra role that grants this without any ability to modify PIM settings?
+5. Design a PIM for Azure Resources structure for {num_devops} developers across
+   {num_subscriptions} Azure subscriptions. How do you avoid configuring each
+   subscription individually?
+6. Investigate the "{pim_group}" group membership issue. What PIM report shows
+   who approved each assignment and when? What action do you take for
+   assignments with no approval record?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Finance", "Alpine Engineering", "Pacific Council"],
+            "risky_role": ["Privileged Role Administrator", "User Administrator", "Application Administrator", "Cloud Application Administrator"],
+            "num_permanent_admins": ["12", "7", "19", "4"],
+            "num_devops": ["8", "15", "4", "25"],
+            "num_subscriptions": ["3", "6", "2", "8"],
+            "pim_group": ["Security-Ops-Team", "Prod-Access-Group", "CloudOps-Admins", "DR-Response-Team"],
+        },
+        "exam_objectives": ["4.3"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-001-B: PIM Misconfigurations and Remediation
+ 
+Q1 -- Approval workflow and backup approvers
+Path: PIM > Microsoft Entra roles > [role] > Settings > Edit > Require approval.
+Add primary approvers (named individuals or group).
+Backup approver: receives the approval request if primary approver does not
+respond within the configured time (default 24 hours).
+If NO approver (primary or backup) responds: activation request EXPIRES and
+is automatically DENIED. The requestor must submit a new request.
+This is by design -- PIM defaults to deny on timeout, not approve.
+ 
+Q2 -- Active vs Eligible assignment
+Eligible assignment: user must activate the role (MFA, justification, approval)
+before it takes effect. Role is dormant until activated.
+Active assignment: role is permanently on -- no activation required.
+Legitimate uses for permanent Active assignment:
+  - Break-glass accounts (must work even if PIM is unavailable)
+  - Service accounts that cannot perform interactive MFA
+  - On-call security roles where instant access is safety-critical
+For all other privileged roles: eligible assignment is the correct choice.
+ 
+Q3 -- Built-in PIM alerts
+Path: PIM > Microsoft Entra roles > Alerts.
+Three key alerts:
+  1. "Roles are being activated too frequently" -- detects potential abuse
+     where the same user activates repeatedly in a short window
+  2. "Potential stale accounts in a privileged role" -- flags accounts
+     that have not signed in for 30+ days but hold eligible assignments
+  3. "Roles don't require MFA for activation" -- compliance gap detection
+Notifications: configure email recipients per alert in the alert settings.
+Alerts also appear in the PIM dashboard and can feed into Sentinel via
+Diagnostic Settings > AuditLogs.
+ 
+Q4 -- Read-only PIM audit access
+Minimum role: Security Reader
+This role grants read access to PIM audit history, role assignments,
+and activation history without any ability to modify settings or assignments.
+Alternatively: Reports Reader (more limited -- audit logs only).
+Do NOT assign Privileged Role Administrator -- that grants full PIM control.
+ 
+Q5 -- PIM for Azure Resources at scale
+Rather than configuring each subscription individually, use Management Groups.
+Assign PIM eligible roles at the Management Group level -- assignments
+inherit down to all child subscriptions automatically.
+Path: PIM > Azure resources > Select management group (not individual subscription).
+Add eligible assignment for Contributor to the developer group.
+Scope: management group covers all subscriptions beneath it.
+Activation settings: 4hr max, justification required, approval for production.
+ 
+Q6 -- Investigating unauthorised group membership
+Path: PIM > Groups > [pim_group] > Audit history.
+Filter: Activity = "Add member to group" -- shows who was added, when, and
+which admin approved or whether it was a direct assignment bypassing PIM.
+Assignments with no PIM approval record were added directly (bypassing PIM).
+Action: remove those assignments > re-add via PIM eligible assignment >
+configure PIM for the group if not already enabled to prevent future bypass.
+"""
+    },
+ 
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-001",
+        "template_variant": "C",
+        "domain": "4",
+        "sub_topic": "Privileged Identity Management (PIM)",
+        "objective": "4.3 - Plan and implement privileged access",
+        "scenario_template": """
+{org_name} is preparing for an ISO 27001 audit. The auditor has requested
+evidence of privileged access controls. Current findings:
+ 
+  - No evidence that privileged role activations are being reviewed
+  - {num_admins} Global Admins -- auditor says maximum should be 4
+  - Break-glass accounts cannot be tested without triggering real alerts
+  - A recent incident: {incident_description}
+  - PIM access reviews have never been configured
+  - Privileged access workstation (PAW) policy does not exist
+ 
+Questions:
+1. The auditor wants evidence of privileged access review. Configure a
+   PIM Access Review specifically for Global Administrator role members.
+   How does a PIM access review differ from a standard group access review?
+2. Reduce Global Admins from {num_admins} to 4 using PIM. Walk through
+   the process of identifying which admins to convert and which roles to
+   use instead (list at least 4 alternative roles and their use cases).
+3. Design a break-glass account testing procedure that can be run quarterly
+   WITHOUT triggering real security alerts. What steps are involved and
+   what evidence do you retain for the auditor?
+4. {incident_description}. Perform a post-incident PIM review. What specific
+   PIM reports and logs would you pull? What settings would you tighten?
+5. Define a Privileged Access Workstation (PAW) policy for your Global Admins.
+   What Conditional Access policy enforces that admin roles can only be
+   activated from compliant, dedicated devices?
+6. The auditor asks for a complete export of all privileged role assignments
+   (active and eligible) across Entra ID and Azure resources. How do you
+   produce this report and what format does it export in?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Insurance", "Alpine Council"],
+            "num_admins": ["11", "18", "7", "24"],
+            "incident_description": [
+                "a Global Admin account was activated at 2am from an unknown location",
+                "a Privileged Role Administrator assigned themselves Owner on the production subscription",
+                "an Exchange Admin exported the entire mailbox of the CEO without authorisation",
+                "a contractor account was found with Security Administrator role active for 6 months after contract end",
+            ],
+        },
+        "exam_objectives": ["4.3"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-001-C: PIM for Audit and Compliance
+ 
+Q1 -- PIM Access Review for Global Administrator
+Path: Identity Governance > Access Reviews > New access review >
+Microsoft Entra roles > Global Administrator.
+Differences from standard group access review:
+  - Can target eligible assignments, active assignments, or both separately
+  - Reviewers see PIM activation history alongside the assignment (context)
+  - Auto-apply can remove eligible assignments (not just group membership)
+  - Results feed directly into PIM assignment records and audit trail
+  - Recommended reviewer: Privileged Role Administrator or CISO, never self-review
+ 
+Q2 -- Reducing Global Admin count
+Process: PIM > Microsoft Entra roles > Global Administrator > Assignments.
+Review each admin: what do they actually use GA for?
+Common replacements:
+  - Password resets -> Authentication Administrator
+  - Licence management -> Licence Administrator
+  - Exchange management -> Exchange Administrator
+  - Conditional Access -> Security Administrator
+  - User management -> User Administrator
+  - Billing -> Billing Administrator
+Keep 2 permanent break-glass + 2 eligible GA for genuine GA tasks.
+Remove all others and assign scoped roles instead.
+ 
+Q3 -- Break-glass testing procedure (without triggering alerts)
+Step 1: Notify the security team and SOC IN ADVANCE (scheduled test).
+Step 2: Document the test in the change management system.
+Step 3: Sign in with break-glass account from a known, controlled location.
+Step 4: Verify sign-in succeeds and MFA (FIDO2) works correctly.
+Step 5: Immediately sign out -- do not perform any admin actions.
+Step 6: Verify alert fired in Sentinel -- confirm monitoring is working.
+Step 7: Document: date tested, tester, result, alert confirmed.
+Step 8: Rotate the password/verify FIDO2 key is still in physical safe.
+The PRE-NOTIFICATION is what prevents a real incident response being triggered.
+Retain the test documentation as audit evidence.
+ 
+Q4 -- Post-incident PIM review
+Reports to pull:
+  - PIM > Audit history: filter by the compromised/misused account
+  - Sign-in logs: all sign-ins for the account in the 30 days prior
+  - PIM > Role settings: confirm approval was required (was it bypassed?)
+Settings to tighten after incident:
+  - Reduce maximum activation duration
+  - Add additional approvers
+  - Enable require justification if not already on
+  - Review and remove any permanent active assignments in the affected role
+  - Enable Sentinel alert for the specific role if not already configured
+ 
+Q5 -- PAW policy via Conditional Access
+Create a dedicated device group: "PAW-Devices" in Entra ID.
+Enrol PAW devices in Intune with hardened compliance policy.
+CA policy: Assignments = Directory roles (all admin roles) >
+Conditions: Filter for devices = device is NOT in "PAW-Devices" group >
+Grant: Block access.
+Effect: admin roles can ONLY be activated from PAW devices.
+Complement with: named location restriction (corporate network only for PAW).
+ 
+Q6 -- Full privileged role assignment export
+Entra ID roles: PIM > Microsoft Entra roles > Assignments > Download (CSV).
+Includes: role name, member, assignment type (active/eligible), start/end date.
+Azure resource roles: PIM > Azure resources > each scope > Assignments > Download.
+For a combined report: use Microsoft Graph API or PowerShell:
+  Get-MgRoleManagementDirectoryRoleAssignment (Entra roles)
+  Get-AzRoleAssignment (Azure RBAC roles)
+Export format: CSV, suitable for spreadsheet review by auditor.
+"""
+    },
+]
+ 
+# ════════════════════════════════════════════════════════════════════════════
+# SC4-002: Access Reviews — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+ 
+SC4_002_TEMPLATES = [
+ 
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC4-002",
+        "template_variant": "A",
         "domain": "4",
         "sub_topic": "Access Reviews",
         "objective": "4.2 - Plan, implement, and manage access reviews in Microsoft Entra",
         "scenario_template": """
 A compliance audit at {org_name} found these access control weaknesses:
-
+ 
   - {num_stale_users} accounts not signed in for 90+ days still retain full access
   - {num_privileged} privileged role members have never had their access reviewed
   - {num_guests} guest accounts in the tenant for over {guest_age} months with no review
   - {sensitive_group} grants access to {sensitive_data} -- not reviewed in {review_gap} months
   - Terminated employees: {term_employee_status}
-
+ 
 Questions:
 1. Create a recurring Access Review for {sensitive_group} every {review_frequency} days.
    Who should be the reviewer -- group owner, the users themselves, or selected reviewers?
@@ -1137,55 +1370,267 @@ Questions:
         "exam_objectives": ["4.2"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE -- SC4-002: Access Reviews
-
+ANSWER GUIDE -- SC4-002-A: Access Reviews
+ 
 Q1 -- Access Review for sensitive group
 Path: Entra admin centre > Identity Governance > Access Reviews > New access review.
   - Review type: Teams + Groups > select the sensitive group
-  - Recurrence: chosen frequency (e.g. every 90 days)
+  - Recurrence: chosen frequency
   - Reviewers: Selected reviewers -- choose the data owner or line manager
-Do NOT use self-review for sensitive data: users have a conflict of interest
-reviewing their own access to payroll, patient records, or financial data.
+Do NOT use self-review for sensitive data.
 For sensitive data always use a named manager, data owner, or security reviewer.
-
+ 
 Q2 -- Privileged role access review
 Path: Access Reviews > New access review > Microsoft Entra roles.
-Key differences from group review:
+Key differences:
   - Scope can target only active or only eligible PIM assignments (or both)
   - Results can auto-remove eligible assignments if denied (PIM integration)
   - Review scope = specific privileged roles, not group membership
-  - Recommended reviewer: a senior security team member, not the role holders themselves
-
+  - Recommended reviewer: senior security team member
+ 
 Q3 -- No-response setting
-Path: Access Reviews > [review] > Settings > "If reviewers don't respond."
 For a sensitive group: set to "Remove access."
-Rationale: if a reviewer cannot confirm that someone still needs access to
-sensitive data, access should default to denied (least privilege principle).
-Never use "Approve access" as a no-response default for sensitive resources.
-
+Rationale: if a reviewer cannot confirm access is still needed,
+access defaults to denied (least privilege principle).
+ 
 Q4 -- Guest-specific review with auto-removal
 Configure: scope = Guest users only.
 Enable: Auto apply results to resource = Yes.
 Enable: If reviewer doesn't respond = Remove access.
 Enable: Action on denied guest users = Remove user's membership from the group
-AND disable sign-in (prevents lingering directory presence).
-
+AND disable sign-in.
+ 
 Q5 -- Lifecycle Workflow for offboarding
-Path: Entra admin centre > Identity Governance > Lifecycle Workflows > New workflow.
-  - Trigger type: "Employee leave" (triggered when employeeLeaveDateTime is set)
-  - Tasks:
-    1. Disable user account
-    2. Remove user from all groups
-    3. Remove user from all Teams
-    4. Send email notification to manager
-    5. (Optional) Remove user's app role assignments
-  - Schedule: real-time trigger or daily sweep
-The workflow fires when the HR system writes the employeeLeaveDateTime attribute
-via writeback or direct Entra attribute update.
+Path: Identity Governance > Lifecycle Workflows > New workflow.
+Trigger: "Employee leave" (fires when employeeLeaveDateTime is set).
+Tasks: Disable account, remove group memberships, remove Teams,
+send notification to manager, transfer OneDrive to manager.
 """
     },
+ 
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-002",
+        "template_variant": "B",
+        "domain": "4",
+        "sub_topic": "Access Reviews",
+        "objective": "4.2 - Plan, implement, and manage access reviews in Microsoft Entra",
+        "scenario_template": """
+{org_name} has {num_apps} enterprise applications and wants to implement
+a comprehensive access review programme from scratch.
+ 
+Current problems:
+  - Application owners do not know who has access to their apps
+  - {num_service_accounts} service accounts have never been reviewed
+  - A recently departed employee ({departed_employee}) still has an active
+    guest account with access to {sensitive_app}
+  - Access Reviews have been created but results are never applied
+  - {num_dynamic_group} dynamic groups control app access -- membership is never audited
+ 
+Questions:
+1. Design a quarterly access review programme covering: users, guests, privileged roles,
+   and service accounts. What review scope and reviewer type suits each category?
+2. The departed guest {departed_employee} still has access. Walk through manually
+   revoking their access immediately and then preventing this recurring automatically.
+   What two Entra features work together to solve this?
+3. Access Review results are being created but never applied. What setting ensures
+   results are automatically applied when the review period ends?
+   What is the risk of NOT auto-applying?
+4. Configure an Access Review for the {num_apps} enterprise applications.
+   What review type do you select? Who should review app access --
+   the app owner, the user's manager, or the user themselves?
+5. Service accounts cannot do self-review and have no manager. How do you
+   review {num_service_accounts} service account assignments? 
+   What is the recommended long-term solution for service account access?
+""",
+        "variables": {
+            "org_name": ["Northwind Finance", "Contoso Health", "Pacific Engineering", "Alpine Council"],
+            "num_apps": ["18", "34", "8", "52"],
+            "num_service_accounts": ["12", "28", "7", "45"],
+            "departed_employee": ["j.smith@partnerorg.com", "contractor@vendor.com", "consultant@external.co.nz", "temp@agency.com"],
+            "sensitive_app": ["Finance ERP", "Patient Records System", "HR Payroll Portal", "Legal Case Management"],
+            "num_dynamic_group": ["14", "6", "22", "9"],
+        },
+        "exam_objectives": ["4.2"],
+        "difficulty": "intermediate",
+        "answers": """
+ANSWER GUIDE -- SC4-002-B: Comprehensive Access Review Programme
+ 
+Q1 -- Access review programme design
+Users (internal): quarterly, reviewer = user's manager, scope = group membership
+  or app role assignments. Manager has context on whether access is still needed.
+Guests (external): monthly or quarterly, reviewer = sponsor (internal user who
+  invited them), auto-remove on no response.
+Privileged roles: monthly, reviewer = Privileged Role Administrator or CISO,
+  scope = both active and eligible PIM assignments.
+Service accounts: quarterly, reviewer = nominated IT owner (not self-review),
+  scope = group memberships and app role assignments.
+ 
+Q2 -- Revoking departed guest immediately + preventing recurrence
+Immediate revocation:
+  Entra > Users > [guest account] > Revoke sessions > then Disable account.
+  Remove from all groups manually if access review is not yet configured.
+Preventing recurrence -- two features working together:
+  1. Access Reviews with auto-apply: catches guests who slip through offboarding
+  2. Lifecycle Workflows with "Guest cleanup" task: automatically removes
+     guest accounts after a configurable period of inactivity.
+Set guest account expiry policy: External Identities > Settings >
+Guest user access expiry = enabled with a defined expiry period.
+ 
+Q3 -- Auto-apply access review results
+Setting: Access Reviews > [review] > Settings > "Auto apply results to resource" = Yes.
+Also set: "If reviewers don't respond" = Remove access (for sensitive resources).
+Risk of NOT auto-applying: review results are advisory only. Without auto-apply,
+a reviewer can deny access but the user keeps it until an admin manually
+processes each result -- which often never happens (review fatigue).
+ 
+Q4 -- Enterprise application access review
+Path: Access Reviews > New > Applications (not Teams + Groups).
+Select: specific enterprise applications or all apps.
+Reviewer recommendation: Application owner for business apps (they know
+who legitimately needs access). Manager for productivity apps.
+Self-review is acceptable ONLY for low-sensitivity applications.
+For high-sensitivity apps (ERP, HR, patient data): always use a named reviewer.
+ 
+Q5 -- Service account access review
+Reviewer: assign a named IT owner as the designated reviewer for each
+service account. Document the owner in a custom security attribute
+or extension attribute on the service account object.
+Path: Access Reviews > New > select service account group > 
+Reviewers = Selected reviewers > add the IT owner.
+Long-term solution: replace service accounts with Managed Identities
+(no credentials to manage, no licence required, automatically scoped).
+Service accounts that cannot be replaced: review quarterly, enforce
+named ownership, restrict to named IP locations via CA policy.
+"""
+    },
+ 
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-002",
+        "template_variant": "C",
+        "domain": "4",
+        "sub_topic": "Access Reviews",
+        "objective": "4.2 - Plan, implement, and manage access reviews in Microsoft Entra",
+        "scenario_template": """
+{org_name} has deployed Lifecycle Workflows to automate identity governance
+but is experiencing the following issues:
+ 
+  - Joiner workflow runs but new starters do not have access on day one
+  - Leaver workflow is not triggered reliably -- {leaver_issue}
+  - {num_stale} accounts are 120+ days stale and were not caught by reviews
+  - A mover scenario (promotion to manager) is not handled -- {mover_issue}
+  - Access Reviews for {sensitive_group} are running but 60% of reviewers
+    never complete them
+ 
+Questions:
+1. The joiner workflow fires but access is not ready on day one. Diagnose
+   the likely cause. What is the recommended trigger offset (days before
+   start date) for joiner workflows and why?
+2. {leaver_issue}. Fix the leaver workflow trigger. What attribute must the
+   HR system write to Entra ID to trigger the "Employee leave" workflow?
+   What happens if this attribute is never set?
+3. Design a mover workflow for a promotion from {source_role} to {target_role}.
+   What tasks would it include beyond a standard joiner workflow?
+   How do you prevent the employee retaining their old access?
+4. {num_stale} accounts were not caught. Review your stale account strategy.
+   What Lifecycle Workflow task automatically disables accounts inactive for
+   a configurable number of days? What is the trigger type?
+5. 60% of reviewers for {sensitive_group} are not completing reviews.
+   What three escalation mechanisms does Microsoft Entra provide?
+   If you switch to "Manager as reviewer" what happens when a user has
+   no manager assigned?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Fabrikam Finance", "Pacific Council", "Northwind Manufacturing"],
+            "leaver_issue": [
+                "the HR system updates AD but employeeLeaveDateTime is never written to Entra ID",
+                "the workflow is configured but the trigger offset is set to 0 days -- it fires too late",
+                "the leaver workflow only runs on weekdays -- employees terminating on Friday are missed until Monday",
+            ],
+            "num_stale": ["34", "89", "17", "156"],
+            "sensitive_group": ["Finance-FullAccess", "PatientRecords-Admins", "ExecutiveDocuments-Access", "PayrollSystem-Users"],
+            "mover_issue": [
+                "the employee retains all previous group memberships after promotion",
+                "the new manager role requires PIM activation but the workflow does not handle PIM",
+                "the mover workflow removes old access but new access takes 48 hours to propagate",
+            ],
+            "source_role": ["Senior Analyst", "Ward Nurse", "Finance Officer", "IT Technician"],
+            "target_role": ["Team Manager", "Charge Nurse", "Finance Manager", "IT Team Lead"],
+        },
+        "exam_objectives": ["4.2"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-002-C: Lifecycle Workflows Troubleshooting
+ 
+Q1 -- Joiner workflow day-one access issue
+Most likely cause: the workflow trigger is set to 0 days before start date
+(fires ON the start date) but provisioning tasks (group assignment, licence,
+access package) take time to process and replicate.
+Recommended offset: set trigger to 1-2 days BEFORE employeeHireDate.
+Path: Lifecycle Workflows > [workflow] > Basics > Days before/after event = -2.
+This gives time for: group membership to process, licence to assign,
+access package auto-assignment to complete, and MFA registration email to send.
+ 
+Q2 -- Leaver workflow trigger fix
+The "Employee leave" trigger fires on the employeeLeaveDateTime attribute.
+This attribute must be written to the Entra ID user object -- it does NOT
+sync automatically from AD unless specifically mapped in Entra Connect.
+Fix: configure Entra Connect attribute mapping to sync employeeLeaveDateTime
+from AD extension attribute, OR have the HR system write it directly via
+Microsoft Graph API (PATCH /users/{id} with employeeLeaveDateTime).
+If attribute is never set: the workflow never fires -- manual offboarding
+remains the fallback, which is the current failure mode.
+ 
+Q3 -- Mover workflow for promotion
+Tasks beyond standard joiner:
+  1. Remove user from old department security groups
+  2. Remove old access package assignment
+  3. Assign new access package (manager-level)
+  4. Update manager attribute (so future access reviews route correctly)
+  5. Send notification to old manager and new skip-level manager
+  6. (If PIM): add eligible assignment to management role
+Preventing old access retention: configure the workflow to explicitly
+REMOVE previous group memberships before assigning new ones. Without this
+step users accumulate access across every role they have ever held
+(privilege creep -- a common audit finding).
+ 
+Q4 -- Stale account handling via Lifecycle Workflows
+Task: "Disable user account" triggered by inactivity.
+Trigger type: "Attribute-based" -- trigger on lastSignInDateTime
+being older than a configurable threshold (e.g. 90 days).
+Path: Lifecycle Workflows > New workflow > Trigger = Attribute changes >
+configure lastSignInDateTime condition.
+Note: lastSignInDateTime is only available with Entra ID P1 or higher.
+Complement with: Access Reviews set to auto-disable on no sign-in.
+ 
+Q5 -- Escalating incomplete access reviews
+Three Entra escalation mechanisms:
+  1. Email reminders: configured in Access Review settings -- send reminders
+     at configurable intervals before the deadline
+  2. Escalation reviewers: a secondary reviewer receives the request if the
+     primary reviewer does not respond within a set number of days
+  3. Auto-apply with "Remove access" on no response: ensures inaction
+     has a consequence rather than silently preserving access
+If "Manager as reviewer" and user has no manager assigned:
+  The review falls back to the configured fallback reviewer
+  (set in Access Review settings > "Fallback reviewers").
+  If no fallback is configured: the review item is left incomplete.
+  Always configure a fallback reviewer for manager-based reviews.
+"""
+    },
+]
+ 
+# ════════════════════════════════════════════════════════════════════════════
+# SC4-003: Entitlement Management — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+ 
+SC4_003_TEMPLATES = [
+ 
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC4-003",
+        "template_variant": "A",
         "domain": "4",
         "sub_topic": "Entitlement Management and Access Packages",
         "objective": "4.1 - Plan and implement entitlement management in Microsoft Entra",
@@ -1193,14 +1638,14 @@ via writeback or direct Entra attribute update.
 {org_name} has {num_apps} applications and {num_groups} security groups controlling
 access. Currently access requests are managed via email to the IT helpdesk --
 causing delays and no audit trail.
-
+ 
 Access requirements to automate:
   - New {department} employees need: {dept_resources}
   - External contractors need time-limited access to {contractor_resources}
     for a maximum of {contractor_duration} days
   - {partner_org} partners need access to a shared SharePoint site and Teams channel
   - All users must accept {tou_name} Terms of Use before accessing {sensitive_app}
-
+ 
 Questions:
 1. Design the Catalog and Access Package structure for the {department} department.
    What is the difference between a Catalog and an Access Package?
@@ -1244,56 +1689,257 @@ Questions:
         "exam_objectives": ["4.1"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE -- SC4-003: Entitlement Management and Access Packages
-
+ANSWER GUIDE -- SC4-003-A: Entitlement Management
+ 
 Q1 -- Catalog vs Access Package
-Catalog: a container grouping related resources (apps, groups, SharePoint sites)
-and defining who can manage them. Department-level container.
-Access Package: a bundle of specific resources within a catalog that users
-can request or be auto-assigned. Think of it as a role or job profile.
-Catalog owner: department head or IT lead -- manages what resources are in the catalog.
-Access Package manager: IT admin or HR -- manages approval workflows and policies.
-Separation of duties: catalog owner ? access package manager.
-
-Q2 -- Access Package for new employees with auto-assignment
+Catalog: container grouping related resources, defines who can manage them.
+Access Package: bundle of specific resources users can request or be auto-assigned.
+Catalog owner: department head or IT lead.
+Access Package manager: IT admin or HR.
+ 
+Q2 -- Access Package with auto-assignment
 Path: Identity Governance > Entitlement Management > Access packages > New.
-Resources tab: add required groups, apps, SharePoint sites.
-Requests tab -- add two policies:
-  Policy 1 (auto-assignment): "Automatic assignment" rule:
-    (user.department -eq "Finance") -- users matching this are auto-assigned.
-    No approval required for auto-assignment.
-  Policy 2 (self-service request): require manager approval for manual requests.
-Lifecycle tab: Expiration = after chosen days, require renewal = Yes.
-
-Q3 -- External Access Package (Connected Organizations)
-Prerequisite: Identity Governance > Entitlement Management > Connected organizations >
-New connected organization. Add partner org by domain or tenant ID. State = Configured.
-Then in Access Package > Requests tab: add policy for "Users not in your directory"
-> select the connected organization.
-Set approval: require sponsor or admin approval.
-Set expiration: time-limit to contractor duration days (hard expiry, no renewal).
-
-Q4 -- Terms of Use enforcement
-ToU document must be in PDF format.
-Enforcement: via Conditional Access (not directly within the Access Package).
-Create ToU: Entra admin centre > Identity Governance > Terms of use > New terms.
-Upload PDF, configure language settings, require expansion before acceptance.
-Create CA policy: target the sensitive app > Grant: Require terms of use.
-The Access Package grants access; CA enforces ToU acceptance at sign-in time.
-
-Q5 -- Reporting and expiry behaviour
-Report: Identity Governance > Entitlement Management > Reports >
-"Access package assignments" -- shows all current assignments, expiry dates, policies.
-Also: "Requests" report (all requests, approvals, denials, cancellations).
-When assignment expires without renewal:
-  - Auto-apply removes user from all resources in the package
-  - User loses access to all included groups, apps, and SharePoint sites immediately
-  - User receives expiry notification email if configured
-  - Assignment record retained in audit logs for compliance
+Policy 1 (auto-assignment): rule (user.department -eq "Finance").
+Policy 2 (self-service): require manager approval.
+Lifecycle: expiration after chosen days, require renewal = Yes.
+ 
+Q3 -- External access package
+Prerequisite: Connected organizations > New > add partner by domain/tenant ID.
+Access Package > Requests > Users not in your directory > select org.
+Set hard expiry -- no renewal for external contractors.
+ 
+Q4 -- Terms of Use
+Format: PDF only.
+Enforcement: via Conditional Access policy targeting the app.
+Create ToU in Identity Governance > Terms of use > New terms.
+CA policy: Grant = Require terms of use.
+ 
+Q5 -- Reporting and expiry
+Report: Identity Governance > Entitlement Management > Reports > Access package assignments.
+On expiry without renewal: user automatically removed from all resources in the package.
 """
     },
+ 
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-003",
+        "template_variant": "B",
+        "domain": "4",
+        "sub_topic": "Entitlement Management and Access Packages",
+        "objective": "4.1 - Plan and implement entitlement management in Microsoft Entra",
+        "scenario_template": """
+{org_name} has implemented Entitlement Management but is experiencing problems:
+ 
+  - External users from {partner_org} cannot request access packages
+  - An access package for {department} was created but auto-assignment is not working
+  - {num_orphaned} access package assignments have no active policy (orphaned)
+  - The approval workflow takes {approval_days} days -- requestors are frustrated
+  - Access packages contain resources from multiple catalogs -- causing errors
+ 
+Questions:
+1. {partner_org} users cannot request the external access package. Diagnose
+   the three most likely causes. Walk through verifying each one in the portal.
+2. The {department} auto-assignment policy is not working. What is the most common
+   cause of auto-assignment rules failing? How do you test an auto-assignment
+   rule before enabling it for all users?
+3. Explain what an "orphaned assignment" is in Entitlement Management.
+   How do you identify and remediate {num_orphaned} orphaned assignments?
+4. The approval workflow takes {approval_days} days. What settings can you
+   change to speed up approvals without removing the approval requirement?
+   What is the maximum number of approval stages in an access package policy?
+5. An access package cannot contain resources from multiple catalogs. Redesign
+   the {department} access package so all required resources are in one catalog.
+   What is the process for moving a resource from one catalog to another?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Fabrikam Finance", "Northwind Engineering", "Pacific Council"],
+            "partner_org": ["Southern Cross Partners", "Alpine Consulting", "Bay Advisory Group", "Pacific Rim Solutions"],
+            "department": ["Finance", "Clinical", "Legal", "Engineering"],
+            "num_orphaned": ["23", "8", "45", "12"],
+            "approval_days": ["5", "7", "10", "3"],
+        },
+        "exam_objectives": ["4.1"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-003-B: Entitlement Management Troubleshooting
+ 
+Q1 -- External users cannot request access package
+Three most likely causes:
+  1. Connected organization not configured or in "Proposed" state (not "Configured"):
+     Path: Identity Governance > Entitlement Management > Connected organizations.
+     Verify partner org is listed and State = Configured (not Proposed).
+  2. Access package policy does not allow external users:
+     Access package > Policies > check "Who can request" -- must include
+     "Users not in your directory" or the specific connected organization.
+  3. External collaboration settings blocking B2B invitations:
+     Entra > External Identities > External collaboration settings >
+     verify the partner domain is not on the blocklist and invitations are allowed.
+ 
+Q2 -- Auto-assignment rule not working
+Most common cause: the attribute used in the rule does not match the actual
+user attribute value. Example: rule uses (user.department -eq "Finance") but
+the user's department attribute is "finance" (lowercase) or "FINANCE" or blank.
+Rules are case-sensitive in some contexts.
+Testing before enabling: Access package > Policies > Auto-assignment policy >
+"Evaluate" -- enter a specific user's UPN to see if they match the rule.
+Also check: the attribute is populated on the user object (many tenants have
+blank department attributes because HR sync is not configured).
+ 
+Q3 -- Orphaned assignments
+An orphaned assignment exists when an access package assignment has no
+active policy -- the policy was deleted after the assignment was created.
+The user retains access but the assignment cannot be renewed or managed normally.
+Identify: Identity Governance > Entitlement Management > Reports >
+Access package assignments > filter by "Policy" = blank/none.
+Remediate: either recreate the policy and link the assignments, or remove
+the orphaned assignments manually and ask affected users to re-request.
+ 
+Q4 -- Speeding up approval workflow
+Settings to adjust:
+  - Approval timeout: reduce from default (14 days) to 2-3 days
+  - Add backup approvers: if primary approver doesn't respond within
+    X days, request escalates to backup automatically
+  - Enable email notifications with direct approve/deny links
+    (approvers can approve from email without signing into the portal)
+  - Reduce approval stages: maximum is 2 stages in an access package policy.
+    If 2-stage approval is causing the delay, consider whether both stages
+    are genuinely necessary for the sensitivity of the resource.
+ 
+Q5 -- Resource from multiple catalogs
+Resources in an access package must all belong to the SAME catalog.
+Process to move a resource to the correct catalog:
+  1. Remove the resource from its current catalog
+     (Catalog > Resources > remove -- does NOT delete the resource itself)
+  2. Add the resource to the target catalog
+     (Target catalog > Resources > Add resource)
+  3. Update all access packages in the target catalog to reference the resource.
+Note: removing a resource from a catalog removes it from ALL access packages
+in that catalog -- plan the move carefully and notify affected package managers.
+"""
+    },
+ 
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-003",
+        "template_variant": "C",
+        "domain": "4",
+        "sub_topic": "Entitlement Management and Access Packages",
+        "objective": "4.1 - Plan and implement entitlement management in Microsoft Entra",
+        "scenario_template": """
+{org_name} is onboarding {num_new_staff} new {staff_type} staff over the next
+{onboard_period} weeks. The identity team must design a scalable access
+provisioning model.
+ 
+Current challenges:
+  - New starters wait an average of {wait_days} days for access
+  - {num_roles} different role profiles exist across {num_departments} departments
+  - Some resources require manager approval; others can be self-service
+  - Locums and agency staff need access for exactly {temp_duration} days
+  - The CISO requires that all access to {sensitive_app} is justified and auditable
+ 
+Questions:
+1. Design a scalable access package architecture for {num_roles} role profiles
+   across {num_departments} departments. How many catalogs would you create
+   and why? What naming convention would you recommend?
+2. Reduce the {wait_days}-day wait to day-one access using auto-assignment.
+   What HR attribute must be consistently populated for auto-assignment to work?
+   What is the risk of relying solely on auto-assignment without a self-service
+   request option?
+3. Design the approval policy matrix: which resource types require manager
+   approval, which require IT approval, and which can be self-service?
+   Justify each decision with a security principle.
+4. Configure time-limited access packages for locums/agency staff lasting
+   exactly {temp_duration} days with no renewal option. What prevents a
+   manager from manually extending the assignment beyond {temp_duration} days?
+5. The CISO requires full auditability for {sensitive_app} access.
+   Design the complete governance chain: access package approval, Terms of Use,
+   Access Review, and expiry. How do you produce a single audit report
+   showing the full lifecycle of a user's access to {sensitive_app}?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Council", "Pacific Insurance", "Alpine Manufacturing"],
+            "num_new_staff": ["45", "120", "18", "200"],
+            "staff_type": ["clinical", "administrative", "engineering", "finance"],
+            "onboard_period": ["4", "8", "12", "6"],
+            "wait_days": ["3", "7", "5", "10"],
+            "num_roles": ["8", "15", "6", "22"],
+            "num_departments": ["4", "8", "3", "12"],
+            "temp_duration": ["30", "60", "90"],
+            "sensitive_app": ["Patient Records System", "Finance ERP", "HR Payroll Portal", "Legal Case Management"],
+        },
+        "exam_objectives": ["4.1"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-003-C: Scalable Entitlement Management Design
+ 
+Q1 -- Catalog architecture for multiple departments
+Recommended: one catalog per department or business unit.
+Rationale: catalog ownership maps to department heads who know their resources.
+Cross-department resources (shared SharePoint, common Teams channels) go in
+a shared "Common Resources" catalog managed by IT.
+Naming convention: [ORG]-[DEPT]-Catalog (e.g. CONTOSO-FINANCE-Catalog).
+Access packages: [DEPT]-[ROLE]-[LEVEL] (e.g. FINANCE-Analyst-Standard).
+Consistent naming enables reporting and reduces confusion as the catalogue grows.
+ 
+Q2 -- Auto-assignment for day-one access
+Required HR attribute: department (or jobTitle, or employeeType).
+The attribute must be written to Entra ID BEFORE the start date --
+ideally via SCIM provisioning from the HR system on day minus 1.
+Risk of auto-assignment only (no self-service option):
+  If a user's attribute is wrong or missing, they get no access and
+  there is no way for them to request it themselves -- they must contact IT.
+Best practice: auto-assignment as the primary mechanism + self-service
+request as a fallback for attribute mismatches.
+ 
+Q3 -- Approval policy matrix
+Self-service (no approval): low-sensitivity productivity tools
+  (Teams channels, SharePoint team sites, training platforms).
+  Principle: availability -- friction should match sensitivity.
+Manager approval: standard business applications (ERP read-only,
+  department SharePoint, standard M365 groups).
+  Principle: manager has business context for whether access is needed.
+IT/Security approval: privileged or sensitive applications (ERP write,
+  patient records, financial systems, admin tools).
+  Principle: technical review required alongside business justification.
+Dual approval (manager + IT): highest sensitivity (payroll, clinical prescribing).
+  Principle: separation of duties for critical resources.
+ 
+Q4 -- Time-limited access with no renewal
+Configure: Access package > Policies > Expiration > After number of days = chosen duration.
+Set: "Allow requestors to extend access" = No.
+Set: "Renewal allowed" = No.
+What prevents manual extension: the policy hard-codes the expiry -- even an
+admin cannot extend an assignment beyond the policy maximum without creating
+a new assignment under a different policy.
+For locums: create a dedicated "Temporary Staff" policy within the access package
+with the hard expiry. Do NOT give locums the standard employee policy.
+ 
+Q5 -- Full audit chain for sensitive app
+1. Access Package approval: manager + IT approval required, justification field mandatory.
+   Audit: Identity Governance > Entitlement Management > Requests report.
+2. Terms of Use: PDF policy accepted at first sign-in via CA policy.
+   Audit: Identity Governance > Terms of use > [policy] > Acceptances report.
+3. Access Review: quarterly, selected reviewer (data owner), auto-remove on denial.
+   Audit: Identity Governance > Access Reviews > [review] > Results report.
+4. Expiry: assignment expires after policy period, user removed from app automatically.
+   Audit: Entitlement Management > Assignments report (shows end date and removal).
+Single audit report: combine all four reports using Microsoft Graph API or
+export each to CSV and merge in Excel -- there is no single built-in report
+that spans the full lifecycle, but the combination covers the complete chain.
+"""
+    },
+]
+ 
+# ════════════════════════════════════════════════════════════════════════════
+# SC4-004: Identity Monitoring, Logs, and Reporting — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+ 
+SC4_004_TEMPLATES = [
+ 
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC4-004",
+        "template_variant": "A",
         "domain": "4",
         "sub_topic": "Identity Monitoring, Logs, and Reporting",
         "objective": "4.4 - Monitor identity activity by using logs, workbooks, and reports",
@@ -1301,14 +1947,14 @@ When assignment expires without renewal:
 {org_name}'s Entra ID logs are only retained for the default period
 ({default_retention} days for sign-in logs). A security incident 45 days ago
 cannot be fully investigated because logs have been purged.
-
+ 
 Current monitoring gaps:
   - No diagnostic settings configured
   - No Azure Monitor Workbooks deployed
   - No KQL queries in Log Analytics for alerting
   - Identity Secure Score: {secure_score}/100
   - {num_secure_score_actions} high-impact improvement actions not implemented
-
+ 
 Questions:
 1. Configure Diagnostic Settings to export Entra ID logs to {log_destination}.
    What log categories should you export? What is the difference in cost and
@@ -1343,71 +1989,301 @@ Questions:
         "exam_objectives": ["4.4"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE -- SC4-004: Identity Monitoring, Logs, and Reporting
-
+ANSWER GUIDE -- SC4-004-A: Identity Monitoring
+ 
 Q1 -- Diagnostic Settings
-Path: Entra admin centre > Monitoring > Diagnostic settings > Add diagnostic setting.
-Log categories to export:
-  - SignInLogs (interactive user sign-ins)
-  - NonInteractiveUserSignInLogs (service/app sign-ins)
-  - ServicePrincipalSignInLogs (workload identity sign-ins)
-  - AuditLogs (directory changes: user creation, role assignments, etc.)
-  - RiskyUsers and UserRiskEvents (ID Protection events)
-  - ManagedIdentitySignInLogs
-Log Analytics vs Storage Account:
-  - Log Analytics: query with KQL in real time, integrate with Sentinel,
-    retention configurable up to 2 years, higher cost per GB but queryable
-  - Storage Account: cheapest long-term archival, NOT queryable in real time
-Best practice: both -- Log Analytics for active monitoring, Storage for archival.
-
-Q2 -- KQL query: sign-ins from multiple countries in 24h
-  SignInLogs
-  | where ResultType == 0  // successful sign-ins only
-  | extend Country = tostring(LocationDetails.countryOrRegion)
-  | summarize Countries = dcount(Country), CountryList = make_set(Country)
-      by UserPrincipalName, bin(TimeGenerated, 24h)
-  | where Countries >= 3  // replace with chosen geo_count threshold
-  | project TimeGenerated, UserPrincipalName, Countries, CountryList
-  | order by Countries desc
-
-Q3 -- Built-in Entra Workbooks
-Path for all: Entra admin centre > Monitoring > Workbooks.
-  a) Legacy authentication: "Sign-ins using legacy authentication"
-     (shows users, protocols, apps still using Basic auth)
-  b) CA impact before enforcement: "Conditional Access Insights and Reporting"
-     (shows report-only policy results and impact analysis)
-  c) Risky sign-ins over time: "Microsoft Entra ID Protection" workbook
-     or the Risky sign-ins report under Identity Protection
-
-Q4 -- Secure Score improvement actions
-"Require MFA for administrative roles":
-  Create CA policy: Assignments = directory roles (all admin roles) >
-  Grant = Require MFA. This is the primary control Microsoft measures.
-"Enable self-service password reset":
-  Path: Entra > Security > Password reset > Self-service password reset = All.
-  Reduces helpdesk load and enables risk policy password reset remediation.
-"Do not expire passwords":
-  Microsoft research: expiry causes weaker passwords (Password1! -> Password2!).
-  Rely on breach detection (ID Protection) instead of forced rotation.
-  Path: Entra > Users > Password expiration policy > Never expire.
-  (Also configurable via Microsoft 365 admin centre or PowerShell.)
-
-Q5 -- Investigating a potentially compromised account
-1. Entra admin centre > Users > [user] > Sign-in logs
-2. Filter: last 7-30 days, Status = All (include failures)
-3. Look for: unfamiliar IPs, unusual locations, new device/browser,
-   sign-ins at unusual hours, failed attempts followed by success
-4. Click suspicious sign-in: review IP, location, device ID, app accessed,
-   CA policies applied, risk level flagged by ID Protection
-5. Entra admin centre > Users > [user] > Audit logs
-   Look for: role assignments, group changes, app consent grants,
-   MFA method additions (attacker registering their own MFA device)
-6. If compromised: Revoke all sessions > reset password > review and remove
-   any new MFA methods registered > check for new OAuth app consent grants
-   (Entra > Enterprise apps > filter by consent date)
+Path: Entra admin centre > Monitoring > Diagnostic settings > Add.
+Categories: SignInLogs, NonInteractiveUserSignInLogs, ServicePrincipalSignInLogs,
+AuditLogs, RiskyUsers, UserRiskEvents, ManagedIdentitySignInLogs.
+Log Analytics: queryable with KQL, integrates with Sentinel, higher cost.
+Storage Account: cheapest archival, not queryable in real time.
+Best practice: both.
+ 
+Q2 -- KQL multi-country detection
+SignInLogs
+| where ResultType == 0
+| extend Country = tostring(LocationDetails.countryOrRegion)
+| summarize Countries = dcount(Country), CountryList = make_set(Country)
+    by UserPrincipalName, bin(TimeGenerated, 24h)
+| where Countries >= [geo_count]
+| project TimeGenerated, UserPrincipalName, Countries, CountryList
+| order by Countries desc
+ 
+Q3 -- Built-in Workbooks
+a) Legacy auth: "Sign-ins using legacy authentication"
+b) CA impact: "Conditional Access Insights and Reporting"
+c) Risky sign-ins: "Microsoft Entra ID Protection" workbook
+ 
+Q4 -- Secure Score actions
+MFA for admins: CA policy targeting directory roles, Grant = Require MFA.
+SSPR: Entra > Security > Password reset > All.
+No password expiry: Entra > Users > Password expiration policy > Never expire.
+ 
+Q5 -- Compromise investigation
+Users > [user] > Sign-in logs > filter all statuses > look for unusual IP,
+location, device, timing. Click suspicious event > CA tab, risk level.
+Users > [user] > Audit logs > look for new MFA methods, role assignments,
+app consent grants. If compromised: revoke sessions, reset password,
+remove new MFA methods, check OAuth consent grants.
+"""
+    },
+ 
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-004",
+        "template_variant": "B",
+        "domain": "4",
+        "sub_topic": "Identity Monitoring, Logs, and Reporting",
+        "objective": "4.4 - Monitor identity activity by using logs, workbooks, and reports",
+        "scenario_template": """
+{org_name} has connected Microsoft Sentinel to Entra ID and wants to build
+a comprehensive identity threat detection capability.
+ 
+Current state:
+  - Diagnostic settings configured -- SignInLogs and AuditLogs flowing to Sentinel
+  - No custom KQL detection rules created yet
+  - {num_false_positives} false positive alerts per week from built-in rules
+  - A real incident was missed last month: {missed_incident}
+  - The security team wants a single identity health dashboard
+  - Workload identity (service principal) sign-ins are NOT being logged
+ 
+Questions:
+1. Write KQL queries for these two scenarios:
+   a) Detect a user who fails MFA {mfa_fail_threshold} or more times within 1 hour
+      (potential MFA fatigue attack)
+   b) Detect a service principal signing in from an IP outside its known range
+      (potential service principal hijack)
+2. {missed_incident}. Explain why this was missed and what detection rule
+   would have caught it. Write the KQL query.
+3. You have {num_false_positives} false positives per week. Describe three
+   techniques to tune KQL detection rules and reduce false positive rate
+   without missing real threats.
+4. Add service principal sign-in logs to your Diagnostic Settings.
+   What log category covers this? Write a KQL query that shows the top 10
+   service principals by sign-in volume in the last 7 days.
+5. Design a single identity health dashboard in Azure Workbooks covering:
+   MFA coverage, risky users, stale accounts, CA policy gaps, and
+   legacy authentication usage. What data sources does each panel need?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Finance", "Alpine Engineering", "Pacific Gov"],
+            "num_false_positives": ["45", "120", "18", "67"],
+            "missed_incident": [
+                "a Global Admin activated their role at 3am on a Sunday and exported all users -- no alert fired",
+                "a service principal called the Graph API 10,000 times in one hour exfiltrating user data",
+                "a contractor account signed in from 4 countries in 2 hours -- ID Protection did not flag it",
+                "an attacker registered a new MFA method on a compromised account -- no alert was generated",
+            ],
+            "mfa_fail_threshold": ["5", "10", "3"],
+        },
+        "exam_objectives": ["4.4"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-004-B: Sentinel KQL and Identity Threat Detection
+ 
+Q1a -- MFA fatigue detection KQL
+SignInLogs
+| where ResultType == 50074 or ResultType == 50076
+    // MFA required errors -- user presented password but MFA failed/denied
+| summarize FailCount = count() by UserPrincipalName, bin(TimeGenerated, 1h)
+| where FailCount >= [threshold]
+| project TimeGenerated, UserPrincipalName, FailCount
+| order by FailCount desc
+ 
+Q1b -- Service principal unusual IP KQL
+// Requires known IP list stored as a watchlist named "ApprovedSPIPs"
+ServicePrincipalSignInLogs
+| where ResultType == 0
+| join kind=leftanti (
+    _GetWatchlist('ApprovedSPIPs') | project SearchKey
+  ) on $left.IPAddress == $right.SearchKey
+| project TimeGenerated, ServicePrincipalName, IPAddress, ResourceDisplayName
+| order by TimeGenerated desc
+ 
+Q2 -- Why the incident was missed + detection rule
+Common reasons incidents are missed:
+  - The relevant log category was not in Diagnostic Settings
+  - The built-in analytic rule was disabled or not deployed
+  - The event volume was below the alert threshold
+Example rule for 3am admin activation:
+AuditLogs
+| where OperationName == "Add member to role"
+| where hourofday(TimeGenerated) between (0 .. 5)
+| where TargetResources contains "Global Administrator"
+| project TimeGenerated, InitiatedBy, TargetResources
+ 
+Q3 -- Reducing false positives
+1. Allowlisting: add known safe IPs, users, and service accounts to
+   watchlists and exclude them from detection rules using leftanti joins.
+2. Threshold tuning: increase the count/frequency thresholds so only
+   genuinely anomalous volumes trigger alerts (requires baseline analysis).
+3. Entity behaviour baseline: use Sentinel's UEBA (User and Entity Behaviour
+   Analytics) to compare against each user's own baseline rather than a
+   global threshold -- reduces alerts for users who legitimately travel.
+ 
+Q4 -- Service principal logging
+Log category: ServicePrincipalSignInLogs (add to Diagnostic Settings).
+Top 10 SPs by volume KQL:
+ServicePrincipalSignInLogs
+| where TimeGenerated > ago(7d)
+| summarize SignInCount = count() by ServicePrincipalName
+| top 10 by SignInCount desc
+| project ServicePrincipalName, SignInCount
+ 
+Q5 -- Identity health dashboard panels
+MFA coverage: SignInLogs -- users signing in without MFA claim.
+  Data source: SignInLogs in Log Analytics.
+Risky users: RiskyUsers table -- current risk level and state.
+  Data source: RiskyUsers (requires ID Protection P2).
+Stale accounts: AuditLogs + SignInLogs -- last sign-in > 90 days.
+  Data source: SignInLogs summarised by UserPrincipalName.
+CA policy gaps: SignInLogs -- sign-ins where no CA policy applied.
+  Data source: SignInLogs, filter ConditionalAccessStatus = notApplied.
+Legacy auth: SignInLogs -- ClientAppUsed field contains legacy protocol names.
+  Data source: SignInLogs filter ClientAppUsed in legacy protocol list.
+"""
+    },
+ 
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC4-004",
+        "template_variant": "C",
+        "domain": "4",
+        "sub_topic": "Identity Monitoring, Logs, and Reporting",
+        "objective": "4.4 - Monitor identity activity by using logs, workbooks, and reports",
+        "scenario_template": """
+{org_name} is preparing for a regulatory audit requiring evidence of
+identity monitoring controls. The auditor has requested:
+ 
+  - Evidence that privileged access is monitored in real time
+  - Proof that legacy authentication has been eliminated
+  - A report showing Identity Secure Score trend over {score_period} months
+  - Evidence that all sign-in logs are retained for {retention_requirement} months
+  - Demonstration that unusual sign-in activity triggers automated response
+ 
+Current gaps:
+  - Secure Score has dropped from {old_score} to {new_score} in 30 days
+  - Log retention is only {current_retention} days
+  - Automated response to risky sign-ins is not configured
+ 
+Questions:
+1. The auditor wants real-time privileged access monitoring. Configure
+   three specific alerts in Sentinel or Log Analytics that cover:
+   break-glass account usage, PIM activation outside business hours,
+   and new role assignment to a guest user.
+2. Prove legacy authentication has been eliminated. Which specific Workbook
+   shows this? What does a "clean" result look like and what residual
+   legacy auth sources are commonly missed?
+3. Identity Secure Score dropped from {old_score} to {new_score}.
+   How do you investigate the cause? Where do you see the score history
+   and individual action status changes?
+4. Extend log retention to {retention_requirement} months to meet the
+   audit requirement. What are the two methods to achieve this and
+   what is the cost difference? What Microsoft commitment covers
+   log integrity and tamper-proofing?
+5. Configure automated response to risky sign-ins using:
+   a) Conditional Access risk-based policy (preventive)
+   b) Microsoft Sentinel playbook (reactive)
+   What is the difference between the two approaches and when would you
+   use each?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Insurance", "Alpine Council"],
+            "score_period": ["3", "6", "12"],
+            "retention_requirement": ["12", "24", "36"],
+            "old_score": ["72", "68", "81", "59"],
+            "new_score": ["54", "48", "61", "38"],
+            "current_retention": ["7", "30"],
+        },
+        "exam_objectives": ["4.4"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC4-004-C: Identity Monitoring for Audit Compliance
+ 
+Q1 -- Three privileged access alerts
+ 
+Alert 1 -- Break-glass account usage:
+AuditLogs
+| where InitiatedBy.user.userPrincipalName in ("breakglass1@org.onmicrosoft.com",
+    "breakglass2@org.onmicrosoft.com")
+Severity: Critical. Action: immediate page to security team and CIO.
+ 
+Alert 2 -- PIM activation outside business hours:
+AuditLogs
+| where OperationName == "Add member to role"
+| where hourofday(TimeGenerated) !between (7 .. 19)
+    or dayofweek(TimeGenerated) in (0d, 6d) // weekend
+Severity: High.
+ 
+Alert 3 -- Role assigned to guest user:
+AuditLogs
+| where OperationName == "Add member to role"
+| where TargetResources[0].userPrincipalName contains "#EXT#"
+Severity: High. Guest users should rarely receive directory roles.
+ 
+Q2 -- Proving legacy auth elimination
+Workbook: "Sign-ins using legacy authentication"
+Path: Entra admin centre > Monitoring > Workbooks.
+Clean result: zero rows in the "Sign-in count" column for all legacy protocols.
+Commonly missed legacy auth sources:
+  - SMTP AUTH (used by printers, scanners, legacy apps sending email)
+  - POP3/IMAP (older email clients, mobile apps with old configurations)
+  - Exchange Web Services (EWS) used by older Outlook versions
+  - PowerShell with basic auth (older automation scripts)
+These appear in the workbook even after modern auth is enforced -- they
+represent sources that were blocked but still attempting connections.
+ 
+Q3 -- Investigating Secure Score drop
+Path: Entra admin centre > Security > Identity Secure Score.
+History tab: shows score over time with trend chart.
+Improvement actions tab: shows each action and its current status.
+Filter by "Status = Regressed" to see which actions changed from
+completed to incomplete (e.g. a CA policy was deleted, SSPR was disabled).
+Common causes of score drop: policy deletion, licence expiry removing
+a feature, new users added who are not covered by existing policies.
+ 
+Q4 -- Extending log retention
+Method 1 -- Log Analytics Workspace retention settings:
+  Log Analytics > Usage and estimated costs > Data retention.
+  Configurable up to 2 years (730 days). Higher retention = higher cost.
+  Cost: approximately $0.10-0.12 per GB per month for retention beyond 90 days.
+Method 2 -- Archive to Azure Storage Account:
+  Diagnostic Settings > Storage Account destination.
+  Cost: significantly cheaper (blob storage pricing ~$0.018/GB/month).
+  Trade-off: not queryable directly -- must import back to Log Analytics for analysis.
+Tamper-proofing: Azure Storage immutable blob storage (WORM policy) prevents
+deletion or modification of logs for the compliance period.
+Microsoft log integrity commitment: Entra logs are signed and tamper-evident
+when stored in Log Analytics -- audit trails cannot be modified.
+ 
+Q5 -- Preventive vs reactive response
+ 
+a) Conditional Access risk-based policy (preventive):
+  Entra > Security > CA > New policy > Conditions: Sign-in risk = High >
+  Grant: Require MFA OR Block access.
+  Fires BEFORE the sign-in completes -- user is challenged or blocked
+  in real time. No human intervention required.
+  Use when: you want automatic, immediate response at sign-in time.
+ 
+b) Sentinel playbook (reactive):
+  Sentinel > Automation > Playbook (Logic App).
+  Triggers AFTER a risky event is logged -- response is seconds to minutes later.
+  Actions: revoke user sessions (Graph API), notify security team,
+  create incident ticket, disable account if risk is confirmed.
+  Use when: the sign-in has already occurred and you need to contain the damage
+  and initiate investigation. More flexible than CA (can do multi-step responses).
+Both approaches are complementary -- CA prevents, Sentinel responds and investigates.
 """
     },
 ]
+ 
+# ════════════════════════════════════════════════════════════════════════════
+# UPDATED DOMAIN4_SCENARIOS list
+# Replace the existing DOMAIN4_SCENARIOS in sc300_module.py with this
+# ════════════════════════════════════════════════════════════════════════════
+ 
+DOMAIN4_SCENARIOS = SC4_001_TEMPLATES + SC4_002_TEMPLATES + SC4_003_TEMPLATES + SC4_004_TEMPLATES
+ 
 
 ALL_SC300_SCENARIOS = (
     DOMAIN1_SCENARIOS +

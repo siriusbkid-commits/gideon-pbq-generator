@@ -357,9 +357,22 @@ a paid Entra ID licence (free tier allows up to 50,000 MAU free).
     },
 ]
 
-DOMAIN2_SCENARIOS = [
+"""
+GIDEON SC-300 Domain 2 — Additional Scenario Templates
+Replace the existing DOMAIN2_SCENARIOS list in sc300_module.py with this.
+Each scenario ID now has 3 templates — tripling variety.
+"""
+
+# ════════════════════════════════════════════════════════════════════════════
+# SC2-001: Conditional Access Policy Design — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+
+SC2_001_TEMPLATES = [
+
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC2-001",
+        "template_variant": "A",
         "domain": "2",
         "sub_topic": "Conditional Access Policy Design",
         "objective": "2.2 - Plan, implement, and manage Microsoft Entra Conditional Access",
@@ -398,29 +411,26 @@ Questions:
         "exam_objectives": ["2.2"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE -- SC2-001: Conditional Access Policy Design
+ANSWER GUIDE -- SC2-001-A: Conditional Access Policy Design
 
 Q1 -- Report-only mode
 Create policy in Report-only mode. Monitor: Entra admin centre > Monitoring >
 Sign-in logs > filter by CA policy name > review "Report-only" column.
-Failure = would have been blocked. Check for: service accounts, legacy auth
-clients, shared mailboxes, break-glass accounts being impacted.
-Switch to "On" only when zero legitimate users show as "would fail."
+Check for: service accounts, legacy auth clients, shared mailboxes, break-glass
+accounts being impacted. Switch to "On" only when zero legitimate users show as
+"would fail."
 
 Q2 -- Policy for compliant devices on corp network
-  Assignments:
-    Users: All users (exclude admins -- covered separately)
-    Cloud apps: Office 365
-    Conditions: Named location = corp IP range (trusted), Device = compliant
-  Grant: Require device marked as compliant OR Hybrid Entra joined (OR logic)
-  Named location: Entra > Security > CA > Named locations > IP ranges location.
-  Mark as trusted location.
+Assignments: Users = All users (exclude admins), Cloud apps = Office 365.
+Conditions: Named location = corp IP range (trusted), Device = compliant.
+Grant: Require device marked as compliant OR Hybrid Entra joined (OR logic).
+Named location: Entra > Security > CA > Named locations > IP ranges location.
+Mark as trusted location.
 
 Q3 -- Authentication Context
 Standard CA targets an entire app. Authentication Context targets a SPECIFIC
-ACTION within an app (e.g. viewing payroll data within the HR app, not just
-logging in). The app developer calls the auth context ID in their code when
-the sensitive action is triggered. A separate CA policy enforces stricter
+ACTION within an app. The app developer calls the auth context ID in their code
+when the sensitive action is triggered. A separate CA policy enforces stricter
 controls only when that context fires.
 Path: Entra > Security > CA > Authentication context > Add.
 
@@ -431,11 +441,9 @@ Shows users, apps, and protocols (SMTP AUTH, POP3, IMAP) still using basic auth.
 Remediate these BEFORE blocking -- otherwise legitimate services break.
 
 Q5 -- Service account exclusion risk and compensating control
-Risk: excluded accounts bypass all CA policies -- a compromised service account
-gives an attacker unchecked access.
+Risk: excluded accounts bypass all CA policies.
 Compensating control: create a dedicated CA policy for the service account
-that ONLY allows sign-in from specific named IP locations (server IPs),
-blocking all other locations. Alert on any sign-in from outside those IPs.
+that ONLY allows sign-in from specific named IP locations (server IPs).
 Better long-term: replace service account with Managed Identity.
 
 Q6 -- CA troubleshooting
@@ -447,8 +455,252 @@ Q6 -- CA troubleshooting
 5. Check for policy conflicts -- most restrictive policy wins
 """
     },
+
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-001",
+        "template_variant": "B",
+        "domain": "2",
+        "sub_topic": "Conditional Access Policy Design",
+        "objective": "2.2 - Plan, implement, and manage Microsoft Entra Conditional Access",
+        "scenario_template": """
+{org_name} has {num_ca_policies} Conditional Access policies configured but is
+experiencing the following problems:
+
+  - {num_locked_out} users were locked out last week after a policy change
+  - Guest users from {partner_org} cannot access the Teams tenant
+  - A CA policy targeting {sensitive_app} is blocking a legitimate service account
+  - Sign-in logs show {num_legacy_auth} legacy authentication attempts per day
+  - The security team cannot tell which CA policy is causing a specific block
+  - Continuous Access Evaluation is not configured
+
+Questions:
+1. {num_locked_out} users were locked out after a policy change. Walk through
+   the emergency recovery process. What tool do you use to identify exactly
+   which policy caused the lockout? How do you temporarily disable a policy
+   without deleting it?
+2. Guest users from {partner_org} cannot access Teams. What CA policy conditions
+   commonly block B2B guests that don't apply to internal users?
+   How do you scope a policy to exclude or specifically target guest users?
+3. A service account is being blocked by the {sensitive_app} CA policy.
+   Walk through identifying the service account in sign-in logs and configuring
+   a safe exclusion. What is the maximum recommended number of exclusions
+   before a policy becomes unmanageable?
+4. Configure a CA policy to block the {num_legacy_auth} legacy authentication
+   attempts. What client app conditions do you select? What must you verify
+   before enabling to avoid breaking legitimate services?
+5. Explain Continuous Access Evaluation (CAE). What events trigger real-time
+   token revocation? How does CAE differ from standard token lifetime policies?
+6. The security team cannot identify which policy caused a block. Walk through
+   using the CA policy details in sign-in logs to diagnose the issue.
+   What does "Report-only: Would have failed" mean vs "Failure"?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Finance", "Pacific Engineering", "Alpine Council"],
+            "num_ca_policies": ["23", "14", "38", "9"],
+            "num_locked_out": ["12", "34", "7", "48"],
+            "partner_org": ["Pacific Rim Consulting", "Southern Cross Partners", "Alpine Advisory", "Bay Group"],
+            "sensitive_app": ["Finance ERP", "Patient Records System", "HR Payroll Portal", "Legal Case Management"],
+            "num_legacy_auth": ["340", "89", "512", "127"],
+        },
+        "exam_objectives": ["2.2"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-001-B: Conditional Access Troubleshooting
+
+Q1 -- Emergency lockout recovery
+If ALL admins are locked out: use break-glass account (excluded from all CA).
+If some admins can still sign in:
+  Entra > Security > Conditional Access > [policy] > toggle State to "Off."
+  Do NOT delete -- disabling preserves the policy for review.
+Identify the causing policy: Entra > Users > [locked out user] > Sign-in logs >
+  find the failed sign-in > Conditional Access tab > look for "Failure" status.
+  The policy name is shown alongside the result.
+Post-recovery: use Report-only mode for future policy changes before enabling.
+
+Q2 -- Guest user CA policy issues
+Common causes:
+  - Policy requires compliant device: guests use unmanaged personal devices
+    which cannot be Intune-enrolled in the host tenant.
+  - Policy requires hybrid Entra joined: guests are never hybrid joined to host.
+  - Policy requires specific named location: guest's corporate IP is not in
+    the host tenant's named locations.
+Scoping for guests: Conditions > Users > Include = Guest or external users >
+  select "B2B collaboration guest users."
+Best practice: create a separate CA policy for guests with appropriate controls
+(MFA required, no device compliance requirement since guests can't enrol).
+
+Q3 -- Service account exclusion
+Identify: Sign-in logs > filter by service account UPN > confirm which policy
+is blocking (CA tab on the failed sign-in event).
+Safe exclusion: add the service account to the policy's Exclude > Users list.
+Maximum exclusions: Microsoft recommends keeping exclusions under 5 per policy.
+Beyond that, create a separate policy targeting excluded accounts with
+compensating controls (IP restriction, alert on sign-in outside approved IPs).
+
+Q4 -- Blocking legacy authentication
+CA policy: Conditions > Client apps > select:
+  Exchange ActiveSync clients, Other clients (covers SMTP AUTH, POP3, IMAP, MAPI).
+Grant: Block access.
+Pre-checks: run "Sign-ins using legacy authentication" workbook first.
+Common legitimate legacy auth sources to remediate before blocking:
+  - Printers/scanners using SMTP AUTH to send email
+  - Older mobile apps configured with basic auth
+  - PowerShell scripts using basic auth credentials
+
+Q5 -- Continuous Access Evaluation (CAE)
+CAE enables real-time token revocation rather than waiting for token expiry.
+Events that trigger immediate revocation:
+  - User account disabled or deleted
+  - Password changed or reset
+  - MFA method changed
+  - Admin explicitly revokes all sessions
+  - High risk event detected by ID Protection
+Standard token lifetime: access tokens valid for 60-90 minutes by default.
+With CAE: token can be revoked within seconds of a triggering event.
+CAE requires: supported client (Office apps, modern auth clients) and
+the resource (Exchange, SharePoint, Teams) must support CAE.
+
+Q6 -- Diagnosing CA blocks in sign-in logs
+Path: Entra > Monitoring > Sign-in logs > find sign-in > Conditional Access tab.
+Each policy applied shows: Policy name, Result, Grant controls applied.
+Results:
+  "Success" -- policy applied and access granted.
+  "Failure" -- policy applied and access blocked (this is your culprit).
+  "Not applied" -- policy conditions did not match this sign-in.
+  "Report-only: Would have succeeded/failed" -- policy in report-only mode,
+  shows what WOULD have happened if the policy were enabled.
+"Report-only: Would have failed" means the policy would block the user if
+switched to On -- useful for pre-deployment testing without actual impact.
+"""
+    },
+
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-001",
+        "template_variant": "C",
+        "domain": "2",
+        "sub_topic": "Conditional Access Policy Design",
+        "objective": "2.2 - Plan, implement, and manage Microsoft Entra Conditional Access",
+        "scenario_template": """
+{org_name} is implementing a Zero Trust architecture and needs to redesign
+their Conditional Access strategy from scratch.
+
+Current state:
+  - Only 2 CA policies exist: "Require MFA for all" and "Block legacy auth"
+  - No device compliance policies configured in Intune
+  - {num_remote_users} remote workers access resources from unmanaged devices
+  - Executives ({num_execs} users) refuse additional authentication prompts
+  - {sensitive_app} contains highly regulated data requiring step-up auth
+  - No insider risk integration configured
+
+Questions:
+1. Design a complete CA policy architecture for Zero Trust. How many policies
+   would you create and what is the logical grouping? What is the recommended
+   maximum number of CA policies before management becomes unworkable?
+2. Configure device compliance in Intune as a CA condition. What is the
+   difference between "Require device to be marked as compliant" and
+   "Require Hybrid Azure AD joined device"? Which suits {num_remote_users}
+   remote workers on personal devices?
+3. The {num_execs} executives refuse MFA prompts. What CA features reduce
+   MFA friction for low-risk sign-ins without removing the MFA requirement?
+   Name two specific CA conditions that reduce prompt frequency.
+4. {sensitive_app} requires step-up authentication only when users access
+   sensitive reports (not the whole app). Configure this using Authentication
+   Context and explain the developer integration required.
+5. Configure insider risk-based Conditional Access. What Microsoft service
+   provides the insider risk signal? What CA condition consumes it and what
+   action do you trigger for medium vs high insider risk?
+6. Design the named location strategy for {org_name}. What is the difference
+   between IP-based and country-based named locations? When would you use
+   each and what are the limitations of country-based locations?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Insurance", "Alpine Manufacturing"],
+            "num_remote_users": ["340", "89", "512", "127"],
+            "num_execs": ["12", "8", "20", "5"],
+            "sensitive_app": ["Finance ERP", "Patient Records System", "HR Payroll Portal", "Legal Case Management"],
+        },
+        "exam_objectives": ["2.2"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-001-C: Zero Trust CA Architecture
+
+Q1 -- CA policy architecture for Zero Trust
+Recommended grouping (8-12 policies):
+  Group 1 - Baseline (all users): Block legacy auth, Require MFA for all
+  Group 2 - Admins: Require phishing-resistant MFA, require compliant/PAW device
+  Group 3 - Device state: Grant access for compliant devices, restrict unmanaged
+  Group 4 - App-specific: Sensitive apps require compliant device + MFA
+  Group 5 - Guests/external: Separate MFA policy, no device compliance required
+  Group 6 - Risk-based: Block high risk sign-in, require MFA for medium risk
+Microsoft recommends under 20 policies for manageability.
+Use naming convention: [ORG]-[GROUP]-[PURPOSE]-[STATE] e.g. CONTOSO-ALL-BLOCK-LEGACY-ON
+
+Q2 -- Device compliance conditions
+"Require device marked as compliant": device must be enrolled in Intune and
+meet the compliance policy (PIN, encryption, OS version etc).
+Suits: corporate-owned devices enrolled in Intune.
+"Require Hybrid Entra joined": device must be domain-joined AND synced to Entra.
+Suits: traditional on-premises domain-joined corporate PCs.
+For remote workers on personal devices: neither option works directly.
+Options: (1) enrol personal devices in Intune under BYOD policy, or
+(2) use app protection policies (MAM without enrollment) as an alternative
+condition -- requires compliant app (Outlook, Teams) rather than compliant device.
+
+Q3 -- Reducing MFA friction for executives
+Two CA conditions that reduce prompt frequency:
+1. Sign-in frequency: set to longer intervals (e.g. 7 days) for low-risk users
+   on compliant devices. CA > Session controls > Sign-in frequency.
+2. Persistent browser session: allows users to stay signed in across browser
+   sessions on compliant devices. CA > Session controls > Persistent browser session.
+Also: Token protection (preview) binds tokens to the specific device,
+reducing the need for re-authentication when the device is trusted.
+
+Q4 -- Authentication Context for step-up auth
+Path: Entra > Security > CA > Authentication context > New authentication context.
+Create context: e.g. "c1" labelled "Sensitive Reports Access."
+CA policy: Conditions > Authentication context = c1 > Grant = Require MFA + compliant device.
+Developer integration required: the application code must call the auth context
+when the user navigates to the sensitive reports section:
+  - Web app: include acr_values=c1 in the OAuth 2.0 authorization request
+  - The app checks the acr claim in the returned token to confirm step-up completed
+Without developer integration, the context never fires -- it cannot be applied
+to an app that hasn't implemented the trigger.
+
+Q5 -- Insider risk-based CA
+Service: Microsoft Purview Insider Risk Management generates the risk signal.
+CA condition: Conditions > Insider risk (preview) > select risk levels.
+Actions:
+  Medium insider risk: require MFA step-up or restrict to compliant device only.
+  High insider risk: block access entirely or limit to read-only (app enforced).
+Licence required: Microsoft 365 E5 or Microsoft 365 E5 Compliance.
+Note: insider risk signal can take up to 24 hours to update in CA.
+
+Q6 -- Named location strategy
+IP-based named locations: define specific IP ranges (corporate office, VPN exit nodes).
+  Use for: trusted locations that grant reduced MFA friction.
+  Limitation: requires maintaining IP list as network changes.
+Country-based named locations: define allowed or blocked countries.
+  Use for: blocking sign-ins from countries where org has no presence.
+  Limitation: VPNs and Tor exit nodes can spoof country -- not reliable as
+  sole control. Use as additional signal, not primary control.
+Best practice: combine both -- trusted IP ranges for reduced friction,
+country block for obvious geographic anomalies.
+"""
+    },
+]
+
+# ════════════════════════════════════════════════════════════════════════════
+# SC2-002: Authentication Methods and MFA — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+
+SC2_002_TEMPLATES = [
+
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC2-002",
+        "template_variant": "A",
         "domain": "2",
         "sub_topic": "Authentication Methods and MFA",
         "objective": "2.1 - Plan, implement, and manage Microsoft Entra user authentication",
@@ -488,55 +740,302 @@ Questions:
         "exam_objectives": ["2.1"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE -- SC2-002: Authentication Methods and MFA
+ANSWER GUIDE -- SC2-002-A: Authentication Methods and MFA
 
 Q1 -- Per-user MFA vs Authentication Methods policy
 Per-user MFA (legacy): configured per-user in M365 admin centre, separate
 from Conditional Access, limited method control.
 Authentication Methods policy (modern): Entra > Security > Authentication methods.
-Controls which methods are available tenant-wide, supports registration campaigns,
-integrates fully with CA and ID Protection.
+Controls which methods are available tenant-wide, integrates with CA and ID Protection.
 To avoid conflicts: disable legacy per-user MFA settings AND disable Security
 defaults before enabling CA-based MFA.
-Path to disable Security defaults: Entra > Overview > Properties > Manage security defaults.
 
-Q2 -- Migration plan from SMS OTP to Authenticator
-Phase 1 (weeks 1-2): Enable Authenticator in Authentication Methods policy.
+Q2 -- Migration from SMS OTP to Authenticator
+Phase 1: Enable Authenticator in Authentication Methods policy.
   Enable registration campaign to nudge users at next sign-in.
-Phase 2 (weeks 3-4): Set Authenticator as default method for enrolled users.
-Phase 3 (week 5+): Disable SMS OTP in Authentication Methods policy.
-For resistant executives: escalate to CISO, frame as SIM swap / phishing risk.
-Offer FIDO2 security key as alternative. If still refused, document risk
-acceptance and implement monitoring on their accounts.
+Phase 2: Set Authenticator as default method for enrolled users.
+Phase 3: Disable SMS OTP in Authentication Methods policy.
+For resistant executives: escalate to CISO, frame as SIM swap risk.
+Offer FIDO2 security key as alternative. Document risk acceptance if refused.
 
 Q3 -- MFA without a smartphone
-Options in Microsoft Entra ID:
-  - FIDO2 security key (YubiKey etc.) -- best for field workers
-  - Temporary Access Pass (TAP) -- time-limited passcode for onboarding/recovery
-  - Certificate-based authentication -- requires PKI infrastructure
-  - Windows Hello for Business -- requires Windows device
+Options: FIDO2 security key, Temporary Access Pass (TAP),
+Certificate-based authentication, Windows Hello for Business.
 Recommendation for field workers: FIDO2 security keys.
-Path: Entra > Security > Authentication methods > FIDO2 security key > Enable.
 
 Q4 -- SSPR cost and configuration
 Annual cost = monthly resets x cost per reset x 12.
-Configure: Entra > Security > Password reset > Self service password reset = All.
-Require 2 authentication methods. Recommended methods for regulated sectors:
-  - Microsoft Authenticator (primary)
-  - Email to personal address (backup)
+Configure: Entra > Security > Password reset > Self-service password reset = All.
+Require 2 authentication methods.
+Recommended for regulated sectors: Microsoft Authenticator + email to personal address.
 Avoid SMS as a method due to SIM swap risk.
 
 Q5 -- Windows Hello for Business
-Prerequisites: Windows 10/11 devices, Entra joined or Hybrid Entra joined,
-Microsoft Entra ID P1 licence minimum, users must have completed MFA registration.
+Prerequisites: Windows 10/11, Entra joined or Hybrid Entra joined,
+Entra ID P1 minimum, MFA registration completed.
 WHfB replaces: passwords for Windows sign-in and browser/app authentication.
 Phishing resistance: uses asymmetric key cryptography. Private key never leaves
-the device (protected by TPM). No password or OTP to intercept -- attacker
-needs physical device access + PIN/biometric.
+the device (protected by TPM). No password or OTP to intercept.
 """
     },
+
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-002",
+        "template_variant": "B",
+        "domain": "2",
+        "sub_topic": "Authentication Methods and MFA",
+        "objective": "2.1 - Plan, implement, and manage Microsoft Entra user authentication",
+        "scenario_template": """
+{org_name} has completed MFA rollout but is now experiencing authentication
+problems and wants to strengthen their passwordless strategy.
+
+Current issues:
+  - {num_mfa_fatigue} users have reported MFA fatigue attacks in the past month
+  - {num_tap_requests} helpdesk tickets per week for MFA lockouts and resets
+  - Passwordless authentication is not deployed
+  - {num_shared_devices} shared workstations in {shared_location} have no
+    suitable authentication method
+  - Certificate-based authentication (CBA) is required for {privileged_group}
+  - Temporary Access Pass (TAP) is not configured
+
+Questions:
+1. {num_mfa_fatigue} users experienced MFA fatigue attacks. What specific
+   Authenticator feature prevents MFA fatigue? How do you enable it and
+   what does the user experience look like compared to standard push notifications?
+2. Design a passwordless deployment plan for {org_name}. What are the three
+   Microsoft passwordless options in order of phishing resistance?
+   Which is most suitable for {shared_location} shared workstations?
+3. Configure Temporary Access Pass (TAP) for MFA lockout recovery.
+   What are the TAP settings you must configure? Can a TAP be used to
+   register a FIDO2 key and why is this important?
+4. {privileged_group} requires certificate-based authentication. What
+   infrastructure is required for CBA? What is the difference between
+   single-factor and multi-factor CBA certificates?
+5. The {num_tap_requests} weekly MFA lockout tickets indicate a process problem.
+   Design a self-service MFA recovery flow using TAP that reduces helpdesk
+   involvement. What security controls prevent TAP abuse?
+6. Configure the Authentication Methods policy to enable passwordless phone
+   sign-in for all users. What is the difference between enabling a method
+   in Authentication Methods policy vs enabling it in the legacy MFA portal?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Insurance", "Alpine Engineering"],
+            "num_mfa_fatigue": ["8", "23", "4", "15"],
+            "num_tap_requests": ["45", "12", "78", "6"],
+            "num_shared_devices": ["34", "89", "12", "56"],
+            "shared_location": ["hospital wards", "factory floor", "retail branches", "call centre"],
+            "privileged_group": ["Global Administrators", "Security Operations team", "Finance Controllers", "Clinical Systems Admins"],
+        },
+        "exam_objectives": ["2.1"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-002-B: Passwordless and Advanced Authentication
+
+Q1 -- MFA fatigue prevention
+Feature: Number matching in Microsoft Authenticator.
+How it works: instead of a simple Approve/Deny push, the user must type a
+2-digit number displayed on the sign-in screen into the Authenticator app.
+An attacker sending fraudulent push notifications cannot trick the user into
+approving because they don't know the number.
+Enable: Entra > Security > Authentication methods > Microsoft Authenticator >
+Configure > Number matching = Enabled.
+Also enable: Additional context (shows app name and location in the push).
+User experience: push arrives, user sees "Enter the number shown: 42" instead
+of just Approve/Deny.
+
+Q2 -- Passwordless options in order of phishing resistance
+1. FIDO2 security keys (highest) -- hardware bound, origin validated,
+   immune to phishing and MFA fatigue. Best for shared workstations.
+2. Windows Hello for Business -- TPM-bound, biometric/PIN, phishing resistant.
+   Best for dedicated corporate Windows devices.
+3. Microsoft Authenticator passwordless phone sign-in -- app-based,
+   phishing resistant but phone can be lost/stolen.
+For shared workstations in {shared_location}: FIDO2 security keys --
+users carry their key, tap to log in, tap to log out. No phone needed.
+
+Q3 -- Temporary Access Pass (TAP) configuration
+Path: Entra > Security > Authentication methods > Temporary Access Pass > Enable.
+Settings to configure:
+  - Minimum lifetime: 10 minutes (for immediate use)
+  - Maximum lifetime: up to 8 hours (for onboarding scenarios)
+  - One-time use: Yes (for security -- single use TAP cannot be reused)
+  - Length: 8 characters minimum
+TAP and FIDO2 registration: Yes -- a TAP can be used to register a FIDO2
+security key. This is the recommended onboarding flow:
+  IT generates TAP > user signs in with TAP > registers FIDO2 key >
+  TAP expires and user authenticates with FIDO2 going forward.
+This avoids the bootstrapping problem of "need MFA to register MFA."
+
+Q4 -- Certificate-based authentication (CBA)
+Infrastructure required:
+  - On-premises PKI (Certificate Authority) or cloud PKI
+  - Root/intermediate CA certificates uploaded to Entra ID
+  - User certificates issued with correct Subject Alternative Name (UPN)
+Single-factor CBA: certificate alone satisfies one authentication factor.
+  User still needs MFA for high-privilege operations.
+Multi-factor CBA: certificate is configured to satisfy MFA requirement directly.
+  No additional MFA prompt -- the certificate IS the MFA.
+  Requires: certificate policy OID mapped to MFA in Entra CBA settings.
+Use case for privileged group: multi-factor CBA so admins authenticate with
+smartcard/hardware token and are not prompted for additional MFA.
+
+Q5 -- Self-service MFA recovery with TAP
+Flow design:
+  1. User reports MFA lockout via helpdesk portal or manager request
+  2. Helpdesk generates time-limited one-time TAP in Entra admin centre
+  3. TAP delivered to user via verified secondary channel (manager email/phone)
+  4. User signs in with TAP, immediately registers new MFA method
+  5. TAP expires, user continues with new MFA method
+Security controls preventing TAP abuse:
+  - One-time use: cannot be reused after first sign-in
+  - Short lifetime: configure 1-4 hours maximum
+  - Audit log: every TAP issuance logged with issuer and recipient
+  - Require manager approval before helpdesk can generate TAP
+
+Q6 -- Authentication Methods policy vs legacy MFA portal
+Authentication Methods policy (Entra > Security > Authentication methods):
+  Modern, per-method enablement, supports targeting specific user groups,
+  integrates with registration campaigns and Authenticator features.
+Legacy MFA portal (per-user MFA in M365 admin centre):
+  Old interface, tenant-wide only, limited method control, being deprecated.
+Key difference: enabling passwordless phone sign-in in the Authentication
+Methods policy is the ONLY supported way in modern Entra ID.
+The legacy portal does not support passwordless configuration.
+Always use Authentication Methods policy -- disable the legacy portal settings
+to avoid conflicts (Security defaults must also be off).
+"""
+    },
+
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-002",
+        "template_variant": "C",
+        "domain": "2",
+        "sub_topic": "Authentication Methods and MFA",
+        "objective": "2.1 - Plan, implement, and manage Microsoft Entra user authentication",
+        "scenario_template": """
+{org_name} is preparing for an external security audit. The auditor has
+flagged the following authentication weaknesses:
+
+  - SSPR is enabled but {num_sspr_abuse} accounts show suspicious SSPR activity
+  - Authentication methods registration is not being monitored
+  - {num_unregistered} users have no MFA method registered
+  - The organisation relies on a single MFA method per user (no backup method)
+  - Voice call authentication is still enabled despite phishing risk
+  - No registration campaign has been configured
+
+Questions:
+1. {num_sspr_abuse} accounts show suspicious SSPR activity. What specific
+   report in Entra ID shows SSPR usage and abuse patterns? What constitutes
+   suspicious SSPR activity and what immediate action do you take?
+2. Configure an authentication method registration campaign for the
+   {num_unregistered} unregistered users. What happens to users who
+   repeatedly dismiss the registration prompt? How long can they snooze it?
+3. Design a backup authentication method policy. Why is a single registered
+   method a security and usability risk? What is Microsoft's recommendation
+   for minimum number of registered methods per user?
+4. Voice call authentication is enabled. Why is this a security risk?
+   Walk through disabling it in the Authentication Methods policy without
+   disrupting users who currently use it as their only method.
+5. Configure the Authentication Methods activity report to monitor
+   registration health. What metrics would you track weekly and what
+   threshold would trigger an escalation to the security team?
+6. {org_name} wants to enforce that all users register at least two
+   authentication methods within {registration_deadline} days.
+   Design the enforcement strategy using CA policies and registration
+   campaigns. What happens to users who do not comply by the deadline?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Council", "Pacific Finance", "Alpine Manufacturing"],
+            "num_sspr_abuse": ["12", "4", "23", "7"],
+            "num_unregistered": ["89", "234", "34", "156"],
+            "registration_deadline": ["14", "30", "7", "21"],
+        },
+        "exam_objectives": ["2.1"],
+        "difficulty": "intermediate",
+        "answers": """
+ANSWER GUIDE -- SC2-002-C: Authentication Audit and Compliance
+
+Q1 -- SSPR abuse detection
+Report: Entra admin centre > Protection > Password reset > Activity tab.
+Shows: SSPR attempts, successes, failures by user and method.
+Also: Entra > Monitoring > Audit logs > filter Activity = "Reset password (self-service)."
+Suspicious SSPR activity indicators:
+  - Multiple SSPR attempts in short timeframe (attacker trying to reset)
+  - SSPR completed from unusual location/IP
+  - SSPR completed then immediate sign-in from different location
+Immediate action: review the account's sign-in logs, check for new MFA methods
+registered after SSPR, revoke sessions, and consider temporarily disabling
+the account pending investigation.
+
+Q2 -- Registration campaign configuration
+Path: Entra > Security > Authentication methods > Registration campaign.
+State: Enabled. Days allowed to snooze: set to 1-3 days.
+What happens when users dismiss:
+  - Users can snooze for the configured number of days
+  - After the maximum snooze count is reached, they CANNOT complete sign-in
+    until they register -- they are forced to the registration experience
+  - Maximum snooze: configurable, typically 14 days total before enforcement
+Users cannot permanently avoid registration once the campaign is enforced.
+
+Q3 -- Backup authentication method policy
+Single method risk:
+  - Security: if method is compromised (SIM swap for SMS), account is lost
+  - Usability: if phone is lost/broken, user is locked out
+Microsoft recommendation: minimum 2 registered methods per user.
+Enforcement: Authentication Methods policy does not directly enforce this,
+but the registration campaign can be configured to prompt for a second method.
+Monitor compliance: Entra > Protection > Authentication methods activity >
+"Users registered for MFA" report -- shows how many methods each user has.
+
+Q4 -- Disabling voice call authentication safely
+Risk: voice calls are susceptible to SIM swapping and social engineering.
+Attackers can port a phone number and receive voice MFA calls.
+Safe removal process:
+  Step 1: Run Authentication Methods activity report -- identify users who
+    have voice call as their ONLY registered method.
+  Step 2: Run registration campaign targeting those users to add Authenticator.
+  Step 3: Wait for compliance (14-30 days with helpdesk support available).
+  Step 4: Disable voice call in Authentication Methods policy.
+Path: Entra > Security > Authentication methods > Voice call > Disable.
+Do NOT disable before step 3 -- users with voice as only method will be locked out.
+
+Q5 -- Authentication Methods activity monitoring
+Path: Entra > Protection > Authentication methods activity.
+Weekly metrics to track:
+  - % users registered for MFA (target: 100%)
+  - % users registered for passwordless (track improvement over time)
+  - % users with 2+ methods (target: 100%)
+  - SSPR registration % (target: 100% of SSPR-enabled users)
+Escalation threshold: any metric dropping more than 5% week-over-week,
+or MFA registration falling below 95%.
+
+Q6 -- Enforcement strategy for registration deadline
+Phase 1 (immediate): Enable registration campaign, snooze = 3 days.
+  Notify users via email that registration is required within deadline.
+Phase 2 (day 7): Create CA policy in report-only mode:
+  Condition: Registration status = not registered for MFA.
+  Grant: Require MFA (this forces the registration experience).
+Phase 3 (deadline day): Switch CA policy to On.
+  Users without MFA registration cannot complete sign-in.
+  They are redirected to the MFA registration page before accessing any app.
+  Helpdesk generates TAP for users with genuine blockers (no smartphone etc).
+Outcome: compliance is enforced technically, not just by policy communication.
+"""
+    },
+]
+
+# ════════════════════════════════════════════════════════════════════════════
+# SC2-003: Microsoft Entra ID Protection — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+
+SC2_003_TEMPLATES = [
+
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC2-003",
+        "template_variant": "A",
         "domain": "2",
         "sub_topic": "Microsoft Entra ID Protection",
         "objective": "2.3 - Manage risk by using Microsoft Entra ID Protection",
@@ -575,55 +1074,286 @@ Questions:
         "exam_objectives": ["2.3"],
         "difficulty": "intermediate",
         "answers": """
-ANSWER GUIDE -- SC2-003: Microsoft Entra ID Protection
+ANSWER GUIDE -- SC2-003-A: Microsoft Entra ID Protection
 
 Q1 -- User Risk vs Sign-in Risk
 User Risk: probability that an identity is compromised. Accumulates over time.
-Triggered by: leaked credentials on dark web, unusual activity patterns,
-admin confirmation of compromise.
+Triggered by: leaked credentials, unusual activity patterns, admin confirmation.
 Sign-in Risk: probability a specific authentication attempt is not from the
-legitimate user. Per-sign-in. Triggered by: anonymous IP, atypical travel,
-unfamiliar sign-in properties, malicious IP address.
-Risk levels: Low -> log/monitor. Medium -> require MFA step-up.
-High -> block or force password reset immediately.
+legitimate user. Per-sign-in.
+Triggered by: anonymous IP, atypical travel, unfamiliar sign-in properties.
+Risk levels: Low -> log. Medium -> require MFA. High -> block or force reset.
 
-Q2 -- Risk-based policy: CA vs legacy
+Q2 -- Risk-based CA policy
 Use Conditional Access risk-based policies (modern approach).
-Legacy ID Protection policies (User/Sign-in risk policy tabs) are being
-deprecated -- Microsoft recommends CA with risk conditions instead.
+Legacy ID Protection policies are being deprecated.
 Configure: Entra > Security > CA > New policy > Conditions: User risk = High >
 Grant: Require password change (requires SSPR to be enabled first).
 
-Q3 -- Investigating impossible travel
+Q3 -- Impossible travel investigation
 1. Entra > Security > Identity Protection > Risky sign-ins
 2. Find the CFO sign-in > review: IP, location, device, browser
-3. CFO confirmed they were in Auckland -- select "Confirm compromised"
-   (NOT "Dismiss" -- that clears the risk flag and loses the audit trail)
+3. CFO confirmed Auckland -- select "Confirm compromised" (NOT "Dismiss")
 "Confirm compromised" -> sets user risk to High, triggers risk policy,
 forces password reset, invalidates ALL active sessions.
 "Dismiss user risk" -> clears risk flag (use ONLY for confirmed false positives).
-4. Also: revoke sessions manually > investigate all activity since the foreign sign-in.
 
 Q4 -- MFA Registration Campaign
 Path: Entra > Security > Authentication methods > Registration campaign.
-Settings: State = Enabled, Days allowed to snooze = 1-14 days.
+State = Enabled, Days allowed to snooze = 1-14 days.
 Users who dismiss are prompted again after the snooze period.
-After the configured number of snoozes they CANNOT complete sign-in
-until they register -- they are forced to the registration experience.
+After configured snoozes they CANNOT complete sign-in until they register.
 
 Q5 -- Risky workload identities
-Licence: Microsoft Entra ID P2 (Workload Identities Premium add-on
-may be required separately for service principal risk detections).
-Detections available for workload identities:
-  - Suspicious sign-ins (unusual token request patterns)
-  - Anomalous service principal activity
-  - Leaked credentials (client secrets found in public repos via GitHub scanning)
-NOT available for workload identities (unlike users):
-  - Impossible travel, unfamiliar sign-in properties (no concept of location for SPs)
+Licence: Microsoft Entra ID P2 (Workload Identities Premium add-on may be required).
+Detections for workload identities: suspicious sign-ins, anomalous SP activity,
+leaked credentials (client secrets in public repos).
+NOT available: impossible travel, unfamiliar sign-in properties.
 """
     },
+
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-003",
+        "template_variant": "B",
+        "domain": "2",
+        "sub_topic": "Microsoft Entra ID Protection",
+        "objective": "2.3 - Manage risk by using Microsoft Entra ID Protection",
+        "scenario_template": """
+{org_name} has had ID Protection enabled for {months_active} months but the
+security team believes it is not configured optimally.
+
+Current state:
+  - {num_false_positives} risk detections per week are being dismissed as false positives
+  - No risk-based CA policies are configured -- all risks are managed manually
+  - {num_stale_risky} users have been at HIGH risk for over 30 days with no remediation
+  - ID Protection reports are not being reviewed regularly
+  - A password spray attack targeting {num_targeted} accounts was detected
+    but no automated response fired
+
+Questions:
+1. {num_false_positives} weekly false positives suggest misconfiguration.
+   What are the most common causes of false positive risk detections in ID Protection?
+   How do you tune ID Protection to reduce false positives without missing real threats?
+2. Configure risk-based CA policies to replace manual remediation.
+   Design the complete policy set for: LOW, MEDIUM, and HIGH user risk,
+   and LOW, MEDIUM, and HIGH sign-in risk. What action does each trigger?
+3. {num_stale_risky} users have been HIGH risk for 30+ days. Why is this
+   dangerous? Walk through bulk remediation of stale risky users.
+   What is the difference between "Dismiss user risk" and "Confirm safe"?
+4. The password spray attack triggered a detection but no automated response
+   fired. What CA policy should have fired and what was likely misconfigured?
+   What is the specific ID Protection detection name for password spray?
+5. Design a weekly ID Protection review process. What four reports would you
+   review, what metrics would you track, and what actions would each report
+   drive? Who in the organisation should own this review?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Finance", "Alpine Engineering", "Pacific Council"],
+            "months_active": ["3", "6", "12", "1"],
+            "num_false_positives": ["45", "12", "78", "6"],
+            "num_stale_risky": ["8", "23", "4", "15"],
+            "num_targeted": ["34", "89", "12", "56"],
+        },
+        "exam_objectives": ["2.3"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-003-B: ID Protection Optimisation
+
+Q1 -- False positive causes and tuning
+Common causes:
+  - VPN exit nodes flagged as anonymous IP (users legitimately using VPN)
+  - Business travel flagged as atypical travel or impossible travel
+  - Shared service accounts triggering unfamiliar sign-in properties
+  - Bulk operations (migrations, scripted tasks) appearing as anomalous
+Tuning approaches:
+  - Named locations: add VPN exit IPs and office IPs as trusted locations --
+    sign-ins from trusted IPs are excluded from anonymous IP detection
+  - Confirm safe: for legitimate risky sign-ins, use "Confirm safe" rather
+    than dismiss -- this trains the ML model for your environment
+  - Investigate before dismissing: review each false positive type and address
+    the root cause (e.g. move service accounts to Managed Identities)
+
+Q2 -- Risk-based CA policy set
+Sign-in risk LOW: Allow with standard controls (no additional action)
+Sign-in risk MEDIUM: Require MFA step-up
+Sign-in risk HIGH: Block access OR require MFA + password change
+User risk LOW: Allow with standard controls (monitor)
+User risk MEDIUM: Require MFA on next sign-in
+User risk HIGH: Require password change (block until SSPR completed)
+Path for all: Entra > Security > Conditional Access > New policy >
+Conditions > User risk or Sign-in risk > select level > Grant controls.
+Note: "Require password change" grant requires SSPR to be enabled and
+the user must have registered SSPR methods.
+
+Q3 -- Stale HIGH risk users
+Risk: HIGH risk users with no remediation may have been compromised for 30+
+days. Attacker maintains persistent access while risk sits unactioned.
+Bulk remediation: Entra > Security > Identity Protection > Risky users >
+filter by Risk level = High, Risk state = At risk > select all > choose action.
+"Confirm safe" vs "Dismiss user risk":
+  Confirm safe: marks the sign-in as legitimate AND provides signal to the
+    ML model that this type of activity is normal for this user.
+  Dismiss user risk: clears the risk flag without providing ML feedback.
+  Use "Confirm safe" for verified false positives; "Dismiss" for edge cases
+  where you cannot fully verify but need to clear the flag.
+
+Q4 -- Password spray missed response
+Password spray detection name: "Password spray" (sign-in risk detection).
+Why no response fired: most likely the sign-in risk CA policy was either
+not configured, set to report-only, or the risk threshold was set too high.
+Password spray sets sign-in risk to HIGH -- a HIGH sign-in risk CA policy
+set to "Block access" would have prevented successful authentication.
+Also check: were the targeted accounts excluded from the risk policy?
+Common mistake: excluding service accounts from ALL CA policies including
+risk-based ones -- attackers target these specifically.
+
+Q5 -- Weekly ID Protection review process
+Four reports to review:
+1. Risky users report: new HIGH risk users this week, stale risks >7 days.
+   Action: remediate HIGH, investigate MEDIUM.
+2. Risky sign-ins report: volume trend, top detection types, unfamiliar locations.
+   Action: tune named locations if VPN false positives, investigate clusters.
+3. Risk detections report: new detection types appearing, volume per detection.
+   Action: if new detection type appears, investigate root cause immediately.
+4. ID Protection overview dashboard: risk score trend, coverage metrics.
+   Action: track week-over-week improvement in risk posture.
+Owner: Security Operations team with escalation path to CISO for HIGH risk
+accounts belonging to executives or privileged users.
+"""
+    },
+
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-003",
+        "template_variant": "C",
+        "domain": "2",
+        "sub_topic": "Microsoft Entra ID Protection",
+        "objective": "2.3 - Manage risk by using Microsoft Entra ID Protection",
+        "scenario_template": """
+A security incident at {org_name} has revealed that {compromised_account}
+was compromised for an estimated {compromise_duration} before detection.
+
+Post-incident findings:
+  - ID Protection had flagged the account as MEDIUM risk {days_before} days
+    before the breach was confirmed but no action was taken
+  - The attacker used the compromised account to access {accessed_resource}
+  - {num_lateral} other accounts showed suspicious activity during the same period
+  - Leaked credentials detection fired but was dismissed as a false positive
+  - No sign-in risk policy was configured for the affected user group
+
+Questions:
+1. Conduct a post-incident ID Protection review. What sequence of reports
+   and logs would you pull to reconstruct the attacker's timeline?
+   What is the first action you take for the {num_lateral} other accounts?
+2. The MEDIUM risk flag was ignored {days_before} days before breach. Design
+   a risk escalation and response SLA policy. What response time and action
+   is appropriate for each risk level (Low, Medium, High)?
+3. Leaked credentials detection was dismissed as a false positive. What is
+   this detection and how does Microsoft discover leaked credentials?
+   What makes a real leaked credential detection look different from a
+   false positive and how should you verify before dismissing?
+4. Configure sign-in risk policies that would have detected and stopped
+   this attack. What specific combination of detection type and CA policy
+   would have blocked the attacker while allowing the legitimate user to
+   recover access?
+5. {org_name} wants to implement ID Protection for workload identities to
+   prevent similar attacks via service principals. What licence is required?
+   Configure a workload identity risk policy and explain what happens when
+   a service principal is flagged as HIGH risk.
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Insurance", "Alpine Manufacturing"],
+            "compromised_account": ["a Finance Manager account", "an IT Administrator account", "a Clinical Systems account", "an HR Manager account"],
+            "compromise_duration": ["14 days", "21 days", "7 days", "30 days"],
+            "days_before": ["14", "7", "21", "10"],
+            "accessed_resource": ["the payroll system", "patient records", "the Azure subscription", "the HR database"],
+            "num_lateral": ["3", "8", "2", "12"],
+        },
+        "exam_objectives": ["2.3"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-003-C: Post-Incident ID Protection Review
+
+Q1 -- Post-incident timeline reconstruction
+Sequence of reports to pull:
+1. Entra > Security > Identity Protection > Risky users > [compromised account]
+   > Risk history -- shows when risk was first detected and all state changes
+2. Entra > Security > Identity Protection > Risk detections -- filter by user,
+   shows every detection with timestamp, detection type, and risk level
+3. Entra > Users > [account] > Sign-in logs -- full sign-in history including
+   successful and failed attempts, IPs, locations, apps accessed
+4. Entra > Users > [account] > Audit logs -- role assignments, group changes,
+   app consent grants made during the compromise period
+First action for the other suspicious accounts:
+  Immediately revoke sessions for all (Entra > Users > [user] > Revoke sessions)
+  and set user risk to confirmed compromised. Do NOT wait for investigation --
+  contain first, investigate second.
+
+Q2 -- Risk response SLA policy
+LOW risk: Review within 5 business days. Action: monitor, no immediate response.
+MEDIUM risk: Review within 24 hours. Action: require MFA step-up at next sign-in,
+  notify account owner's manager, add to watch list for 7 days.
+HIGH risk: Respond within 1 hour (automated preferred). Action: block sign-in,
+  force password reset via SSPR, revoke all active sessions, notify security team.
+Automation: CA risk-based policies handle HIGH and MEDIUM automatically.
+Manual SLA applies to LOW and to HIGH events that require human investigation
+beyond the automated CA response.
+
+Q3 -- Leaked credentials detection
+What it is: Microsoft monitors dark web forums, paste sites, hacker marketplaces,
+and partners with threat intelligence services to find credential dumps.
+When a username/password pair matching an Entra ID account is found,
+the leaked credentials detection fires.
+Real vs false positive:
+  Real: the exact UPN and a password that matches (or recently matched) the
+    account's password hash. Microsoft validates before flagging.
+  False positive: another account with a similar UPN was found in a breach
+    (e.g. same username at a different domain from a personal account).
+Verification before dismissing:
+  1. Check the user's password history -- did they reuse a password?
+  2. Check breach databases (HaveIBeenPwned) for the user's email address
+  3. Ask the user directly if they reuse passwords across personal/work accounts
+  Never dismiss leaked credentials without verification -- it is one of the
+  highest confidence detections in ID Protection.
+
+Q4 -- Preventive CA policy configuration
+The attacker used compromised credentials (leaked credential detection fires).
+Detection type: Leaked credentials -> sets USER RISK to HIGH.
+CA policy that would have stopped it:
+  User risk = High > Grant = Require password change
+This blocks all sign-ins for the user until they complete SSPR.
+The attacker cannot complete SSPR (they don't control the registered methods).
+The legitimate user can: they receive an SSPR link, reset password,
+risk is cleared, access restored.
+Additionally: Sign-in risk = Medium/High > Grant = Require MFA
+Would have caught the attacker at the sign-in level before user risk escalated.
+
+Q5 -- Workload identity risk policy
+Licence: Microsoft Entra Workload Identities Premium (add-on to P2).
+Configure: Entra > Security > Identity Protection > Workload identity risk policies.
+New policy > Select service principals > Risk level = High > Action = Block.
+When a service principal is flagged HIGH risk:
+  The service principal's sign-ins are blocked by the policy.
+  All token requests from that SP are denied.
+  Security team is notified via the risk detection alert.
+  Investigation: check if client secret was leaked (GitHub scanning detection),
+  rotate the secret/certificate, investigate what the SP accessed during the
+  risk window, then dismiss the risk after remediation.
+"""
+    },
+]
+
+# ════════════════════════════════════════════════════════════════════════════
+# SC2-004: Global Secure Access — 3 templates
+# ════════════════════════════════════════════════════════════════════════════
+
+SC2_004_TEMPLATES = [
+
+    # ── Template A (original) ────────────────────────────────────────────────
     {
         "id": "SC2-004",
+        "template_variant": "A",
         "domain": "2",
         "sub_topic": "Global Secure Access",
         "objective": "2.4 - Implement Global Secure Access",
@@ -662,49 +1392,286 @@ Questions:
         "exam_objectives": ["2.4"],
         "difficulty": "advanced",
         "answers": """
-ANSWER GUIDE -- SC2-004: Global Secure Access
+ANSWER GUIDE -- SC2-004-A: Global Secure Access
 
 Q1 -- Private Access vs Internet Access
-Private Access: Zero Trust Network Access (ZTNA) -- replaces VPN.
-Provides access to specific private resources only, not the whole network.
-Users connect to defined application segments -- zero lateral movement.
-Internet Access: Secure Web Gateway for internet-bound traffic. Controls
-what users can access online, plus Microsoft 365 traffic optimisation.
+Private Access: ZTNA -- replaces VPN. Provides access to specific private
+resources only, not the whole network. Zero lateral movement.
+Internet Access: Secure Web Gateway for internet-bound traffic plus M365 optimisation.
 To replace the legacy VPN -> deploy Private Access.
 
 Q2 -- GSA client deployment
-Prerequisites: Microsoft Entra ID P1, device must be Entra joined or
-Hybrid Entra joined, Global Secure Access enabled in Entra admin centre,
-Private Network Connector deployed on-premises.
+Prerequisites: Entra ID P1, device Entra joined or Hybrid Entra joined,
+GSA enabled in Entra admin centre, Private Network Connector on-premises.
 Deployment at scale for Windows: Microsoft Intune (Endpoint Manager).
-Deploy the GSA client MSI as a Win32 app targeting the remote workers group.
-For macOS: Intune macOS LOB app deployment.
+Deploy GSA client MSI as Win32 app targeting the remote workers group.
 
 Q3 -- Configuring Private Access
-Step 1 -- Deploy Private Network Connector:
+Step 1: Deploy Private Network Connector on-premises Windows Server.
   Download from: Global Secure Access > Connect > Connectors.
-  Install on on-premises Windows Server with line-of-sight to the app server.
-  Only outbound HTTPS required -- no inbound firewall rules.
-Step 2 -- Create Application Segment:
-  Global Secure Access > Applications > Enterprise applications > New app.
-  Add segment: FQDN or IP of app server + port.
-Step 3 -- Assign users/groups to the application.
-Step 4 -- Create CA policy targeting the GSA app to enforce MFA + compliant device.
+  Only outbound HTTPS required.
+Step 2: Create Application Segment in Enterprise applications > New app.
+  Add segment: FQDN or IP + port.
+Step 3: Assign users/groups to the application.
+Step 4: Create CA policy targeting the GSA app to enforce MFA + compliant device.
 
 Q4 -- Microsoft 365 traffic profile
 Global Secure Access > Traffic forwarding > Microsoft 365 access profile > Enable.
-This uses Microsoft's optimised network paths, bypassing the VPN hairpin.
-Profile automatically includes correct M365 endpoints (Exchange, SharePoint, Teams).
-No manual endpoint configuration required.
+Uses Microsoft's optimised network paths, bypassing VPN hairpin.
+Profile automatically includes correct M365 endpoints.
 
 Q5 -- Verifying GSA usage
 Global Secure Access > Monitor > Traffic logs -- filter by app name, user, connector.
 Dashboard: Global Secure Access > Dashboard -- connected users, top apps, connector health.
-Cross-check: VPN gateway logs for the same user should show a drop in traffic
-volume after the GSA client is deployed and active.
+Cross-check: VPN gateway logs should show drop in traffic volume after GSA deployment.
+"""
+    },
+
+    # ── Template B ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-004",
+        "template_variant": "B",
+        "domain": "2",
+        "sub_topic": "Global Secure Access",
+        "objective": "2.4 - Implement Global Secure Access",
+        "scenario_template": """
+{org_name} has deployed Global Secure Access but is experiencing issues:
+
+  - {num_users_failing} users cannot connect to private apps through GSA
+  - The Private Network Connector on {connector_server} shows as unhealthy
+  - Microsoft 365 traffic is still going through the VPN despite GSA being enabled
+  - {branch_office} branch office users need GSA without installing the client
+  - Security team cannot see what private resources users are accessing
+  - A user reported accessing a restricted site that should be blocked
+
+Questions:
+1. The Private Network Connector on {connector_server} is unhealthy. Walk through
+   diagnosing and resolving connector health issues. What outbound ports and
+   endpoints must be reachable from the connector server? What Windows service
+   must be running?
+2. {num_users_failing} users cannot connect through GSA. List the five most
+   common causes of GSA client connection failure and how to diagnose each.
+   What GSA client diagnostic tool is available?
+3. M365 traffic is still going through the VPN despite the M365 traffic profile
+   being enabled. What are the two most likely causes? How does GSA handle
+   traffic forwarding in priority order when both VPN and GSA client are active?
+4. {branch_office} branch office needs GSA without per-device client installation.
+   What GSA feature supports this? What are the requirements and limitations
+   compared to the full GSA client?
+5. Configure internet access content filtering to block {blocked_category} sites.
+   Walk through: creating a web content filtering policy, assigning it to users,
+   and verifying blocked access in the logs.
+6. A user accessed a restricted site that should be blocked. Investigate using
+   GSA logs. What specific log type shows internet access traffic?
+   How do you identify if the user bypassed GSA using a different network path?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Finance", "Pacific Engineering", "Alpine Council"],
+            "num_users_failing": ["34", "89", "12", "156"],
+            "connector_server": ["gsa-connector01.contoso.local", "conn-srv01.fabrikam.internal", "gsaconn.alpine.lan"],
+            "branch_office": ["Wellington", "Christchurch", "Hamilton", "Dunedin"],
+            "blocked_category": ["social media", "gambling", "personal storage", "streaming media"],
+        },
+        "exam_objectives": ["2.4"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-004-B: GSA Troubleshooting
+
+Q1 -- Connector health diagnosis
+Connector health check path: Global Secure Access > Connect > Connectors > [connector].
+Required outbound connectivity from connector server:
+  - *.msappproxy.net port 443 (HTTPS)
+  - *.servicebus.windows.net port 443
+  - login.microsoftonline.com port 443
+  No inbound ports required -- all connections are outbound.
+Windows service: "Microsoft Entra private network connector" must be Running.
+Check: Services.msc on the connector server.
+Common causes: firewall blocking outbound, proxy requiring authentication,
+TLS inspection breaking the connector's certificate validation.
+Fix TLS inspection: add connector service to proxy bypass list.
+
+Q2 -- GSA client connection failure causes
+1. GSA client not running: check Task Manager for "Global Secure Access Client"
+2. Device not Entra joined: GSA requires Entra join or Hybrid Entra join
+3. No connector healthy in the connector group: check connector health dashboard
+4. Application segment not configured: FQDN/IP not added to the private app
+5. CA policy blocking the GSA app: check sign-in logs for the GSA enterprise app
+Diagnostic tool: GSA client tray icon > Diagnostics > runs connectivity tests
+and shows which checks pass/fail with specific error codes.
+
+Q3 -- M365 traffic still going through VPN
+Two most likely causes:
+1. VPN split tunnelling not configured: VPN is capturing all traffic including
+   M365 before GSA can intercept it. Configure VPN split tunnelling to exclude
+   M365 IP ranges, allowing GSA to handle them.
+2. Traffic forwarding profile not assigned to users: the M365 profile must be
+   assigned to the user group, not just enabled globally.
+Traffic priority order: when both VPN and GSA client are active, the VPN
+typically wins if it captures traffic first (lower metric route).
+Resolution: configure VPN to exclude M365 endpoints via split tunnelling,
+or migrate users off VPN to GSA Private Access entirely.
+
+Q4 -- Branch office without per-device client
+Feature: Remote Network Connectivity (branch connectivity via IPsec/BGP tunnel).
+Requirements: a router/firewall at the branch that supports IPsec IKEv2,
+configured to tunnel traffic to the GSA edge.
+All devices on the branch network go through GSA without needing the client installed.
+Limitations vs full client:
+  - No per-user identity -- traffic attributed to the branch, not individual user
+  - No user-level Conditional Access enforcement
+  - All branch traffic goes through GSA (no per-device selectivity)
+Best for: shared/unmanaged devices, printers, IoT on the branch network.
+
+Q5 -- Internet access content filtering
+Path: Global Secure Access > Secure > Web content filtering policies > New policy.
+Add rule: Category = [blocked category] > Action = Block.
+Assign policy: Global Secure Access > Secure > Security profiles >
+  create or edit profile > add the filtering policy > assign profile to user group.
+Verify: Global Secure Access > Monitor > Traffic logs > filter by action = Blocked.
+Test: user attempts to access a blocked site > should see block page.
+
+Q6 -- Investigating bypassed restriction
+Log type: Global Secure Access > Monitor > Traffic logs > filter Internet Access.
+Look for: the user's UPN, the destination URL, timestamp matching the reported access.
+If no log entry exists: user likely bypassed GSA by using a different network path.
+Detection: check if GSA client was running at that time (client health logs),
+check if user was on VPN or direct corporate network instead of GSA.
+Enforcement: CA policy requiring GSA compliance -- "Require Global Secure Access
+compliant network" condition blocks access from non-GSA network paths.
+"""
+    },
+
+    # ── Template C ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-004",
+        "template_variant": "C",
+        "domain": "2",
+        "sub_topic": "Global Secure Access",
+        "objective": "2.4 - Implement Global Secure Access",
+        "scenario_template": """
+{org_name} is planning a full Zero Trust network transformation, replacing
+their {vpn_product} VPN and web proxy with Global Secure Access.
+
+Migration scope:
+  - {num_remote} remote workers currently on VPN
+  - {num_branch} branch offices with site-to-site VPN
+  - {num_apps} internal applications of varying sensitivity
+  - Microsoft 365 and {saas_app} SaaS traffic currently proxied
+  - Internet access currently filtered by {proxy_product} on-premises proxy
+
+Questions:
+1. Design the GSA migration in phases. What order do you migrate components
+   (M365 traffic, internet access, private apps) and why? What is the
+   recommended parallel running period before decommissioning the VPN?
+2. Classify the {num_apps} internal applications into GSA Private Access
+   segments. What criteria determine whether an app gets its own segment
+   vs being grouped with others? What is the security benefit of
+   per-application segments vs broad network segments?
+3. Design the Conditional Access policy for GSA access. What is the
+   "Compliant Network" CA condition and how does it enforce that users
+   MUST go through GSA rather than direct internet access?
+4. The {proxy_product} proxy currently enforces web filtering policies.
+   Map the existing proxy categories to GSA Internet Access filtering policies.
+   What categories and actions does GSA Internet Access support?
+   What filtering is NOT available in GSA that requires a third-party solution?
+5. After migration, design the ongoing GSA governance model. What metrics
+   do you monitor, how do you handle connector scaling as user numbers grow,
+   and what is the process for onboarding a new internal application to GSA?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Bank", "Pacific Council", "Alpine Manufacturing"],
+            "vpn_product": ["Cisco AnyConnect", "Palo Alto GlobalProtect", "Fortinet FortiClient", "Pulse Secure"],
+            "num_remote": ["450", "1200", "89", "2400"],
+            "num_branch": ["8", "23", "3", "45"],
+            "num_apps": ["34", "12", "67", "8"],
+            "saas_app": ["Salesforce", "ServiceNow", "Workday", "SAP SuccessFactors"],
+            "proxy_product": ["Zscaler", "Bluecoat", "Cisco Umbrella", "Forcepoint"],
+        },
+        "exam_objectives": ["2.4"],
+        "difficulty": "advanced",
+        "answers": """
+ANSWER GUIDE -- SC2-004-C: GSA Migration Planning
+
+Q1 -- Phased migration order
+Phase 1 -- Microsoft 365 traffic (lowest risk, highest benefit):
+  Enable M365 traffic profile. Immediate latency improvement.
+  No security risk -- M365 is already cloud, GSA just optimises the path.
+  Parallel run: 2-4 weeks. Monitor: M365 performance metrics, sign-in success.
+
+Phase 2 -- Internet Access (medium complexity):
+  Enable Internet Access profile, configure web filtering policies.
+  Replace proxy for internet-bound traffic.
+  Parallel run: 4-8 weeks. Shadow mode: log but don't block initially.
+
+Phase 3 -- Private Access (highest complexity, replaces VPN):
+  Migrate apps one at a time, starting with non-critical.
+  Parallel run: 8-12 weeks with both VPN and GSA available.
+  Decommission VPN only after all apps migrated and users validated.
+Recommended total parallel running period: 3-6 months before VPN decommission.
+
+Q2 -- Application segment classification
+Per-application segment (recommended for sensitive apps):
+  - Contains sensitive data (payroll, patient records, financial)
+  - Requires individual access control and audit trail
+  - Different user populations need access (not all remote users)
+  Security benefit: zero lateral movement -- users access only that app,
+  not the network segment it sits on.
+Grouped segments (acceptable for less sensitive):
+  - Same user population needs all apps in the group
+  - Apps share the same sensitivity level
+  - Administrative overhead justifies grouping
+Criteria: data sensitivity, user population, compliance requirements,
+audit granularity needed.
+
+Q3 -- Compliant Network CA condition
+The "Compliant Network" condition in CA verifies the user is connecting
+through Global Secure Access (either client or remote network connectivity).
+Configure: CA policy > Conditions > Network > Compliant network = Yes.
+Effect: sign-ins from outside GSA are blocked for covered applications.
+This enforces that ALL access to private apps goes through GSA,
+preventing users from bypassing GSA by connecting directly.
+Important: ensure break-glass accounts are excluded from this policy.
+
+Q4 -- Proxy to GSA filtering mapping
+GSA Internet Access supports:
+  Categories: adult content, gambling, social media, malware, phishing,
+  botnets, streaming, personal storage, anonymisers.
+  Actions: Allow, Block, Alert (log but allow).
+What GSA does NOT currently support (may need third-party):
+  - SSL inspection / HTTPS deep packet inspection (limited in GSA preview)
+  - Advanced DLP for internet traffic
+  - Custom category lists beyond Microsoft's built-in categories
+  - ICAP integration for third-party content scanning
+Migration approach: map existing proxy categories to GSA equivalents,
+identify gaps, maintain proxy in parallel for features GSA cannot replace.
+
+Q5 -- Ongoing GSA governance model
+Metrics to monitor weekly:
+  - Connector health (all connectors green)
+  - Traffic volume per app segment (detect anomalies)
+  - Block rate for internet filtering (too high = overly restrictive)
+  - User connection failures (troubleshoot proactively)
+Connector scaling: add connectors in the same connector group as load grows.
+  GSA load balances across healthy connectors automatically.
+  Rule of thumb: one connector per 500-1000 concurrent users.
+Onboarding new internal app:
+  1. Deploy connector in the target network segment
+  2. Create new application segment (FQDN/IP/port)
+  3. Assign appropriate user/group
+  4. Create CA policy for the app (MFA, compliant device as required)
+  5. Test with pilot group before broad rollout
+  6. Update network firewall to allow connector outbound only
+  7. Document in application inventory
 """
     },
 ]
+
+# ════════════════════════════════════════════════════════════════════════════
+# UPDATED DOMAIN2_SCENARIOS list
+# Replace the existing DOMAIN2_SCENARIOS in sc300_module.py with this
+# ════════════════════════════════════════════════════════════════════════════
+
+DOMAIN2_SCENARIOS = SC2_001_TEMPLATES + SC2_002_TEMPLATES + SC2_003_TEMPLATES + SC2_004_TEMPLATES
 
 DOMAIN3_SCENARIOS = [
     {

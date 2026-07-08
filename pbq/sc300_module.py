@@ -1024,6 +1024,161 @@ Phase 3 (deadline day): Switch CA policy to On.
 Outcome: compliance is enforced technically, not just by policy communication.
 """
     },
+    # ── Template D ───────────────────────────────────────────────────────────
+    {
+        "id": "SC2-002",
+        "template_variant": "D",
+        "domain": "2",
+        "sub_topic": "Authentication Methods and MFA",
+        "objective": "2.1 - Plan, implement, and manage Microsoft Entra user authentication",
+        "scenario_template": """
+{org_name} has {num_users} users and no self-service password reset configured.
+All password resets go through the helpdesk at a cost of ${reset_cost} per reset.
+The helpdesk handles {monthly_resets} resets per month.
+
+Current authentication problems:
+  - SSPR has never been enabled -- all {monthly_resets} monthly resets are manual
+  - The {num_field} field workers cannot use smartphone-based SSPR methods
+  - {num_executives} executives have had their accounts locked out this month
+    due to forgotten passwords
+  - A recent security review found {num_weak_methods} users registered with
+    only SMS OTP as their SSPR method
+  - Password writeback is not configured despite having on-premises AD
+  - No SSPR activity is being monitored or reported on
+
+Questions:
+1. Calculate the annual cost of not having SSPR enabled. What is the
+   typical ROI timeframe for SSPR deployment in a {industry} organisation?
+   What hidden costs beyond helpdesk time should be included in the calculation?
+2. Design the SSPR configuration for {org_name}. How many authentication
+   methods should be required? Which specific methods would you enable and
+   disable, and justify each decision for a {industry} environment?
+3. The {num_field} field workers cannot use smartphones for SSPR. What
+   SSPR-compatible methods work without a smartphone? Configure the
+   Authentication Methods policy to support these users specifically.
+4. Configure password writeback for the on-premises AD environment.
+   What component must be installed and configured for writeback to work?
+   What happens to cloud password resets without writeback enabled?
+5. Design the SSPR registration campaign to ensure all {num_users} users
+   register before the helpdesk stops accepting manual reset requests in
+   {transition_days} days. What CA policy enforces registration compliance
+   and what happens to users who miss the deadline?
+6. Configure SSPR monitoring and reporting. What three reports would you
+   review weekly and what metrics indicate the SSPR deployment is working?
+   How does SSPR activity connect to the ID Protection risk remediation flow?
+""",
+        "variables": {
+            "org_name": ["Contoso Health", "Northwind Council", "Pacific Finance", "Alpine Manufacturing"],
+            "num_users": ["450", "1200", "280", "3400"],
+            "reset_cost": ["15", "25", "18", "30"],
+            "monthly_resets": ["120", "340", "60", "210"],
+            "num_field": ["80", "200", "35", "150"],
+            "num_executives": ["4", "8", "2", "12"],
+            "num_weak_methods": ["34", "89", "12", "156"],
+            "industry": ["healthcare", "local government", "financial services", "manufacturing"],
+            "transition_days": ["14", "30", "21", "7"],
+        },
+        "exam_objectives": ["2.1"],
+        "difficulty": "intermediate",
+        "answers": """
+ANSWER GUIDE -- SC2-002-D: SSPR Configuration and Deployment
+
+Q1 -- Annual cost calculation and ROI
+Annual cost = monthly resets x cost per reset x 12.
+Example: 120 resets x $15 x 12 = $21,600 per year in direct helpdesk costs.
+Hidden costs to include:
+  - Lost productivity: user locked out for average 30-60 minutes waiting for reset
+  - Helpdesk opportunity cost: time spent on resets instead of higher value work
+  - After-hours resets: premium cost when helpdesk is not available
+  - Security risk cost: users sharing passwords or writing them down to avoid resets
+Typical ROI timeframe: SSPR pays for itself within 3-6 months in most organisations.
+For healthcare: additional benefit of reduced clinical staff downtime during patient care.
+
+Q2 -- SSPR configuration design
+Number of methods required: 2 (Microsoft recommendation for all user types).
+Rationale: single method = single point of failure for both security and access.
+Methods to ENABLE:
+  - Microsoft Authenticator (primary -- phishing resistant, easy to use)
+  - Email OTP to alternate email (backup -- works without smartphone)
+  - Software OATH token (backup for field workers with authenticator apps)
+Methods to DISABLE:
+  - SMS/Mobile phone: SIM swap risk -- attacker ports number and intercepts OTP
+  - Voice call: same SIM swap risk as SMS, deprecated by Microsoft
+  - Security questions: retiring March 2027, knowledge-based auth is weak
+For healthcare specifically: avoid SMS -- clinical staff frequently change phones
+and SIM swap attacks targeting healthcare credentials are well documented.
+
+Q3 -- SSPR for field workers without smartphones
+Methods that work without a smartphone:
+  1. Email OTP: send code to personal or alternate email address
+     Path: Authentication Methods policy > Email OTP > Enable
+  2. Hardware OATH token: physical token generates TOTP codes
+     Path: Authentication Methods policy > Hardware OATH tokens > Enable
+  3. Temporary Access Pass (TAP): helpdesk generates time-limited code
+     Path: Authentication Methods policy > Temporary Access Pass > Enable
+     Use for: initial registration bootstrap and emergency recovery
+  4. Office phone/desk phone via voice call: if voice call is enabled
+     (less recommended due to SIM/phone porting risk)
+Configuration: create a security group "Field-Workers-No-Smartphone"
+and target Email OTP and Hardware OATH specifically at that group
+rather than enabling for all users.
+
+Q4 -- Password writeback configuration
+Component required: Microsoft Entra Connect Sync with Password Writeback feature.
+Path: Entra Connect server > Azure AD Connect > Optional features > Password writeback = On.
+Also enable in Entra: Password reset > On-premises integration > Write back passwords = On.
+What happens without writeback:
+  Users reset their cloud (Entra ID) password successfully.
+  BUT their on-premises AD password remains unchanged.
+  Next time they sign in to a domain-joined PC or on-premises app:
+  the old password is required -- they are effectively still locked out.
+  This confuses users ("I reset my password but still can't log in").
+Writeback ensures: cloud reset immediately syncs to on-premises AD.
+Licence requirement: Entra ID P1 minimum for password writeback.
+
+Q5 -- Registration campaign and enforcement
+Registration campaign:
+  Path: Entra > Security > Authentication methods > Registration campaign.
+  State = Enabled. Days to snooze = 3 days maximum.
+  Include = All users.
+  Email notification: send announcement before enabling campaign.
+CA enforcement policy:
+  New policy: "Require SSPR Registration"
+  Users: All users (exclude break-glass and service accounts)
+  Conditions: Registration status = not registered for SSPR
+  Grant: Require authentication (forces registration experience)
+  Enable: Report-only first, then On on the transition deadline date.
+What happens to users who miss deadline:
+  CA policy switches to On.
+  Unregistered users cannot complete sign-in to any app.
+  They are redirected to registration page before accessing resources.
+  Helpdesk generates TAP for users with genuine blockers.
+Communication plan: week 1 email, week 2 reminder, day before final warning.
+
+Q6 -- SSPR monitoring and reporting
+Three weekly reports:
+1. Password reset > Usage & insights > Registration activity:
+   Track: % users registered. Target = 100%.
+   Alert: any week-over-week decrease indicates users leaving the org
+   or deregistering methods.
+2. Password reset > Usage & insights > Reset activity:
+   Track: successful resets vs failed resets vs helpdesk resets.
+   Success rate target: >90%. High failure rate = method configuration issue.
+3. Password reset > Audit logs:
+   Filter: suspicious SSPR activity (multiple attempts, unusual locations).
+   Alert: SSPR completed then immediate sign-in from different country.
+SSPR and ID Protection connection:
+  User Risk CA policy (High risk -> Require password change) requires SSPR.
+  When ID Protection flags a user as HIGH risk:
+    CA policy blocks sign-in and redirects to SSPR.
+    User resets password via registered SSPR methods.
+    Password reset clears the user risk flag automatically.
+    User regains access with new password.
+  Without SSPR: HIGH risk users are permanently blocked with no self-service recovery.
+  Monitoring: check ID Protection > Risky users for any stuck in "password change required"
+  state -- indicates SSPR registration gap for that user.
+"""
+    },
 ]
 
 # ════════════════════════════════════════════════════════════════════════════

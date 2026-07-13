@@ -25,3 +25,4 @@ New folder/
 # Environment files
 .env
 *.env
+pbq/case_study_module.py

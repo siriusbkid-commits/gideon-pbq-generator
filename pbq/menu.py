@@ -19,7 +19,8 @@ def print_menu(scenarios):
     print(f"{len(scenarios) + 7}. OT/ICS Security Scenarios (Generate OT/ICS Practice Scenarios)")
     print(f"{len(scenarios) + 8}. IoT Security Scenarios (Generate IoT Practice Scenarios)")
     print(f"{len(scenarios) + 9}. SC-300 PBQ Mode (Microsoft Identity and Access Administrator)")
-    print(f"{len(scenarios) + 10}. CyberArk Defender PAM-DEF PBQ Mode (Privileged Access Management)\n")
+    print(f"{len(scenarios) + 10}. CyberArk Defender PAM-DEF PBQ Mode (Privileged Access Management)")
+    print(f"{len(scenarios) + 11}. SC-300 Case Study Mode (10 full case studies, 80 MCQs, pattern library)\n")
     mode = "STUDENT MODE (Rationales Hidden)" if STUDENT_MODE else "INSTRUCTOR MODE (Rationales Visible)"
     print(f"Current Mode: {mode}\n")
 
@@ -212,3 +213,26 @@ def get_cyberark_domain_choice() -> str:
         if choice in domains:
             return domains[choice]
         print("Invalid choice. Please enter a number between 1 and 8.")
+
+
+def get_case_study_choice() -> str:
+    print("\nChoose a Case Study:\n")
+    titles = {
+        "1": ("CS1", "Fabrikam Healthcare"), "2": ("CS2", "Contoso Financial Services"),
+        "3": ("CS3", "Alpine University"), "4": ("CS4", "Pacific Government Agency"),
+        "5": ("CS5", "Northwind Retail Group"), "6": ("CS6", "Southland Manufacturing"),
+        "7": ("CS7", "TailwindTraders"), "8": ("CS8", "BlueSky Media Group"),
+        "9": ("CS9", "Woodgrove Health Network"), "10": ("CS10", "Meridian Group -- Final Boss"),
+    }
+    for k, (cs_id, name) in titles.items():
+        print(f"{k}. {cs_id} -- {name}")
+    print()
+    while True:
+        choice = input("Select a case study number (1-10): ").strip()
+        if choice in titles:
+            return titles[choice][0]
+        print("Invalid choice. Please enter a number between 1 and 10.")
+
+
+def get_pattern_search_query() -> str:
+    return input("\nEnter a keyword to search the pattern library (e.g. 'managed identity', 'PIM', 'GSA'): ").strip()

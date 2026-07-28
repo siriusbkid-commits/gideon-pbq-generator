@@ -327,31 +327,31 @@ def run_sc300_pbq():
 
     print("1. Single  2. Batch  S. Search by Scenario ID  ?. Show all Scenario IDs")
 
-    # ── Mode selection ────────────────────────────────────────
+    # -- Mode selection ----------------------------------------
     while True:
         mode = input("Select mode (1, 2, S or ?): ").strip()
         if mode in ("1", "2", "S", "s", "?"):
             break
         print("Please enter 1, 2, S or ?.")
 
-    # ── ? — Show scenario index ───────────────────────────────
+    # -- ? -- Show scenario index -------------------------------
     if mode == "?":
         show_sc300_scenario_index()
         return
 
-    # ── S — Search by Scenario ID ─────────────────────────────
+    # -- S -- Search by Scenario ID -----------------------------
     if mode.upper() == "S":
         sid = input("  Enter Scenario ID (e.g. SC2-003): ").strip()
         pbq, err = generate_sc300_pbq_by_id(sid)
         if err:
-            print(f"\n  ⚠  {err}\n")
+            print(f"\n  [!]  {err}\n")
             return
         display_sc300_pbq_with_nudge(pbq, student_mode=STUDENT_MODE)
         if get_yes_no("Save this PBQ to file? (y/n): "):
             _save_sc300_pbq(pbq)
         return
 
-    # ── 1 / 2 — Normal random / batch mode ───────────────────
+    # -- 1 / 2 -- Normal random / batch mode -------------------
     domain_filter = get_sc300_domain_choice()
     selected_difficulty = get_difficulty_choice()
     if selected_difficulty == "beginner":
@@ -442,6 +442,143 @@ def _save_cyberark_pbq(pbq, silent=False):
         print("Saved: " + fn)
     return fn
 
+def run_case_study_mode():
+    print("\n=== SC-300 CASE STUDY MODE ===")
+    print("10 full case studies, 80 MCQs, 50-pattern exam library\n")
+    from pbq.case_study_module import (
+        generate_case_study_pbq,
+        get_weighted_case_study_pbq,
+        generate_case_study_pbq_by_id,
+        get_case_study_full_formatted,
+        show_case_study_scenario_index,
+        search_pattern_library,
+        display_case_study_pbq,
+        display_case_study_briefing,
+    )
+    from pbq.menu import get_sc300_domain_choice, get_case_study_choice, get_pattern_search_query
+
+    print("3. FULL CASE STUDY WALKTHROUGH -- most like the real exam")
+    print("   (Environment + Requirements shown first, then all 8 questions in order)")
+    print()
+    print("1. Single Random Question    2. Batch of Random Questions")
+    print("4. Final Boss Only (CS10 -- all domains integrated)")
+    print("B. View Case Study Briefing only (Environment + BR/SR/TR, no questions)")
+    print("P. Search Pattern Library    S. Search by Question ID    ?. Show all Question IDs")
+
+    # -- Mode selection ----------------------------------------
+    while True:
+        mode = input("Select mode (1, 2, 3, 4, B, P, S or ?): ").strip()
+        if mode in ("1", "2", "3", "4", "B", "b", "P", "p", "S", "s", "?"):
+            break
+        print("Please enter 1, 2, 3, 4, B, P, S or ?.")
+
+    # -- ? -- Show question index -------------------------------
+    if mode == "?":
+        show_case_study_scenario_index()
+        return
+
+    # -- B -- View Case Study Briefing on demand -----------------
+    if mode.upper() == "B":
+        cs_id = get_case_study_choice()
+        display_case_study_briefing(cs_id)
+        return
+
+    # -- S -- Search by Question ID -----------------------------
+    if mode.upper() == "S":
+        qid = input("  Enter Question ID (e.g. CS4-Q6): ").strip()
+        pbq, err = generate_case_study_pbq_by_id(qid)
+        if err:
+            print(f"\n  [!]  {err}\n")
+            return
+        display_case_study_pbq(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this PBQ to file? (y/n): "):
+            _save_case_study_pbq(pbq)
+        return
+
+    # -- P -- Search Pattern Library ----------------------------
+    if mode.upper() == "P":
+        keyword = get_pattern_search_query()
+        results = search_pattern_library(keyword)
+        if not results:
+            print(f"\n  No patterns found matching '{keyword}'.\n")
+            return
+        print(f"\n{len(results)} pattern(s) found:\n")
+        for p in results:
+            print(f"  [Domain {p['domain']}] {p['pattern']}")
+            print(f"    Sources: {', '.join(p['sources'])}\n")
+        return
+
+    # -- 3 -- Work through one Case Study in order --------------
+    if mode == "3":
+        cs_id = get_case_study_choice()
+        meta, questions = get_case_study_full_formatted(cs_id)
+        if not questions:
+            print(f"\n  [!]  No questions found for {cs_id}.\n")
+            return
+        display_case_study_briefing(cs_id)
+        input("Press ENTER to begin Question 1...\n")
+        for i, pbq in enumerate(questions, start=1):
+            display_case_study_pbq(pbq, student_mode=STUDENT_MODE)
+            if get_yes_no("Save this PBQ to file? (y/n): "):
+                _save_case_study_pbq(pbq)
+            if i < len(questions):
+                input("Press ENTER for next question...\n")
+        print(f"\n{cs_id} complete!")
+        return
+
+    # -- 4 -- Final Boss only (CS10) -----------------------------
+    if mode == "4":
+        count = get_positive_int("How many Final Boss (CS10) questions? ")
+        for i in range(1, count + 1):
+            pbq = generate_case_study_pbq(case_study_filter="CS10")
+            display_case_study_pbq(pbq, student_mode=STUDENT_MODE)
+            _save_case_study_pbq(pbq, silent=True)
+        print("Final Boss round complete!")
+        return
+
+    # -- 1 / 2 -- Normal random / batch mode --------------------
+    domain_filter = get_sc300_domain_choice()
+
+    if mode == "1":
+        pbq = get_weighted_case_study_pbq() if domain_filter is None else generate_case_study_pbq(domain_filter=domain_filter)
+        display_case_study_pbq(pbq, student_mode=STUDENT_MODE)
+        if get_yes_no("Save this PBQ to file? (y/n): "):
+            _save_case_study_pbq(pbq)
+    else:
+        count = get_positive_int("How many Case Study PBQs? ")
+        for i in range(1, count + 1):
+            pbq = get_weighted_case_study_pbq() if domain_filter is None else generate_case_study_pbq(domain_filter=domain_filter)
+            display_case_study_pbq(pbq, student_mode=STUDENT_MODE)
+            _save_case_study_pbq(pbq, silent=True)
+        print("Batch complete!")
+
+
+def _save_case_study_pbq(pbq, silent=False):
+    import datetime
+    os.makedirs("output", exist_ok=True)
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = pbq.get("id", "casestudy").replace("-", "_").lower()
+    fn = os.path.join("output", "casestudy_" + slug + "_" + ts + ".txt")
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write("GIDEON - SC-300 Case Study PBQ" + chr(10))
+        f.write("=" * 70 + chr(10))
+        for k in ["exam", "id", "case_study", "domain", "difficulty"]:
+            f.write(k + ": " + str(pbq.get(k, "")) + chr(10))
+        f.write("=" * 70 + chr(10) + chr(10))
+        f.write("Context: " + pbq.get("context", "") + chr(10) + chr(10))
+        f.write(pbq.get("question", "") + chr(10))
+        for letter, text in pbq.get("options", {}).items():
+            f.write(f"  {letter}. {text}" + chr(10))
+        f.write(chr(10) + "CORRECT ANSWER: " + str(pbq.get("correct", "?")) + chr(10))
+        f.write(chr(10) + pbq.get("explanation", "") + chr(10))
+        refs = pbq.get("pattern_refs", [])
+        if refs:
+            f.write(chr(10) + "Pattern(s): " + "; ".join(refs) + chr(10))
+    if not silent:
+        print("Saved: " + fn)
+    return fn
+
+
 def main():
     scenarios = list_scenarios()
     if not scenarios:
@@ -449,7 +586,7 @@ def main():
         return
     while True:
         print_menu(scenarios)
-        max_choice = len(scenarios) + 10
+        max_choice = len(scenarios) + 11
         choice = get_menu_choice(max_choice)
         if 1 <= choice <= len(scenarios):
             run_scenario(scenarios[choice - 1])
@@ -473,6 +610,8 @@ def main():
             run_sc300_pbq()
         elif choice == len(scenarios) + 10:
             run_cyberark_pbq()
+        elif choice == len(scenarios) + 11:
+            run_case_study_mode()
         else:
             print("Invalid choice. Try again.")
 
